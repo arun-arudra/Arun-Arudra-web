@@ -1,5 +1,6 @@
 import { Layout } from "../components/layout/Layout";
 import { AnimatedSection } from "../components/AnimatedSection";
+import { StaggerContainer, StaggerItem } from "../components/StaggerContainer";
 import { Link } from "react-router-dom";
 
 const articles = [
@@ -16,7 +17,7 @@ export default function News() {
     <Layout>
       <section className="pt-24 pb-16 md:pt-32 md:pb-24">
         <div className="container mx-auto px-6">
-          <AnimatedSection>
+          <AnimatedSection direction="left">
             <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">News & Insights</p>
             <h1 className="font-display text-4xl md:text-6xl font-bold mb-6 max-w-3xl">Thoughts on Design & Product Building</h1>
             <p className="text-muted-foreground text-lg max-w-2xl">Articles, insights, and perspectives on UI/UX design, product strategy, and the craft of building great digital experiences.</p>
@@ -26,13 +27,13 @@ export default function News() {
 
       <section className="pb-24 md:pb-32">
         <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {articles.map((a, i) => (
-              <AnimatedSection key={a.slug} delay={i * 0.08}>
+          <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {articles.map((a) => (
+              <StaggerItem key={a.slug}>
                 <Link to={`/news/${a.slug}`} className="group block h-full">
-                  <article className="rounded-2xl overflow-hidden border border-border bg-card hover:border-primary/30 transition-all duration-300 h-full flex flex-col">
+                  <article className="rounded-2xl overflow-hidden border border-border bg-card hover:border-primary/30 transition-all duration-300 h-full flex flex-col hover:-translate-y-1">
                     <div className="aspect-[16/9] bg-muted overflow-hidden">
-                      <img src={a.image} alt={a.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={a.image} alt={a.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                     </div>
                     <div className="p-6 flex flex-col flex-1">
                       <div className="flex items-center gap-3 mb-3">
@@ -44,9 +45,9 @@ export default function News() {
                     </div>
                   </article>
                 </Link>
-              </AnimatedSection>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
     </Layout>

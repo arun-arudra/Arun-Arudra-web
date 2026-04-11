@@ -1,5 +1,6 @@
 import { Layout } from "../components/layout/Layout";
 import { AnimatedSection } from "../components/AnimatedSection";
+import { MagneticButton } from "../components/MagneticButton";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { Button } from "../components/ui/button";
@@ -33,14 +34,14 @@ export default function Contact() {
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             <div>
-              <AnimatedSection>
+              <AnimatedSection direction="left">
                 <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">Contact</p>
                 <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">Let's Create Something Great Together</h1>
                 <p className="text-muted-foreground text-lg mb-8">
                   Have a project idea, a question, or just want to say hi? Fill out the form and I'll get back to you within 24 hours.
                 </p>
               </AnimatedSection>
-              <AnimatedSection delay={0.1}>
+              <AnimatedSection delay={0.15} direction="left">
                 <div className="flex items-center gap-3 p-4 rounded-xl bg-muted">
                   <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
                     <Mail className="h-5 w-5" />
@@ -53,7 +54,7 @@ export default function Contact() {
               </AnimatedSection>
             </div>
 
-            <AnimatedSection delay={0.2}>
+            <AnimatedSection delay={0.2} direction="right">
               <form onSubmit={handleSubmit} className="p-8 md:p-10 rounded-2xl border border-border bg-card space-y-6">
                 <div>
                   <label htmlFor="name" className="text-sm font-medium mb-2 block">Your Name</label>
@@ -89,10 +90,12 @@ export default function Contact() {
                     required
                   />
                 </div>
-                <Button type="submit" disabled={loading} size="lg" className="rounded-full w-full text-base">
-                  <Send className="mr-2 h-4 w-4" />
-                  {loading ? "Sending..." : "Send Message"}
-                </Button>
+                <MagneticButton className="w-full">
+                  <Button type="submit" disabled={loading} size="lg" className="rounded-full w-full text-base">
+                    <Send className="mr-2 h-4 w-4" />
+                    {loading ? "Sending..." : "Send Message"}
+                  </Button>
+                </MagneticButton>
               </form>
             </AnimatedSection>
           </div>

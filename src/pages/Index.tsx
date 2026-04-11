@@ -2,6 +2,9 @@ import { Link } from "react-router-dom";
 import { Layout } from "../components/layout/Layout";
 import { AnimatedSection } from "../components/AnimatedSection";
 import { MorphingBlob } from "../components/MorphingBlob";
+import { MagneticButton } from "../components/MagneticButton";
+import { TextReveal } from "../components/TextReveal";
+import { StaggerContainer, StaggerItem } from "../components/StaggerContainer";
 import { ArrowRight, Palette, Monitor, Smartphone, PenTool, Layers } from "lucide-react";
 import { Button } from "../components/ui/button";
 
@@ -31,29 +34,39 @@ export default function Index() {
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         <MorphingBlob />
         <div className="container mx-auto px-6 relative z-10">
-          <AnimatedSection>
+          <AnimatedSection direction="none">
             <p className="text-primary font-medium mb-4 tracking-wider uppercase text-sm">UI/UX Designer & Product Designer</p>
           </AnimatedSection>
-          <AnimatedSection delay={0.1}>
+          <AnimatedSection delay={0.1} direction="none">
             <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.05] mb-6 max-w-4xl">
-              Crafting Digital<br />
-              Experiences That<br />
-              <span className="text-gradient">Inspire & Convert</span>
+              <TextReveal as="span" delay={0.15} className="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.05]">
+                Crafting Digital Experiences That
+              </TextReveal>
+              <br />
+              <span className="text-gradient">
+                <TextReveal as="span" delay={0.4} className="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.05] text-gradient">
+                  Inspire & Convert
+                </TextReveal>
+              </span>
             </h1>
           </AnimatedSection>
-          <AnimatedSection delay={0.2}>
+          <AnimatedSection delay={0.5}>
             <p className="text-muted-foreground text-lg md:text-xl max-w-xl mb-8">
               I'm Arun, founder of ArunArudra — helping startups and brands build products people love through strategic design and user-first thinking.
             </p>
           </AnimatedSection>
-          <AnimatedSection delay={0.3}>
+          <AnimatedSection delay={0.6}>
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="rounded-full px-8 text-base" asChild>
-                <Link to="/projects">View Projects <ArrowRight className="ml-1 h-4 w-4" /></Link>
-              </Button>
-              <Button size="lg" variant="outline" className="rounded-full px-8 text-base" asChild>
-                <Link to="/contact">Get in Touch</Link>
-              </Button>
+              <MagneticButton>
+                <Button size="lg" className="rounded-full px-8 text-base" asChild>
+                  <Link to="/projects">View Projects <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                </Button>
+              </MagneticButton>
+              <MagneticButton>
+                <Button size="lg" variant="outline" className="rounded-full px-8 text-base" asChild>
+                  <Link to="/contact">Get in Touch</Link>
+                </Button>
+              </MagneticButton>
             </div>
           </AnimatedSection>
         </div>
@@ -62,29 +75,31 @@ export default function Index() {
       {/* Services */}
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-6">
-          <AnimatedSection>
+          <AnimatedSection direction="left">
             <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">What I Do</p>
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Services</h2>
             <p className="text-muted-foreground max-w-xl mb-12">Strategic design services that help brands stand out and products succeed in the digital landscape.</p>
           </AnimatedSection>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((s, i) => (
-              <AnimatedSection key={s.title} delay={i * 0.1}>
-                <div className="group p-6 rounded-2xl border border-border bg-card hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+          <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {services.map((s) => (
+              <StaggerItem key={s.title}>
+                <div className="group p-6 rounded-2xl border border-border bg-card hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 hover:-translate-y-1">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
                     <s.icon className="h-6 w-6" />
                   </div>
                   <h3 className="font-display text-lg font-semibold mb-2">{s.title}</h3>
                   <p className="text-muted-foreground text-sm">{s.desc}</p>
                 </div>
-              </AnimatedSection>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
           <AnimatedSection delay={0.4}>
             <div className="mt-10 text-center">
-              <Button variant="outline" className="rounded-full" asChild>
-                <Link to="/services">All Services <ArrowRight className="ml-1 h-4 w-4" /></Link>
-              </Button>
+              <MagneticButton>
+                <Button variant="outline" className="rounded-full" asChild>
+                  <Link to="/services">All Services <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                </Button>
+              </MagneticButton>
             </div>
           </AnimatedSection>
         </div>
@@ -93,18 +108,18 @@ export default function Index() {
       {/* Featured Projects */}
       <section className="py-24 md:py-32 bg-surface">
         <div className="container mx-auto px-6">
-          <AnimatedSection>
+          <AnimatedSection direction="right">
             <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">Selected Work</p>
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Featured Projects</h2>
             <p className="text-muted-foreground max-w-xl mb-12">Explore case studies from brands and startups I've helped transform through design.</p>
           </AnimatedSection>
-          <div className="grid md:grid-cols-3 gap-6">
-            {featuredProjects.map((p, i) => (
-              <AnimatedSection key={p.slug} delay={i * 0.1}>
+          <StaggerContainer className="grid md:grid-cols-3 gap-6">
+            {featuredProjects.map((p) => (
+              <StaggerItem key={p.slug}>
                 <Link to={`/projects/${p.slug}`} className="group block">
-                  <div className="rounded-2xl overflow-hidden border border-border bg-card hover:border-primary/30 transition-all duration-300">
+                  <div className="rounded-2xl overflow-hidden border border-border bg-card hover:border-primary/30 transition-all duration-300 hover:-translate-y-1">
                     <div className="aspect-[4/3] bg-muted overflow-hidden">
-                      <img src={p.image} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={p.image} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                     </div>
                     <div className="p-6">
                       <span className="text-xs font-medium text-primary uppercase tracking-wider">{p.category}</span>
@@ -113,14 +128,16 @@ export default function Index() {
                     </div>
                   </div>
                 </Link>
-              </AnimatedSection>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
           <AnimatedSection delay={0.3}>
             <div className="mt-10 text-center">
-              <Button variant="outline" className="rounded-full" asChild>
-                <Link to="/projects">View All Projects <ArrowRight className="ml-1 h-4 w-4" /></Link>
-              </Button>
+              <MagneticButton>
+                <Button variant="outline" className="rounded-full" asChild>
+                  <Link to="/projects">View All Projects <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                </Button>
+              </MagneticButton>
             </div>
           </AnimatedSection>
         </div>
@@ -129,30 +146,32 @@ export default function Index() {
       {/* Latest News */}
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-6">
-          <AnimatedSection>
+          <AnimatedSection direction="left">
             <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">Insights</p>
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Latest News</h2>
             <p className="text-muted-foreground max-w-xl mb-12">Thoughts on design, product thinking, and building digital experiences that matter.</p>
           </AnimatedSection>
-          <div className="grid md:grid-cols-3 gap-6">
-            {latestNews.map((n, i) => (
-              <AnimatedSection key={n.slug} delay={i * 0.1}>
+          <StaggerContainer className="grid md:grid-cols-3 gap-6">
+            {latestNews.map((n) => (
+              <StaggerItem key={n.slug}>
                 <Link to={`/news/${n.slug}`} className="group block">
-                  <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/30 transition-all duration-300">
+                  <div className="p-6 rounded-2xl border border-border bg-card hover:border-primary/30 transition-all duration-300 hover:-translate-y-1">
                     <span className="text-xs font-medium text-primary uppercase tracking-wider">{n.category}</span>
                     <h3 className="font-display text-lg font-semibold mt-2 mb-2 group-hover:text-primary transition-colors">{n.title}</h3>
                     <p className="text-muted-foreground text-sm mb-4">{n.excerpt}</p>
                     <span className="text-xs text-muted-foreground">{n.date}</span>
                   </div>
                 </Link>
-              </AnimatedSection>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
           <AnimatedSection delay={0.3}>
             <div className="mt-10 text-center">
-              <Button variant="outline" className="rounded-full" asChild>
-                <Link to="/news">Read All Articles <ArrowRight className="ml-1 h-4 w-4" /></Link>
-              </Button>
+              <MagneticButton>
+                <Button variant="outline" className="rounded-full" asChild>
+                  <Link to="/news">Read All Articles <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                </Button>
+              </MagneticButton>
             </div>
           </AnimatedSection>
         </div>
@@ -161,13 +180,15 @@ export default function Index() {
       {/* CTA */}
       <section className="py-24 md:py-32 bg-surface">
         <div className="container mx-auto px-6 text-center">
-          <AnimatedSection>
+          <AnimatedSection direction="scale">
             <Layers className="h-10 w-10 text-primary mx-auto mb-6" />
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Ready to Start Your Project?</h2>
             <p className="text-muted-foreground max-w-lg mx-auto mb-8">Let's collaborate to create something extraordinary. From concept to launch, I'll bring your vision to life.</p>
-            <Button size="lg" className="rounded-full px-10 text-base" asChild>
-              <Link to="/contact">Let's Talk <ArrowRight className="ml-1 h-4 w-4" /></Link>
-            </Button>
+            <MagneticButton>
+              <Button size="lg" className="rounded-full px-10 text-base" asChild>
+                <Link to="/contact">Let's Talk <ArrowRight className="ml-1 h-4 w-4" /></Link>
+              </Button>
+            </MagneticButton>
           </AnimatedSection>
         </div>
       </section>

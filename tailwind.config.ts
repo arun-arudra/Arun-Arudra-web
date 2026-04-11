@@ -86,11 +86,18 @@ export default {
           "50%": { borderRadius: "50% 60% 30% 60% / 30% 60% 70% 40%" },
           "75%": { borderRadius: "60% 40% 60% 30% / 40% 50% 60% 50%" },
         },
+        "blob-morph-reverse": {
+          "0%, 100%": { borderRadius: "40% 60% 70% 30% / 40% 70% 30% 60%" },
+          "25%": { borderRadius: "70% 30% 40% 60% / 60% 40% 70% 30%" },
+          "50%": { borderRadius: "30% 60% 60% 40% / 70% 30% 40% 60%" },
+          "75%": { borderRadius: "50% 40% 30% 70% / 30% 60% 50% 40%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "blob-morph": "blob-morph 8s ease-in-out infinite",
+        "blob-morph-reverse": "blob-morph-reverse 10s ease-in-out infinite",
       },
     },
   },
