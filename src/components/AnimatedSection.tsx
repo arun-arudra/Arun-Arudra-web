@@ -12,7 +12,7 @@ interface AnimatedSectionProps {
   duration?: number;
 }
 
-const directionVariants: Record<Direction, { hidden: object; visible: object }> = {
+const directionVariants: Record<Direction, { hidden: Record<string, number>; visible: Record<string, number> }> = {
   up: { hidden: { opacity: 0, y: 50 }, visible: { opacity: 1, y: 0 } },
   down: { hidden: { opacity: 0, y: -50 }, visible: { opacity: 1, y: 0 } },
   left: { hidden: { opacity: 0, x: -50 }, visible: { opacity: 1, x: 0 } },
