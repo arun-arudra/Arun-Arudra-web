@@ -1,6 +1,5 @@
 import { Layout } from "../components/layout/Layout";
 import { AnimatedSection } from "../components/AnimatedSection";
-import { StaggerContainer, StaggerItem } from "../components/StaggerContainer";
 import { Link } from "react-router-dom";
 
 const articles = [
@@ -13,25 +12,48 @@ const articles = [
 ];
 
 export default function News() {
+  const [featured, ...rest] = articles;
+
   return (
     <Layout>
       <section className="pt-24 pb-16 md:pt-32 md:pb-24">
         <div className="container mx-auto px-6">
           <AnimatedSection direction="left">
-            <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">News & Insights</p>
+            <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">Blog & Insights</p>
             <h1 className="font-display text-4xl md:text-6xl font-bold mb-6 max-w-3xl">Thoughts on Design & Product Building</h1>
-            <p className="text-muted-foreground text-lg max-w-2xl">Articles, insights, and perspectives on UI/UX design, product strategy, and the craft of building great digital experiences.</p>
           </AnimatedSection>
         </div>
       </section>
 
       <section className="pb-24 md:pb-32">
         <div className="container mx-auto px-6">
-          <StaggerContainer className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {articles.map((a) => (
-              <StaggerItem key={a.slug}>
+          {/* Featured article */}
+          <AnimatedSection direction="up" className="mb-10">
+            <Link to={`/news/${featured.slug}`} className="group block">
+              <div className="relative rounded-2xl overflow-hidden border border-border/50">
+                <div className="aspect-[21/9] bg-muted overflow-hidden">
+                  <img src={featured.image} alt={featured.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent flex items-end p-8 md:p-12">
+                  <div>
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-xs font-medium text-primary uppercase tracking-wider">{featured.category}</span>
+                      <span className="text-xs text-muted-foreground">{featured.date}</span>
+                    </div>
+                    <h2 className="font-display text-2xl md:text-4xl font-bold group-hover:text-primary transition-colors">{featured.title}</h2>
+                    <p className="text-muted-foreground mt-2 max-w-lg">{featured.excerpt}</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </AnimatedSection>
+
+          {/* Offset grid */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {rest.map((a, i) => (
+              <AnimatedSection key={a.slug} delay={i * 0.08} direction="up" className={i % 3 === 0 ? "md:translate-y-8" : ""}>
                 <Link to={`/news/${a.slug}`} className="group block h-full">
-                  <article className="rounded-2xl overflow-hidden border border-border bg-card hover:border-primary/30 transition-all duration-300 h-full flex flex-col hover:-translate-y-1">
+                  <article className="rounded-2xl overflow-hidden border border-border/50 bg-card hover:border-primary/20 transition-all duration-300 h-full flex flex-col">
                     <div className="aspect-[16/9] bg-muted overflow-hidden">
                       <img src={a.image} alt={a.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                     </div>
@@ -45,9 +67,9 @@ export default function News() {
                     </div>
                   </article>
                 </Link>
-              </StaggerItem>
+              </AnimatedSection>
             ))}
-          </StaggerContainer>
+          </div>
         </div>
       </section>
     </Layout>
