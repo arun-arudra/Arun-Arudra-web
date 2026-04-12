@@ -8,7 +8,7 @@ import { ArrowRight } from "lucide-react";
 
 const tools = [
   "Figma", "Adobe XD", "Photoshop", "Illustrator", "After Effects",
-  "Sketch", "InVision", "Principle", "Framer", "Webflow",
+  "Sketch", "Framer", "Webflow", "React", "Next.js",
 ];
 
 const experience = [
@@ -25,24 +25,24 @@ export default function About() {
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             <div>
               <AnimatedSection direction="left">
-                <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">About Me</p>
-                <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">I'm Arun, a Designer Who Cares About Impact</h1>
+                <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">About Us</p>
+                <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">We're a Design Team That Cares About Impact</h1>
               </AnimatedSection>
               <AnimatedSection delay={0.15} direction="left">
                 <p className="text-muted-foreground text-lg mb-6">
-                  With over 7 years of experience in UI/UX and product design, I've helped startups and established brands create digital products that users love and businesses rely on.
+                  With over 7 years of experience in UI/UX and product design, we've helped startups and established brands create digital products that users love and businesses rely on.
                 </p>
                 <p className="text-muted-foreground text-lg mb-6">
-                  I believe great design is invisible — it solves problems so elegantly that users never have to think about it. My approach combines deep user research, strategic thinking, and meticulous visual execution.
+                  We believe great design is invisible — it solves problems so elegantly that users never have to think about it. Our approach combines deep user research, strategic thinking, and meticulous visual execution.
                 </p>
                 <p className="text-muted-foreground text-lg">
-                  Through ArunArudra, I work closely with founders, product managers, and engineering teams to create design solutions that are not just beautiful, but measurably effective.
+                  At ArunArudra, we work closely with founders, product managers, and engineering teams to create design solutions that are not just beautiful, but measurably effective.
                 </p>
               </AnimatedSection>
             </div>
             <AnimatedSection delay={0.2} direction="right">
               <div className="aspect-[4/5] rounded-2xl bg-muted overflow-hidden">
-                <img src="/placeholder.svg" alt="Arun — UI/UX Designer and founder of ArunArudra" className="w-full h-full object-cover" />
+                <img src="/placeholder.svg" alt="ArunArudra design team" className="w-full h-full object-cover" />
               </div>
             </AnimatedSection>
           </div>
@@ -53,13 +53,13 @@ export default function About() {
       <section className="py-24 md:py-32 bg-surface">
         <div className="container mx-auto px-6">
           <AnimatedSection>
-            <h2 className="font-display text-3xl md:text-5xl font-bold mb-12">Design Philosophy</h2>
+            <h2 className="font-display text-3xl md:text-5xl font-bold mb-12">Our Design Philosophy</h2>
           </AnimatedSection>
           <StaggerContainer className="grid md:grid-cols-3 gap-8">
             {[
               { title: "User First", desc: "Every decision starts with understanding the user. Research, empathy, and testing drive every design choice." },
-              { title: "Simplicity Wins", desc: "Complex problems deserve simple solutions. I strip away the unnecessary to reveal what truly matters." },
-              { title: "Measure Impact", desc: "Design isn't just art — it's strategy. I track results and iterate based on real data and user feedback." },
+              { title: "Simplicity Wins", desc: "Complex problems deserve simple solutions. We strip away the unnecessary to reveal what truly matters." },
+              { title: "Measure Impact", desc: "Design isn't just art — it's strategy. We track results and iterate based on real data and user feedback." },
             ].map((item) => (
               <StaggerItem key={item.title}>
                 <div className="p-8 rounded-2xl border border-border bg-card hover:-translate-y-1 transition-transform duration-300">
@@ -97,7 +97,7 @@ export default function About() {
       <section className="py-24 md:py-32 bg-surface">
         <div className="container mx-auto px-6">
           <AnimatedSection>
-            <h2 className="font-display text-3xl md:text-5xl font-bold mb-12">Tools I Use</h2>
+            <h2 className="font-display text-3xl md:text-5xl font-bold mb-12">Tools We Use</h2>
           </AnimatedSection>
           <StaggerContainer className="flex flex-wrap gap-3">
             {tools.map((tool) => (
@@ -114,7 +114,7 @@ export default function About() {
         <div className="container mx-auto px-6 text-center">
           <AnimatedSection direction="scale">
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Let's Work Together</h2>
-            <p className="text-muted-foreground max-w-lg mx-auto mb-8">I'm always open to new opportunities and collaborations.</p>
+            <p className="text-muted-foreground max-w-lg mx-auto mb-8">We're always open to new opportunities and collaborations.</p>
             <MagneticButton>
               <Button size="lg" className="rounded-full px-10 text-base" asChild>
                 <Link to="/contact">Get in Touch <ArrowRight className="ml-1 h-4 w-4" /></Link>
