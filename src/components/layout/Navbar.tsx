@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "../ThemeToggle";
+import { Button } from "../ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
@@ -10,7 +11,6 @@ const navLinks = [
   { label: "Projects", path: "/projects" },
   { label: "About", path: "/about" },
   { label: "News", path: "/news" },
-  { label: "Contact", path: "/contact" },
 ];
 
 export function Navbar() {
@@ -46,6 +46,9 @@ export function Navbar() {
             </Link>
           ))}
           <ThemeToggle />
+          <Button size="sm" className="rounded-full px-5" asChild>
+            <Link to="/contact">Book a Call</Link>
+          </Button>
         </nav>
 
         {/* Mobile toggle */}
@@ -81,6 +84,9 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              <Button size="sm" className="rounded-full w-fit" asChild>
+                <Link to="/contact" onClick={() => setIsOpen(false)}>Book a Call</Link>
+              </Button>
             </nav>
           </motion.div>
         )}
