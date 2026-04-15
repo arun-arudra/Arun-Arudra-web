@@ -1,166 +1,175 @@
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "../components/layout/Layout";
 import { AnimatedSection } from "../components/AnimatedSection";
+import { AnimatedCounter } from "../components/AnimatedCounter";
+import { SplitTextReveal } from "../components/SplitTextReveal";
 import { MagneticButton } from "../components/MagneticButton";
+import { MarqueeText } from "../components/MarqueeText";
 import { Button } from "../components/ui/button";
-import { ArrowRight, ArrowLeft, Target, Lightbulb, Palette, Code, TrendingUp } from "lucide-react";
+import { ArrowRight, ArrowLeft, Target, Lightbulb, Palette, Code, Rocket } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 const projectsData: Record<string, {
   title: string;
-  category: string;
+  subtitle: string;
   tags: string[];
-  heroImage: string;
-  about: string;
+  overview: string;
   challenge: string;
-  process: { icon: any; label: string }[];
-  strategy: string;
-  results: { stat: string; label: string }[];
+  process: { icon: typeof Target; title: string; desc: string }[];
+  results: { value: number; suffix: string; label: string }[];
 }> = {
   "silver-club": {
     title: "Silver Club",
-    category: "Mobile App",
-    tags: ["UX Research", "UI Design", "Prototyping"],
-    heroImage: "/placeholder.svg",
-    about: "Silver Club is a social platform designed for people aged 45+, creating a digital space where meaningful connections flourish. The app needed to be intuitive, accessible, and welcoming for users who may not be digital natives.",
-    challenge: "The biggest challenge was designing an interface that feels modern and engaging without overwhelming users who might be less comfortable with technology. Every interaction needed to be self-explanatory while maintaining the sophistication expected of a premium social platform.",
+    subtitle: "A social platform designed for meaningful connections",
+    tags: ["Mobile App", "UX Research", "UI Design"],
+    overview: "Silver Club is a social platform designed for people aged 45+, creating a digital space where meaningful connections flourish. The app needed to be intuitive, accessible, and welcoming for users who may not be digital natives.",
+    challenge: "The biggest challenge was designing an interface that feels modern and engaging without overwhelming users who might be less comfortable with technology. Every interaction needed to be self-explanatory while maintaining visual sophistication.",
     process: [
-      { icon: Target, label: "User Research" },
-      { icon: Lightbulb, label: "Strategy" },
-      { icon: Palette, label: "UI Design" },
-      { icon: Code, label: "Prototyping" },
-      { icon: TrendingUp, label: "Testing" },
+      { icon: Target, title: "Research", desc: "50+ user interviews with the target demographic to understand pain points" },
+      { icon: Lightbulb, title: "Strategy", desc: "Defined accessibility-first design principles and interaction patterns" },
+      { icon: Palette, title: "Design", desc: "Created a warm, inviting visual system with large touch targets" },
+      { icon: Code, title: "Prototype", desc: "Built interactive prototypes tested with real users across 3 rounds" },
+      { icon: Rocket, title: "Launch", desc: "Guided development handoff and post-launch optimization" },
     ],
-    strategy: "We conducted extensive interviews with 50+ users in the target demographic, mapping their digital habits, frustrations, and aspirations. This research informed a design system built around large touch targets, clear typography, and a warm color palette that reduces cognitive load.",
     results: [
-      { stat: "92%", label: "User satisfaction score" },
-      { stat: "3.2x", label: "Daily active users growth" },
-      { stat: "68%", label: "Increase in session duration" },
-      { stat: "4.8★", label: "App Store rating" },
+      { value: 85, suffix: "%", label: "Task Completion Rate" },
+      { value: 40, suffix: "%", label: "Engagement Increase" },
+      { value: 4, suffix: ".8", label: "App Store Rating" },
+      { value: 60, suffix: "K", label: "Downloads in 3 Months" },
     ],
   },
   "healthtrack": {
     title: "HealthTrack",
-    category: "Web Platform",
-    tags: ["Product Design", "Dashboard", "Data Visualization"],
-    heroImage: "/placeholder.svg",
-    about: "HealthTrack is a comprehensive healthcare management platform that bridges the gap between patients and providers. The platform needed to handle complex medical data while remaining accessible to everyday users.",
-    challenge: "Healthcare data is inherently complex. The challenge was creating a unified dashboard that serves both patients tracking their health metrics and providers managing patient care — without compromising on data accuracy or user experience.",
+    subtitle: "Reimagining health data visualization",
+    tags: ["Web Platform", "Dashboard", "Data Visualization"],
+    overview: "HealthTrack is a comprehensive health monitoring platform that transforms complex medical data into intuitive, actionable insights for both patients and healthcare providers.",
+    challenge: "Making dense medical data understandable without oversimplifying it. The platform needed to serve both medical professionals who need detailed analytics and patients who want a clear picture of their health.",
     process: [
-      { icon: Target, label: "Discovery" },
-      { icon: Lightbulb, label: "Architecture" },
-      { icon: Palette, label: "Design System" },
-      { icon: Code, label: "Development" },
-      { icon: TrendingUp, label: "Optimization" },
+      { icon: Target, title: "Discovery", desc: "Stakeholder interviews with doctors, nurses, and patients" },
+      { icon: Lightbulb, title: "Architecture", desc: "Designed role-based information architecture" },
+      { icon: Palette, title: "Visualization", desc: "Developed a custom data visualization system" },
+      { icon: Code, title: "Development", desc: "Frontend implementation with real-time data" },
+      { icon: Rocket, title: "Iteration", desc: "A/B tested dashboard layouts with 200+ users" },
     ],
-    strategy: "We mapped the entire patient-provider journey, identifying 23 critical touchpoints where the existing system created friction. Our design system was built component-first, ensuring consistency across 40+ unique screen states while maintaining HIPAA compliance standards.",
     results: [
-      { stat: "45%", label: "Reduction in patient wait times" },
-      { stat: "2.8x", label: "Provider efficiency improvement" },
-      { stat: "89%", label: "Task completion rate" },
-      { stat: "156k", label: "Active users in first year" },
+      { value: 70, suffix: "%", label: "Faster Data Interpretation" },
+      { value: 92, suffix: "%", label: "User Satisfaction" },
+      { value: 3, suffix: "x", label: "More Daily Active Users" },
+      { value: 50, suffix: "%", label: "Reduced Support Tickets" },
     ],
   },
 };
 
-// Fallback for unknown slugs
 const defaultProject = {
   title: "Case Study",
-  category: "Project",
+  subtitle: "A design project by ArunArudra",
   tags: ["Design", "Strategy"],
-  heroImage: "/placeholder.svg",
-  about: "A comprehensive design project that pushed boundaries and delivered measurable results for our client.",
-  challenge: "Creating a solution that balances user needs with business objectives while maintaining design excellence.",
+  overview: "This project showcases our approach to solving complex design challenges through research-driven methodology and creative excellence.",
+  challenge: "The challenge was to create a product that stands out in a crowded market while maintaining usability and accessibility for all users.",
   process: [
-    { icon: Target, label: "Research" },
-    { icon: Lightbulb, label: "Strategy" },
-    { icon: Palette, label: "Design" },
-    { icon: Code, label: "Build" },
-    { icon: TrendingUp, label: "Launch" },
+    { icon: Target, title: "Research", desc: "Deep dive into user needs and market landscape" },
+    { icon: Lightbulb, title: "Strategy", desc: "Defining the approach and design principles" },
+    { icon: Palette, title: "Design", desc: "Crafting the visual identity and interaction patterns" },
+    { icon: Code, title: "Build", desc: "Pixel-perfect implementation and quality assurance" },
+    { icon: Rocket, title: "Launch", desc: "Deployment, monitoring, and continuous improvement" },
   ],
-  strategy: "Our research-driven approach ensured every design decision was backed by data and validated through user testing.",
   results: [
-    { stat: "40%", label: "Conversion improvement" },
-    { stat: "2x", label: "User engagement" },
-    { stat: "95%", label: "Client satisfaction" },
-    { stat: "4.7★", label: "User rating" },
+    { value: 95, suffix: "%", label: "Client Satisfaction" },
+    { value: 40, suffix: "%", label: "Performance Improvement" },
+    { value: 3, suffix: "x", label: "Conversion Rate" },
+    { value: 2, suffix: "M", label: "Users Reached" },
   ],
 };
 
 export default function ProjectDetail() {
-  const { slug } = useParams<{ slug: string }>();
-  const project = projectsData[slug || ""] || defaultProject;
+  const { slug } = useParams();
+  const project = projectsData[slug || ""] || {
+    ...defaultProject,
+    title: slug?.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") || "Case Study",
+  };
+
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative min-h-[70vh] flex items-end">
-        <div className="absolute inset-0 bg-muted">
-          <img src={project.heroImage} alt={project.title} className="w-full h-full object-cover opacity-60" />
+      <section ref={heroRef} className="relative h-[70vh] md:h-[80vh] flex items-end overflow-hidden">
+        <motion.div style={{ scale: heroScale }} className="absolute inset-0 bg-muted">
+          <img src="/placeholder.svg" alt={project.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-        </div>
-        <div className="container mx-auto px-6 pb-16 relative z-10">
-          <AnimatedSection direction="up">
-            <Link to="/projects" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-8">
-              <ArrowLeft className="h-4 w-4" /> Back to Projects
-            </Link>
-            <div className="flex items-center gap-2 mb-4 flex-wrap">
-              {project.tags.map((tag, i) => (
-                <span key={tag} className="flex items-center gap-2">
-                  <span className="text-xs uppercase tracking-wider text-primary font-medium">{tag}</span>
-                  {i < project.tags.length - 1 && <span className="w-1 h-1 rounded-full bg-primary" />}
-                </span>
-              ))}
-            </div>
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold">{project.title}</h1>
+        </motion.div>
+        <motion.div style={{ opacity: heroOpacity }} className="container mx-auto px-6 relative z-10 pb-16">
+          <Link to="/projects" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-8 group">
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> Back to Projects
+          </Link>
+          <div className="flex flex-wrap gap-3 mb-4">
+            {project.tags.map((tag, i) => (
+              <span key={tag} className="flex items-center gap-3">
+                <span className="text-xs uppercase tracking-wider text-primary font-medium font-mono">{tag}</span>
+                {i < project.tags.length - 1 && <span className="w-1 h-1 rounded-full bg-primary" />}
+              </span>
+            ))}
+          </div>
+          <SplitTextReveal as="h1" className="font-display text-4xl md:text-6xl lg:text-7xl font-bold">
+            {project.title}
+          </SplitTextReveal>
+          <AnimatedSection delay={0.5}>
+            <p className="text-muted-foreground text-lg md:text-xl mt-4 max-w-2xl">{project.subtitle}</p>
           </AnimatedSection>
-        </div>
+        </motion.div>
       </section>
 
-      {/* About */}
-      <section className="py-20 md:py-28">
+      {/* Overview */}
+      <section className="py-24 md:py-32">
         <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16">
+          <div className="grid lg:grid-cols-2 gap-16 items-start">
             <AnimatedSection direction="left">
-              <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">About the Project</p>
+              <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">About the Project</p>
               <h2 className="font-display text-3xl md:text-4xl font-bold">Overview</h2>
             </AnimatedSection>
-            <AnimatedSection direction="right" delay={0.15}>
-              <p className="text-muted-foreground text-lg leading-relaxed">{project.about}</p>
+            <AnimatedSection delay={0.2}>
+              <p className="text-muted-foreground text-lg leading-relaxed">{project.overview}</p>
             </AnimatedSection>
           </div>
         </div>
       </section>
 
       {/* Challenge */}
-      <section className="py-20 md:py-28 bg-surface">
-        <div className="container mx-auto px-6 max-w-4xl text-center">
-          <AnimatedSection direction="up">
-            <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">The Challenge</p>
-            <p className="font-display text-2xl md:text-3xl font-semibold leading-snug">{project.challenge}</p>
+      <section className="py-24 md:py-32 bg-surface">
+        <div className="container mx-auto px-6 text-center max-w-4xl">
+          <AnimatedSection direction="scale">
+            <p className="text-primary font-medium mb-6 tracking-wider uppercase text-sm font-mono">The Challenge</p>
+            <blockquote className="font-display text-2xl md:text-3xl lg:text-4xl font-bold leading-snug">
+              "{project.challenge}"
+            </blockquote>
           </AnimatedSection>
         </div>
       </section>
 
       {/* Process */}
-      <section className="py-20 md:py-28">
+      <section className="py-24 md:py-32">
         <div className="container mx-auto px-6">
           <AnimatedSection>
-            <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm text-center">The Process</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-16 text-center">How We Got There</h2>
+            <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Our Process</p>
+            <h2 className="font-display text-3xl md:text-5xl font-bold mb-16">How We Got There</h2>
           </AnimatedSection>
-          <div className="flex flex-wrap justify-center gap-4 md:gap-0">
+          <div className="grid md:grid-cols-5 gap-4">
             {project.process.map((step, i) => (
-              <AnimatedSection key={step.label} delay={i * 0.1} direction="up">
-                <div className="flex items-center gap-4 md:gap-0">
-                  <div className="flex flex-col items-center px-6 md:px-10">
-                    <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3">
-                      <step.icon className="h-7 w-7" />
-                    </div>
-                    <span className="text-sm font-medium text-center">{step.label}</span>
+              <AnimatedSection key={step.title} delay={i * 0.1} direction="up">
+                <div className="text-center group">
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                    <step.icon className="h-7 w-7" />
                   </div>
-                  {i < project.process.length - 1 && (
-                    <div className="hidden md:block w-12 h-px bg-border" />
-                  )}
+                  <span className="text-xs text-primary font-mono mb-1 block">0{i + 1}</span>
+                  <h3 className="font-display text-lg font-bold mb-2">{step.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{step.desc}</p>
                 </div>
               </AnimatedSection>
             ))}
@@ -168,36 +177,30 @@ export default function ProjectDetail() {
         </div>
       </section>
 
-      {/* Strategy */}
-      <section className="py-20 md:py-28 bg-surface">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <AnimatedSection direction="left">
-              <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">Strategy & Execution</p>
-              <p className="text-muted-foreground text-lg leading-relaxed">{project.strategy}</p>
-            </AnimatedSection>
-            <AnimatedSection direction="right" delay={0.15}>
-              <div className="aspect-[4/3] bg-muted rounded-2xl overflow-hidden">
-                <img src={project.heroImage} alt="Strategy" className="w-full h-full object-cover" />
-              </div>
-            </AnimatedSection>
+      {/* Full-width image */}
+      <section className="px-6">
+        <AnimatedSection direction="scale">
+          <div className="rounded-2xl overflow-hidden aspect-[21/9] bg-muted max-w-7xl mx-auto">
+            <img src="/placeholder.svg" alt="Project showcase" className="w-full h-full object-cover" />
           </div>
-        </div>
+        </AnimatedSection>
       </section>
 
       {/* Results */}
-      <section className="py-20 md:py-28">
+      <section className="py-24 md:py-32">
         <div className="container mx-auto px-6">
           <AnimatedSection>
-            <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm text-center">Impact & Results</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-16 text-center">The Numbers Speak</h2>
+            <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono text-center">Impact</p>
+            <h2 className="font-display text-3xl md:text-5xl font-bold mb-16 text-center">The Results</h2>
           </AnimatedSection>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {project.results.map((r, i) => (
-              <AnimatedSection key={r.label} delay={i * 0.1} direction="scale">
-                <div className="text-center p-8 rounded-2xl bg-card border border-border/50">
-                  <span className="font-display text-4xl md:text-5xl font-bold text-primary">{r.stat}</span>
-                  <p className="text-muted-foreground text-sm mt-2">{r.label}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {project.results.map((stat, i) => (
+              <AnimatedSection key={stat.label} delay={i * 0.1} direction="up">
+                <div className="text-center p-6 rounded-2xl border border-border/50 bg-card">
+                  <div className="font-display text-4xl md:text-5xl font-bold text-primary mb-2">
+                    <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                  </div>
+                  <p className="text-sm text-muted-foreground uppercase tracking-wider">{stat.label}</p>
                 </div>
               </AnimatedSection>
             ))}
@@ -205,15 +208,24 @@ export default function ProjectDetail() {
         </div>
       </section>
 
+      {/* Marquee */}
+      <div className="py-8 border-y border-border/20 overflow-hidden">
+        <MarqueeText
+          text="Let's Create Something Amazing"
+          className="font-display text-5xl md:text-7xl font-bold text-foreground/5"
+          speed={25}
+        />
+      </div>
+
       {/* CTA */}
-      <section className="py-20 md:py-28 bg-surface">
+      <section className="py-24 md:py-32">
         <div className="container mx-auto px-6 text-center">
           <AnimatedSection direction="scale">
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Want Results Like This?</h2>
-            <p className="text-muted-foreground max-w-lg mx-auto mb-8">Let's talk about how we can help your business grow through strategic design.</p>
+            <p className="text-muted-foreground max-w-lg mx-auto mb-8">Let's discuss how we can transform your product through strategic design.</p>
             <MagneticButton>
-              <Button size="lg" className="rounded-full px-10 text-base" asChild>
-                <Link to="/contact">Book a Call <ArrowRight className="ml-1 h-4 w-4" /></Link>
+              <Button size="lg" className="rounded-full px-10 text-base h-14" asChild>
+                <Link to="/contact">Book a Call <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </MagneticButton>
           </AnimatedSection>
