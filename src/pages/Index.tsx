@@ -55,6 +55,15 @@ const featuredProjects = [
   { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/placeholder.svg", number: "03" },
 ];
 
+const caseStudies = [
+  { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/placeholder.svg" },
+  { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Viz"], image: "/placeholder.svg" },
+  { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/placeholder.svg" },
+  { title: "Nova Finance", slug: "nova-finance", tags: ["Fintech", "Web Platform", "UX Strategy"], image: "/placeholder.svg" },
+  { title: "Artisan Brew", slug: "artisan-brew", tags: ["Branding", "Packaging", "Web Design"], image: "/placeholder.svg" },
+  { title: "MindSpace", slug: "mindspace", tags: ["Mobile App", "Wellness", "Motion Design"], image: "/placeholder.svg" },
+];
+
 const whyUs = [
   { icon: Eye, title: "Always in the Loop", desc: "Transparent communication with regular updates, shared workspaces, and no black-box processes." },
   { icon: Gem, title: "Your Vision, Our Expertise", desc: "We don't impose — we listen, challenge, and elevate your ideas into something extraordinary." },
