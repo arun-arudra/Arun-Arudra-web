@@ -9,6 +9,7 @@ import { AnimatedCounter } from "../components/AnimatedCounter";
 import { MarqueeText } from "../components/MarqueeText";
 import { LogoMarquee } from "../components/LogoMarquee";
 import { ProjectListItem } from "../components/ProjectListItem";
+import { CaseStudyCarousel } from "../components/CaseStudyCarousel";
 import { ArrowRight, CheckCircle2, MessageSquareQuote, Eye, Zap, Gem, Rocket } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
