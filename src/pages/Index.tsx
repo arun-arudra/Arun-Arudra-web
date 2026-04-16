@@ -50,18 +50,18 @@ const serviceBlocks = [
 ];
 
 const featuredProjects = [
-  { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/placeholder.svg", number: "01" },
-  { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Viz"], image: "/placeholder.svg", number: "02" },
-  { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/placeholder.svg", number: "03" },
+  { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/images/projects/silver-club.jpg", number: "01" },
+  { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Viz"], image: "/images/projects/healthtrack.jpg", number: "02" },
+  { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/images/projects/ecomart.jpg", number: "03" },
 ];
 
 const caseStudies = [
-  { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/placeholder.svg" },
-  { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Viz"], image: "/placeholder.svg" },
-  { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/placeholder.svg" },
-  { title: "Nova Finance", slug: "nova-finance", tags: ["Fintech", "Web Platform", "UX Strategy"], image: "/placeholder.svg" },
-  { title: "Artisan Brew", slug: "artisan-brew", tags: ["Branding", "Packaging", "Web Design"], image: "/placeholder.svg" },
-  { title: "MindSpace", slug: "mindspace", tags: ["Mobile App", "Wellness", "Motion Design"], image: "/placeholder.svg" },
+  { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/images/projects/silver-club.jpg" },
+  { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Viz"], image: "/images/projects/healthtrack.jpg" },
+  { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/images/projects/ecomart.jpg" },
+  { title: "Nova Finance", slug: "nova-finance", tags: ["Fintech", "Web Platform", "UX Strategy"], image: "/images/projects/nova-finance.jpg" },
+  { title: "Artisan Brew", slug: "artisan-brew", tags: ["Branding", "Packaging", "Web Design"], image: "/images/projects/artisan-brew.jpg" },
+  { title: "MindSpace", slug: "mindspace", tags: ["Mobile App", "Wellness", "Motion Design"], image: "/images/projects/mindspace.jpg" },
 ];
 
 const whyUs = [
