@@ -390,6 +390,7 @@ export default function Index() {
       <ServicesSection />
       <MarqueeSection />
       <FeaturedProjectsSection />
+      <CaseStudyCarousel studies={caseStudies} />
       <WhyUsSection />
       <NewsSection />
       <CTASection />
