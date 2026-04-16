@@ -9,6 +9,7 @@ import { AnimatedCounter } from "../components/AnimatedCounter";
 import { MarqueeText } from "../components/MarqueeText";
 import { LogoMarquee } from "../components/LogoMarquee";
 import { ProjectListItem } from "../components/ProjectListItem";
+import { CaseStudyCarousel } from "../components/CaseStudyCarousel";
 import { ArrowRight, CheckCircle2, MessageSquareQuote, Eye, Zap, Gem, Rocket } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -52,6 +53,15 @@ const featuredProjects = [
   { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/placeholder.svg", number: "01" },
   { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Viz"], image: "/placeholder.svg", number: "02" },
   { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/placeholder.svg", number: "03" },
+];
+
+const caseStudies = [
+  { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/placeholder.svg" },
+  { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Viz"], image: "/placeholder.svg" },
+  { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/placeholder.svg" },
+  { title: "Nova Finance", slug: "nova-finance", tags: ["Fintech", "Web Platform", "UX Strategy"], image: "/placeholder.svg" },
+  { title: "Artisan Brew", slug: "artisan-brew", tags: ["Branding", "Packaging", "Web Design"], image: "/placeholder.svg" },
+  { title: "MindSpace", slug: "mindspace", tags: ["Mobile App", "Wellness", "Motion Design"], image: "/placeholder.svg" },
 ];
 
 const whyUs = [
@@ -380,6 +390,7 @@ export default function Index() {
       <ServicesSection />
       <MarqueeSection />
       <FeaturedProjectsSection />
+      <CaseStudyCarousel studies={caseStudies} />
       <WhyUsSection />
       <NewsSection />
       <CTASection />
