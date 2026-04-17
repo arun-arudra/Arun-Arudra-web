@@ -33,7 +33,7 @@ export function SectionIndicator({ sections }: SectionIndicatorProps) {
   const current = String(active + 1).padStart(2, "0");
 
   return (
-    <div className="hidden lg:flex fixed left-6 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-6 pointer-events-none">
+    <div className="hidden 2xl:flex fixed left-6 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-6 pointer-events-none mix-blend-difference text-white">
       <div className="flex items-baseline gap-1 font-mono text-xs tracking-widest">
         <AnimatePresence mode="wait">
           <motion.span
