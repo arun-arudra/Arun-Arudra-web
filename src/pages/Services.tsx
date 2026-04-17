@@ -8,7 +8,7 @@ import { MagneticButton } from "../components/MagneticButton";
 import { ArrowRight, Compass, Palette, Code, BarChart3, Globe, Smartphone, Layers, Plus, Minus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { useState } from "react";
 
 const pillars = [
@@ -17,6 +17,7 @@ const pillars = [
     number: "01",
     title: "Strategy",
     tagline: "Research-backed insights that align user needs with business goals.",
+    thumb: "/images/projects/nova-finance.jpg",
     items: [
       { name: "Market Research", detail: "Competitive analysis, user interviews, and market opportunity mapping." },
       { name: "Brand Positioning", detail: "Defining your unique value proposition and market differentiation." },
@@ -29,6 +30,7 @@ const pillars = [
     number: "02",
     title: "Design",
     tagline: "Crafting interfaces and identities that users remember and love.",
+    thumb: "/images/projects/silver-club.jpg",
     items: [
       { name: "UX/UI Design", detail: "User-centered interface design from wireframes to high-fidelity prototypes." },
       { name: "Brand Identity", detail: "Logo, color systems, typography, and comprehensive brand guidelines." },
@@ -41,6 +43,7 @@ const pillars = [
     number: "03",
     title: "Development",
     tagline: "Pixel-perfect implementation with clean, scalable code.",
+    thumb: "/images/projects/healthtrack.jpg",
     items: [
       { name: "Frontend Development", detail: "React, Next.js, and modern frameworks for responsive, fast interfaces." },
       { name: "Webflow & CMS", detail: "No-code/low-code implementations for marketing sites and landing pages." },
@@ -53,6 +56,7 @@ const pillars = [
     number: "04",
     title: "Optimization",
     tagline: "Post-launch refinement driven by real data and user feedback.",
+    thumb: "/images/projects/ecomart.jpg",
     items: [
       { name: "Performance Optimization", detail: "Speed audits, Core Web Vitals improvements, and caching strategies." },
       { name: "Conversion Rate Optimization", detail: "A/B testing, heatmaps, and funnel analysis to maximize conversions." },
@@ -70,13 +74,52 @@ const solutions = [
 
 function ServiceAccordion({ pillar, index }: { pillar: typeof pillars[0]; index: number }) {
   const [isOpen, setIsOpen] = useState(index === 0);
+  const [hovered, setHovered] = useState(false);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springX = useSpring(mouseX, { damping: 20, stiffness: 200 });
+  const springY = useSpring(mouseY, { damping: 20, stiffness: 200 });
+
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    mouseX.set(e.clientX - rect.left);
+    mouseY.set(e.clientY - rect.top);
+  };
 
   return (
     <AnimatedSection delay={index * 0.1} direction="up">
-      <div className="border-b border-border/30">
+      <div
+        className="border-b border-border/30 relative"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onMouseMove={handleMove}
+      >
+        {/* Floating thumbnail preview */}
+        <AnimatePresence>
+          {hovered && !isOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                x: springX,
+                y: springY,
+                translateX: "-50%",
+                translateY: "-110%",
+              }}
+              className="hidden md:block absolute top-0 left-0 pointer-events-none z-30 w-64 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-border"
+            >
+              <img src={pillar.thumb} alt="" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
+              <span className="absolute bottom-3 left-4 text-xs font-mono uppercase tracking-widest text-foreground">{pillar.title}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full py-8 md:py-10 flex items-center justify-between gap-4 group text-left"
+          className="w-full py-8 md:py-10 flex items-center justify-between gap-4 group text-left relative z-10"
         >
           <div className="flex items-center gap-6 md:gap-10">
             <span className="text-primary/30 font-display text-3xl md:text-5xl font-bold tabular-nums">{pillar.number}</span>
