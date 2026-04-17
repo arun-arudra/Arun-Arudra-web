@@ -381,19 +381,34 @@ function CTASection() {
   );
 }
 
+import { SectionIndicator } from "../components/SectionIndicator";
+
+const sections = [
+  { id: "sec-hero", label: "Intro" },
+  { id: "sec-logos", label: "Trusted by" },
+  { id: "sec-stats", label: "Impact" },
+  { id: "sec-services", label: "Services" },
+  { id: "sec-projects", label: "Work" },
+  { id: "sec-case-studies", label: "Case Studies" },
+  { id: "sec-why", label: "Why us" },
+  { id: "sec-news", label: "News" },
+  { id: "sec-cta", label: "Connect" },
+];
+
 export default function Index() {
   return (
     <Layout>
-      <HeroSection />
-      <LogoMarquee />
-      <StatsSection />
-      <ServicesSection />
+      <SectionIndicator sections={sections} />
+      <div id="sec-hero"><HeroSection /></div>
+      <div id="sec-logos"><LogoMarquee /></div>
+      <div id="sec-stats"><StatsSection /></div>
+      <div id="sec-services"><ServicesSection /></div>
       <MarqueeSection />
-      <FeaturedProjectsSection />
-      <CaseStudyCarousel studies={caseStudies} />
-      <WhyUsSection />
-      <NewsSection />
-      <CTASection />
+      <div id="sec-projects"><FeaturedProjectsSection /></div>
+      <div id="sec-case-studies"><CaseStudyCarousel studies={caseStudies} /></div>
+      <div id="sec-why"><WhyUsSection /></div>
+      <div id="sec-news"><NewsSection /></div>
+      <div id="sec-cta"><CTASection /></div>
     </Layout>
   );
 }
