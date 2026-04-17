@@ -50,9 +50,9 @@ export default function About() {
           <div className="grid lg:grid-cols-12 gap-12 items-end">
             <div className="lg:col-span-8">
               <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-[0.95] tracking-tight">
-                <SplitTextReveal text="We design digital" />
+                <SplitTextReveal>We design digital</SplitTextReveal>
                 <br />
-                <SplitTextReveal text="products that move" />
+                <SplitTextReveal>products that move</SplitTextReveal>
                 <br />
                 <span className="text-primary italic font-light">markets.</span>
               </h1>
