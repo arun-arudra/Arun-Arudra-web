@@ -82,12 +82,19 @@ const defaultProject = {
   ],
 };
 
+const projectOrder = ["silver-club", "healthtrack", "ecomart", "nova-finance", "artisan-brew", "mindspace"];
+
 export default function ProjectDetail() {
   const { slug } = useParams();
   const project = projectsData[slug || ""] || {
     ...defaultProject,
     title: slug?.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") || "Case Study",
   };
+  const currentIdx = projectOrder.indexOf(slug || "");
+  const prevSlug = currentIdx > 0 ? projectOrder[currentIdx - 1] : projectOrder[projectOrder.length - 1];
+  const nextSlug = currentIdx >= 0 && currentIdx < projectOrder.length - 1 ? projectOrder[currentIdx + 1] : projectOrder[0];
+  const prevLabel = prevSlug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  const nextLabel = nextSlug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -216,6 +223,26 @@ export default function ProjectDetail() {
           speed={25}
         />
       </div>
+
+      {/* Prev / Next nav */}
+      <section className="border-t border-border">
+        <div className="grid md:grid-cols-2">
+          <Link to={`/projects/${prevSlug}`} className="group p-8 md:p-12 border-b md:border-b-0 md:border-r border-border hover:bg-surface transition-colors flex items-center gap-4">
+            <ArrowLeft className="h-5 w-5 text-muted-foreground group-hover:-translate-x-2 group-hover:text-primary transition-all" />
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-2">Previous</p>
+              <p className="font-display text-2xl md:text-3xl font-bold group-hover:text-primary transition-colors">{prevLabel}</p>
+            </div>
+          </Link>
+          <Link to={`/projects/${nextSlug}`} className="group p-8 md:p-12 hover:bg-surface transition-colors flex items-center justify-end gap-4 text-right">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-2">Next</p>
+              <p className="font-display text-2xl md:text-3xl font-bold group-hover:text-primary transition-colors">{nextLabel}</p>
+            </div>
+            <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-2 group-hover:text-primary transition-all" />
+          </Link>
+        </div>
+      </section>
 
       {/* CTA */}
       <section className="py-24 md:py-32">
