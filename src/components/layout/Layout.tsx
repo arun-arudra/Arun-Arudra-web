@@ -3,6 +3,7 @@ import { Footer } from "./Footer";
 import { ScrollToTop } from "../ScrollToTop";
 import { PageTransition } from "../PageTransition";
 import { CustomCursor } from "../CustomCursor";
+import { ScrollProgress } from "../ScrollProgress";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -11,6 +12,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollProgress />
       <CustomCursor />
       <Navbar />
       <main className="flex-1 pt-16">
