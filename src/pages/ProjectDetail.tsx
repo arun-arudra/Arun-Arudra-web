@@ -9,6 +9,8 @@ import { Button } from "../components/ui/button";
 import { ArrowRight, ArrowLeft, Target, Lightbulb, Palette, Code, Rocket } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
+import { useContentful, getImageUrl } from "@/hooks/useContentful";
 
 const projectsData: Record<string, {
   title: string;
