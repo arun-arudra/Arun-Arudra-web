@@ -1,8 +1,10 @@
 import { Layout } from "../components/layout/Layout";
 import { AnimatedSection } from "../components/AnimatedSection";
+import { SponsorSlot } from "../components/SponsorSlot";
 import { Link } from "react-router-dom";
+import { useContentful, getImageUrl } from "@/hooks/useContentful";
 
-const articles = [
+const fallback = [
   { title: "The Future of UI Design in 2026", category: "Design Trends", date: "Mar 15, 2026", excerpt: "Exploring how AI and spatial computing are reshaping interface design and what designers need to prepare for.", slug: "future-ui-design-2026", image: "/placeholder.svg" },
   { title: "Why Accessibility is Non-Negotiable", category: "Best Practices", date: "Mar 8, 2026", excerpt: "Making digital products inclusive isn't optional — it's essential for every user and every business.", slug: "accessibility-non-negotiable", image: "/placeholder.svg" },
   { title: "From Wireframe to Pixel-Perfect", category: "Process", date: "Feb 28, 2026", excerpt: "A deep dive into the design workflow that delivers consistent, high-quality results every time.", slug: "wireframe-to-pixel-perfect", image: "/placeholder.svg" },
@@ -12,6 +14,16 @@ const articles = [
 ];
 
 export default function News() {
+  const { items } = useContentful("article");
+  const cms = items.map((i) => ({
+    title: i.title || "Untitled",
+    slug: i.slug || i.id,
+    category: i.category || "Article",
+    date: new Date(i.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
+    excerpt: i.excerpt || "",
+    image: getImageUrl(i.image),
+  }));
+  const articles = [...cms, ...fallback];
   const [featured, ...rest] = articles;
 
   return (
@@ -46,6 +58,11 @@ export default function News() {
                 </div>
               </div>
             </Link>
+          </AnimatedSection>
+
+          {/* Sponsor slot — minimal, dismissible, news-only */}
+          <AnimatedSection direction="up" className="mb-10">
+            <SponsorSlot storageKey="sponsor-news-list" />
           </AnimatedSection>
 
           {/* Offset grid */}

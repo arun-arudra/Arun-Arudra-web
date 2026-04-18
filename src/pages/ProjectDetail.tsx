@@ -9,6 +9,8 @@ import { Button } from "../components/ui/button";
 import { ArrowRight, ArrowLeft, Target, Lightbulb, Palette, Code, Rocket } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
+import { useContentful, getImageUrl } from "@/hooks/useContentful";
 
 const projectsData: Record<string, {
   title: string;
@@ -86,10 +88,26 @@ const projectOrder = ["silver-club", "healthtrack", "ecomart", "nova-finance", "
 
 export default function ProjectDetail() {
   const { slug } = useParams();
-  const project = projectsData[slug || ""] || {
+  const { items: cmsItems } = useContentful("project", slug);
+  const cms = cmsItems[0];
+
+  const fallback = projectsData[slug || ""] || {
     ...defaultProject,
     title: slug?.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") || "Case Study",
   };
+
+  const project = cms ? {
+    title: cms.title || fallback.title,
+    subtitle: (cms as any).subtitle || cms.excerpt || fallback.subtitle,
+    tags: Array.isArray(cms.tags) ? cms.tags : fallback.tags,
+    overview: cms.overview,
+    overviewText: fallback.overview,
+    challenge: typeof cms.challenge === "string" ? cms.challenge : fallback.challenge,
+    process: fallback.process,
+    results: fallback.results,
+    heroImage: getImageUrl(cms.image),
+  } : { ...fallback, overview: null, overviewText: fallback.overview, heroImage: "/placeholder.svg" };
+
   const currentIdx = projectOrder.indexOf(slug || "");
   const prevSlug = currentIdx > 0 ? projectOrder[currentIdx - 1] : projectOrder[projectOrder.length - 1];
   const nextSlug = currentIdx >= 0 && currentIdx < projectOrder.length - 1 ? projectOrder[currentIdx + 1] : projectOrder[0];
@@ -109,7 +127,7 @@ export default function ProjectDetail() {
       {/* Hero */}
       <section ref={heroRef} className="relative h-[70vh] md:h-[80vh] flex items-end overflow-hidden">
         <motion.div style={{ scale: heroScale }} className="absolute inset-0 bg-muted">
-          <img src="/placeholder.svg" alt={project.title} className="w-full h-full object-cover" />
+          <img src={project.heroImage} alt={project.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         </motion.div>
         <motion.div style={{ opacity: heroOpacity }} className="container mx-auto px-6 relative z-10 pb-16">
@@ -142,7 +160,13 @@ export default function ProjectDetail() {
               <h2 className="font-display text-3xl md:text-4xl font-bold">Overview</h2>
             </AnimatedSection>
             <AnimatedSection delay={0.2}>
-              <p className="text-muted-foreground text-lg leading-relaxed">{project.overview}</p>
+              {project.overview ? (
+                <div className="prose prose-lg dark:prose-invert max-w-none text-muted-foreground prose-headings:text-foreground prose-headings:font-display prose-strong:text-foreground prose-a:text-primary">
+                  {documentToReactComponents(project.overview)}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-lg leading-relaxed">{project.overviewText}</p>
+              )}
             </AnimatedSection>
           </div>
         </div>
