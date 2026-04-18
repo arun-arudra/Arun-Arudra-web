@@ -5,18 +5,38 @@ import { MagneticButton } from "../components/MagneticButton";
 import { MarqueeText } from "../components/MarqueeText";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { useContentful, getImageUrl } from "@/hooks/useContentful";
 
-const projects = [
-  { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/images/projects/silver-club.jpg", number: "01" },
-  { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Visualization"], image: "/images/projects/healthtrack.jpg", number: "02" },
-  { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/images/projects/ecomart.jpg", number: "03" },
-  { title: "Nova Finance", slug: "nova-finance", tags: ["Fintech", "Web Platform", "UX Strategy"], image: "/images/projects/nova-finance.jpg", number: "04" },
-  { title: "Artisan Brew", slug: "artisan-brew", tags: ["Branding", "Packaging", "Web Design"], image: "/images/projects/artisan-brew.jpg", number: "05" },
-  { title: "MindSpace", slug: "mindspace", tags: ["Mobile App", "Wellness", "Motion Design"], image: "/images/projects/mindspace.jpg", number: "06" },
+// Fallback projects shown if Contentful is empty / errors out
+const fallbackProjects = [
+  { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/images/projects/silver-club.jpg" },
+  { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Visualization"], image: "/images/projects/healthtrack.jpg" },
+  { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/images/projects/ecomart.jpg" },
+  { title: "Nova Finance", slug: "nova-finance", tags: ["Fintech", "Web Platform", "UX Strategy"], image: "/images/projects/nova-finance.jpg" },
+  { title: "Artisan Brew", slug: "artisan-brew", tags: ["Branding", "Packaging", "Web Design"], image: "/images/projects/artisan-brew.jpg" },
+  { title: "MindSpace", slug: "mindspace", tags: ["Mobile App", "Wellness", "Motion Design"], image: "/images/projects/mindspace.jpg" },
 ];
 
 export default function Projects() {
+  const { items, loading } = useContentful("project");
+
+  const cmsProjects = items.map((item) => ({
+    title: item.title || "Untitled",
+    slug: item.slug || item.id,
+    tags: Array.isArray(item.tags) ? item.tags : (item.category ? [item.category] : ["Case Study"]),
+    image: getImageUrl(item.image),
+  }));
+
+  // CMS projects first, then fallback projects (deduped by slug)
+  const slugs = new Set(cmsProjects.map((p) => p.slug));
+  const merged = [
+    ...cmsProjects,
+    ...fallbackProjects.filter((p) => !slugs.has(p.slug)),
+  ];
+
+  const projects = merged.map((p, i) => ({ ...p, number: String(i + 1).padStart(2, "0") }));
+
   return (
     <Layout>
       <section className="pt-24 pb-16 md:pt-32 md:pb-24">
@@ -33,15 +53,20 @@ export default function Projects() {
 
       <section className="pb-24 md:pb-32">
         <div className="container mx-auto px-6">
-          <div className="border-t border-border/30">
-            {projects.map((p) => (
-              <ProjectListItem key={p.slug} {...p} />
-            ))}
-          </div>
+          {loading && projects.length === 0 ? (
+            <div className="flex items-center justify-center py-20 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading projects…
+            </div>
+          ) : (
+            <div className="border-t border-border/30">
+              {projects.map((p) => (
+                <ProjectListItem key={p.slug} {...p} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Marquee divider */}
       <div className="py-8 border-y border-border/20 overflow-hidden">
         <MarqueeText
           text="Let's Create Together"
