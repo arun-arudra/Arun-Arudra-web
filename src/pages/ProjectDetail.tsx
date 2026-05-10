@@ -11,6 +11,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { useContentful, getImageUrl } from "@/hooks/useContentful";
+import { ProjectBlocks } from "../components/ProjectBlocks";
 
 const projectsData: Record<string, {
   title: string;
@@ -151,93 +152,100 @@ export default function ProjectDetail() {
         </motion.div>
       </section>
 
-      {/* Overview */}
-      <section className="py-24 md:py-32">
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
-            <AnimatedSection direction="left">
-              <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">About the Project</p>
-              <h2 className="font-display text-3xl md:text-4xl font-bold">Overview</h2>
-            </AnimatedSection>
-            <AnimatedSection delay={0.2}>
-              {project.overview ? (
-                <div className="prose prose-lg dark:prose-invert max-w-none text-muted-foreground prose-headings:text-foreground prose-headings:font-display prose-strong:text-foreground prose-a:text-primary">
-                  {documentToReactComponents(project.overview)}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-lg leading-relaxed">{project.overviewText}</p>
-              )}
-            </AnimatedSection>
-          </div>
-        </div>
-      </section>
+      {/* If Contentful provides custom sections/blocks, render those. Otherwise the legacy layout. */}
+      {Array.isArray((cms as any)?.sections) && (cms as any).sections.length > 0 ? (
+        <ProjectBlocks blocks={(cms as any).sections} />
+      ) : (
+        <>
+          {/* Overview */}
+          <section className="py-24 md:py-32">
+            <div className="container mx-auto px-6">
+              <div className="grid lg:grid-cols-2 gap-16 items-start">
+                <AnimatedSection direction="left">
+                  <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">About the Project</p>
+                  <h2 className="font-display text-3xl md:text-4xl font-bold">Overview</h2>
+                </AnimatedSection>
+                <AnimatedSection delay={0.2}>
+                  {project.overview ? (
+                    <div className="prose prose-lg dark:prose-invert max-w-none text-muted-foreground prose-headings:text-foreground prose-headings:font-display prose-strong:text-foreground prose-a:text-primary">
+                      {documentToReactComponents(project.overview)}
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground text-lg leading-relaxed">{project.overviewText}</p>
+                  )}
+                </AnimatedSection>
+              </div>
+            </div>
+          </section>
 
-      {/* Challenge */}
-      <section className="py-24 md:py-32 bg-surface">
-        <div className="container mx-auto px-6 text-center max-w-4xl">
-          <AnimatedSection direction="scale">
-            <p className="text-primary font-medium mb-6 tracking-wider uppercase text-sm font-mono">The Challenge</p>
-            <blockquote className="font-display text-2xl md:text-3xl lg:text-4xl font-bold leading-snug">
-              "{project.challenge}"
-            </blockquote>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* Process */}
-      <section className="py-24 md:py-32">
-        <div className="container mx-auto px-6">
-          <AnimatedSection>
-            <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Our Process</p>
-            <h2 className="font-display text-3xl md:text-5xl font-bold mb-16">How We Got There</h2>
-          </AnimatedSection>
-          <div className="grid md:grid-cols-5 gap-4">
-            {project.process.map((step, i) => (
-              <AnimatedSection key={step.title} delay={i * 0.1} direction="up">
-                <div className="text-center group">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-                    <step.icon className="h-7 w-7" />
-                  </div>
-                  <span className="text-xs text-primary font-mono mb-1 block">0{i + 1}</span>
-                  <h3 className="font-display text-lg font-bold mb-2">{step.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{step.desc}</p>
-                </div>
+          {/* Challenge */}
+          <section className="py-24 md:py-32 bg-surface">
+            <div className="container mx-auto px-6 text-center max-w-4xl">
+              <AnimatedSection direction="scale">
+                <p className="text-primary font-medium mb-6 tracking-wider uppercase text-sm font-mono">The Challenge</p>
+                <blockquote className="font-display text-2xl md:text-3xl lg:text-4xl font-bold leading-snug">
+                  "{project.challenge}"
+                </blockquote>
               </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
+            </div>
+          </section>
 
-      {/* Full-width image */}
-      <section className="px-6">
-        <AnimatedSection direction="scale">
-          <div className="rounded-2xl overflow-hidden aspect-[21/9] bg-muted max-w-7xl mx-auto">
-            <img src="/placeholder.svg" alt="Project showcase" className="w-full h-full object-cover" />
-          </div>
-        </AnimatedSection>
-      </section>
-
-      {/* Results */}
-      <section className="py-24 md:py-32">
-        <div className="container mx-auto px-6">
-          <AnimatedSection>
-            <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono text-center">Impact</p>
-            <h2 className="font-display text-3xl md:text-5xl font-bold mb-16 text-center">The Results</h2>
-          </AnimatedSection>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {project.results.map((stat, i) => (
-              <AnimatedSection key={stat.label} delay={i * 0.1} direction="up">
-                <div className="text-center p-6 rounded-2xl border border-border/50 bg-card">
-                  <div className="font-display text-4xl md:text-5xl font-bold text-primary mb-2">
-                    <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-                  </div>
-                  <p className="text-sm text-muted-foreground uppercase tracking-wider">{stat.label}</p>
-                </div>
+          {/* Process */}
+          <section className="py-24 md:py-32">
+            <div className="container mx-auto px-6">
+              <AnimatedSection>
+                <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Our Process</p>
+                <h2 className="font-display text-3xl md:text-5xl font-bold mb-16">How We Got There</h2>
               </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
+              <div className="grid md:grid-cols-5 gap-4">
+                {project.process.map((step, i) => (
+                  <AnimatedSection key={step.title} delay={i * 0.1} direction="up">
+                    <div className="text-center group">
+                      <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                        <step.icon className="h-7 w-7" />
+                      </div>
+                      <span className="text-xs text-primary font-mono mb-1 block">0{i + 1}</span>
+                      <h3 className="font-display text-lg font-bold mb-2">{step.title}</h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">{step.desc}</p>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Full-width image */}
+          <section className="px-6">
+            <AnimatedSection direction="scale">
+              <div className="rounded-2xl overflow-hidden aspect-[21/9] bg-muted max-w-7xl mx-auto">
+                <img src="/placeholder.svg" alt="Project showcase" className="w-full h-full object-cover" />
+              </div>
+            </AnimatedSection>
+          </section>
+
+          {/* Results */}
+          <section className="py-24 md:py-32">
+            <div className="container mx-auto px-6">
+              <AnimatedSection>
+                <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono text-center">Impact</p>
+                <h2 className="font-display text-3xl md:text-5xl font-bold mb-16 text-center">The Results</h2>
+              </AnimatedSection>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {project.results.map((stat, i) => (
+                  <AnimatedSection key={stat.label} delay={i * 0.1} direction="up">
+                    <div className="text-center p-6 rounded-2xl border border-border/50 bg-card">
+                      <div className="font-display text-4xl md:text-5xl font-bold text-primary mb-2">
+                        <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                      </div>
+                      <p className="text-sm text-muted-foreground uppercase tracking-wider">{stat.label}</p>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
 
       {/* Marquee */}
       <div className="py-8 border-y border-border/20 overflow-hidden">

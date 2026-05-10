@@ -75,47 +75,68 @@ serve(async (req) => {
       }
     }
 
-    // Resolve linked entries
-    const entriesMap: Record<string, any> = {};
-    if (data.includes?.Entry) {
-      for (const entry of data.includes.Entry) {
-        entriesMap[entry.sys.id] = entry.fields;
-      }
-    }
-
-    // Transform entries with resolved links
-    const items = data.items.map((item: any) => {
-      const fields = { ...item.fields };
-      
-      // Resolve asset links in fields
+    // Helper to resolve link fields (assets and entries) inside a fields object
+    const resolveFields = (fields: any) => {
+      const out: any = {};
       for (const [key, value] of Object.entries(fields)) {
         if (value && typeof value === "object") {
           const v = value as any;
           if (v.sys?.type === "Link" && v.sys?.linkType === "Asset") {
-            fields[key] = assetsMap[v.sys.id] || null;
+            out[key] = assetsMap[v.sys.id] || null;
           } else if (v.sys?.type === "Link" && v.sys?.linkType === "Entry") {
-            fields[key] = entriesMap[v.sys.id] || null;
+            // placeholder, second pass will fill
+            out[key] = { __entryLink: v.sys.id };
           } else if (Array.isArray(value)) {
-            fields[key] = (value as any[]).map((item: any) => {
-              if (item?.sys?.type === "Link" && item?.sys?.linkType === "Asset") {
-                return assetsMap[item.sys.id] || null;
-              }
-              if (item?.sys?.type === "Link" && item?.sys?.linkType === "Entry") {
-                return entriesMap[item.sys.id] || null;
-              }
-              return item;
+            out[key] = (value as any[]).map((it: any) => {
+              if (it?.sys?.type === "Link" && it?.sys?.linkType === "Asset") return assetsMap[it.sys.id] || null;
+              if (it?.sys?.type === "Link" && it?.sys?.linkType === "Entry") return { __entryLink: it.sys.id };
+              return it;
             });
+          } else {
+            out[key] = value;
           }
+        } else {
+          out[key] = value;
         }
       }
+      return out;
+    };
 
-      return {
-        id: item.sys.id,
-        createdAt: item.sys.createdAt,
-        updatedAt: item.sys.updatedAt,
-        ...fields,
-      };
-    });
+    // Resolve linked entries (preserve content type id) — first pass
+    const entriesMap: Record<string, any> = {};
+    if (data.includes?.Entry) {
+      for (const entry of data.includes.Entry) {
+        entriesMap[entry.sys.id] = {
+          _id: entry.sys.id,
+          _type: entry.sys.contentType?.sys?.id,
+          ...resolveFields(entry.fields),
+        };
+      }
+    }
+
+    // Second pass: replace __entryLink placeholders with resolved entries
+    const fillEntryLinks = (val: any): any => {
+      if (Array.isArray(val)) return val.map(fillEntryLinks);
+      if (val && typeof val === "object") {
+        if (val.__entryLink) return entriesMap[val.__entryLink] || null;
+        const out: any = {};
+        for (const [k, v] of Object.entries(val)) out[k] = fillEntryLinks(v);
+        return out;
+      }
+      return val;
+    };
+    for (const id of Object.keys(entriesMap)) {
+      entriesMap[id] = fillEntryLinks(entriesMap[id]);
+    }
+
+    // Transform top-level entries with resolved links
+    const items = data.items.map((item: any) => ({
+      id: item.sys.id,
+      createdAt: item.sys.createdAt,
+      updatedAt: item.sys.updatedAt,
+      _type: item.sys.contentType?.sys?.id,
+      ...fillEntryLinks(resolveFields(item.fields)),
+    }));
 
     return new Response(JSON.stringify({ items, total: data.total }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

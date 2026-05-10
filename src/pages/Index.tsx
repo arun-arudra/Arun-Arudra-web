@@ -14,6 +14,7 @@ import { ArrowRight, CheckCircle2, MessageSquareQuote, Eye, Zap, Gem, Rocket } f
 import { Button } from "../components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { useContentful, getImageUrl } from "@/hooks/useContentful";
 
 const trustPoints = [
   "User-First Design",
@@ -237,6 +238,20 @@ function ServicesSection() {
 }
 
 function FeaturedProjectsSection() {
+  const { items } = useContentful("project");
+  // Use Contentful items marked as featured; fall back to local list if none
+  const cmsFeatured = items
+    .filter((i) => i.featured)
+    .slice(0, 4)
+    .map((i) => ({
+      title: i.title || "Untitled",
+      slug: i.slug || i.id,
+      tags: Array.isArray(i.tags) ? i.tags : (i.category ? [i.category] : ["Case Study"]),
+      image: getImageUrl(i.image),
+    }));
+  const list = cmsFeatured.length > 0 ? cmsFeatured : featuredProjects;
+  const numbered = list.map((p, i) => ({ ...p, number: String(i + 1).padStart(2, "0") }));
+
   return (
     <section className="py-24 md:py-32 bg-surface">
       <div className="container mx-auto px-6">
@@ -257,7 +272,7 @@ function FeaturedProjectsSection() {
         </div>
 
         <div className="border-t border-border/30">
-          {featuredProjects.map((p) => (
+          {numbered.map((p) => (
             <ProjectListItem key={p.slug} {...p} />
           ))}
         </div>
