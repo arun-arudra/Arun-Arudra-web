@@ -75,11 +75,15 @@ serve(async (req) => {
       }
     }
 
-    // Resolve linked entries
+    // Resolve linked entries (preserve content type id)
     const entriesMap: Record<string, any> = {};
     if (data.includes?.Entry) {
       for (const entry of data.includes.Entry) {
-        entriesMap[entry.sys.id] = entry.fields;
+        entriesMap[entry.sys.id] = {
+          _id: entry.sys.id,
+          _type: entry.sys.contentType?.sys?.id,
+          ...entry.fields,
+        };
       }
     }
 
