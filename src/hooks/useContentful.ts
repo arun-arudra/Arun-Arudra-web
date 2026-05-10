@@ -22,6 +22,10 @@ export interface ContentfulItem {
   excerpt?: string;
   category?: string;
   tags?: string[];
+  featured?: boolean;
+  order?: number;
+  sections?: any[];
+  layoutVariant?: string;
   [key: string]: any;
 }
 
@@ -46,7 +50,19 @@ export function useContentful(contentType: string, slug?: string) {
       .then((data) => {
         if (cancelled) return;
         if (data.error) setError(data.error);
-        else setItems(data.items || []);
+        else {
+          // Sort: featured first, then by order asc, then by updatedAt desc
+          const sorted = [...(data.items || [])].sort((a: ContentfulItem, b: ContentfulItem) => {
+            const fa = a.featured ? 1 : 0;
+            const fb = b.featured ? 1 : 0;
+            if (fa !== fb) return fb - fa;
+            const oa = typeof a.order === "number" ? a.order : 9999;
+            const ob = typeof b.order === "number" ? b.order : 9999;
+            if (oa !== ob) return oa - ob;
+            return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+          });
+          setItems(sorted);
+        }
       })
       .catch((e) => !cancelled && setError(e.message))
       .finally(() => !cancelled && setLoading(false));

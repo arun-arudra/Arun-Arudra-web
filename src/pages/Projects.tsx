@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { Layout } from "../components/layout/Layout";
 import { AnimatedSection } from "../components/AnimatedSection";
 import { ProjectListItem } from "../components/ProjectListItem";
@@ -5,10 +6,11 @@ import { MagneticButton } from "../components/MagneticButton";
 import { MarqueeText } from "../components/MarqueeText";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useContentful, getImageUrl } from "@/hooks/useContentful";
+import { motion } from "framer-motion";
 
-// Fallback projects shown if Contentful is empty / errors out
+// Fallback projects shown ONLY if Contentful returns zero items
 const fallbackProjects = [
   { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/images/projects/silver-club.jpg" },
   { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Visualization"], image: "/images/projects/healthtrack.jpg" },
@@ -18,24 +20,53 @@ const fallbackProjects = [
   { title: "MindSpace", slug: "mindspace", tags: ["Mobile App", "Wellness", "Motion Design"], image: "/images/projects/mindspace.jpg" },
 ];
 
+function SkeletonRow({ i }: { i: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: i * 0.05 }}
+      className="border-b border-border/30 py-8 md:py-12 flex items-center gap-6 md:gap-10"
+    >
+      <div className="h-6 w-10 rounded bg-muted animate-pulse" />
+      <div className="flex-1 space-y-3">
+        <div className="h-8 md:h-10 w-2/3 rounded bg-muted animate-pulse" />
+        <div className="h-3 w-40 rounded bg-muted/60 animate-pulse" />
+      </div>
+      <div className="h-12 w-12 rounded-full border border-border/50" />
+    </motion.div>
+  );
+}
+
 export default function Projects() {
   const { items, loading } = useContentful("project");
+  const [activeFilter, setActiveFilter] = useState<string>("All");
 
-  const cmsProjects = items.map((item) => ({
-    title: item.title || "Untitled",
-    slug: item.slug || item.id,
-    tags: Array.isArray(item.tags) ? item.tags : (item.category ? [item.category] : ["Case Study"]),
-    image: getImageUrl(item.image),
-  }));
+  // Source of truth: CMS items if present, otherwise fallback
+  const baseList = useMemo(() => {
+    if (items.length > 0) {
+      return items.map((item) => ({
+        title: item.title || "Untitled",
+        slug: item.slug || item.id,
+        tags: Array.isArray(item.tags) ? item.tags : (item.category ? [item.category] : ["Case Study"]),
+        image: getImageUrl(item.image),
+      }));
+    }
+    return fallbackProjects;
+  }, [items]);
 
-  // CMS projects first, then fallback projects (deduped by slug)
-  const slugs = new Set(cmsProjects.map((p) => p.slug));
-  const merged = [
-    ...cmsProjects,
-    ...fallbackProjects.filter((p) => !slugs.has(p.slug)),
-  ];
+  // Build category list from primary tag of each project
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    baseList.forEach((p) => p.tags[0] && set.add(p.tags[0]));
+    return ["All", ...Array.from(set)];
+  }, [baseList]);
 
-  const projects = merged.map((p, i) => ({ ...p, number: String(i + 1).padStart(2, "0") }));
+  const filtered = activeFilter === "All"
+    ? baseList
+    : baseList.filter((p) => p.tags.includes(activeFilter));
+
+  const projects = filtered.map((p, i) => ({ ...p, number: String(i + 1).padStart(2, "0") }));
 
   return (
     <Layout>
@@ -53,9 +84,34 @@ export default function Projects() {
 
       <section className="pb-24 md:pb-32">
         <div className="container mx-auto px-6">
-          {loading && projects.length === 0 ? (
-            <div className="flex items-center justify-center py-20 text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin mr-2" /> Loading projects…
+          {/* Filter chips */}
+          {!loading && categories.length > 1 && (
+            <AnimatedSection direction="up" className="mb-8">
+              <div className="flex flex-wrap gap-2">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveFilter(cat)}
+                    className={`px-4 py-2 rounded-full text-xs uppercase tracking-wider font-medium transition-all border ${
+                      activeFilter === cat
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-transparent text-muted-foreground border-border/50 hover:border-primary/40 hover:text-foreground"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </AnimatedSection>
+          )}
+
+          {loading ? (
+            <div className="border-t border-border/30">
+              {[0, 1, 2, 3].map((i) => <SkeletonRow key={i} i={i} />)}
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="py-20 text-center text-muted-foreground">
+              No projects in this category yet.
             </div>
           ) : (
             <div className="border-t border-border/30">
