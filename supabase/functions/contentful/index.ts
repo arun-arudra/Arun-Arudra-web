@@ -129,39 +129,14 @@ serve(async (req) => {
       entriesMap[id] = fillEntryLinks(entriesMap[id]);
     }
 
-    // Transform entries with resolved links
-    const items = data.items.map((item: any) => {
-      const fields = { ...item.fields };
-      
-      // Resolve asset links in fields
-      for (const [key, value] of Object.entries(fields)) {
-        if (value && typeof value === "object") {
-          const v = value as any;
-          if (v.sys?.type === "Link" && v.sys?.linkType === "Asset") {
-            fields[key] = assetsMap[v.sys.id] || null;
-          } else if (v.sys?.type === "Link" && v.sys?.linkType === "Entry") {
-            fields[key] = entriesMap[v.sys.id] || null;
-          } else if (Array.isArray(value)) {
-            fields[key] = (value as any[]).map((item: any) => {
-              if (item?.sys?.type === "Link" && item?.sys?.linkType === "Asset") {
-                return assetsMap[item.sys.id] || null;
-              }
-              if (item?.sys?.type === "Link" && item?.sys?.linkType === "Entry") {
-                return entriesMap[item.sys.id] || null;
-              }
-              return item;
-            });
-          }
-        }
-      }
-
-      return {
-        id: item.sys.id,
-        createdAt: item.sys.createdAt,
-        updatedAt: item.sys.updatedAt,
-        ...fields,
-      };
-    });
+    // Transform top-level entries with resolved links
+    const items = data.items.map((item: any) => ({
+      id: item.sys.id,
+      createdAt: item.sys.createdAt,
+      updatedAt: item.sys.updatedAt,
+      _type: item.sys.contentType?.sys?.id,
+      ...fillEntryLinks(resolveFields(item.fields)),
+    }));
 
     return new Response(JSON.stringify({ items, total: data.total }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
