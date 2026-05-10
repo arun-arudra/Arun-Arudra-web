@@ -9,24 +9,45 @@ export function SectionIndicator({ sections }: SectionIndicatorProps) {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const idx = sections.findIndex((s) => s.id === entry.target.id);
-            if (idx !== -1) setActive(idx);
-          }
-        });
-      },
-      { rootMargin: "-40% 0px -50% 0px", threshold: 0 }
-    );
+    let ticking = false;
 
-    sections.forEach((s) => {
-      const el = document.getElementById(s.id);
-      if (el) observer.observe(el);
-    });
+    const update = () => {
+      ticking = false;
+      const center = window.innerHeight / 2;
+      let bestIdx = 0;
+      let bestDist = Infinity;
 
-    return () => observer.disconnect();
+      sections.forEach((s, i) => {
+        const el = document.getElementById(s.id);
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        // Skip sections completely outside viewport
+        if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+        const sectionCenter = rect.top + rect.height / 2;
+        const dist = Math.abs(sectionCenter - center);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestIdx = i;
+        }
+      });
+
+      setActive(bestIdx);
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, [sections]);
 
   const total = String(sections.length).padStart(2, "0");
