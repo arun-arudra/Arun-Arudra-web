@@ -75,16 +75,58 @@ serve(async (req) => {
       }
     }
 
-    // Resolve linked entries (preserve content type id)
+    // Helper to resolve link fields (assets and entries) inside a fields object
+    const resolveFields = (fields: any) => {
+      const out: any = {};
+      for (const [key, value] of Object.entries(fields)) {
+        if (value && typeof value === "object") {
+          const v = value as any;
+          if (v.sys?.type === "Link" && v.sys?.linkType === "Asset") {
+            out[key] = assetsMap[v.sys.id] || null;
+          } else if (v.sys?.type === "Link" && v.sys?.linkType === "Entry") {
+            // placeholder, second pass will fill
+            out[key] = { __entryLink: v.sys.id };
+          } else if (Array.isArray(value)) {
+            out[key] = (value as any[]).map((it: any) => {
+              if (it?.sys?.type === "Link" && it?.sys?.linkType === "Asset") return assetsMap[it.sys.id] || null;
+              if (it?.sys?.type === "Link" && it?.sys?.linkType === "Entry") return { __entryLink: it.sys.id };
+              return it;
+            });
+          } else {
+            out[key] = value;
+          }
+        } else {
+          out[key] = value;
+        }
+      }
+      return out;
+    };
+
+    // Resolve linked entries (preserve content type id) — first pass
     const entriesMap: Record<string, any> = {};
     if (data.includes?.Entry) {
       for (const entry of data.includes.Entry) {
         entriesMap[entry.sys.id] = {
           _id: entry.sys.id,
           _type: entry.sys.contentType?.sys?.id,
-          ...entry.fields,
+          ...resolveFields(entry.fields),
         };
       }
+    }
+
+    // Second pass: replace __entryLink placeholders with resolved entries
+    const fillEntryLinks = (val: any): any => {
+      if (Array.isArray(val)) return val.map(fillEntryLinks);
+      if (val && typeof val === "object") {
+        if (val.__entryLink) return entriesMap[val.__entryLink] || null;
+        const out: any = {};
+        for (const [k, v] of Object.entries(val)) out[k] = fillEntryLinks(v);
+        return out;
+      }
+      return val;
+    };
+    for (const id of Object.keys(entriesMap)) {
+      entriesMap[id] = fillEntryLinks(entriesMap[id]);
     }
 
     // Transform entries with resolved links
