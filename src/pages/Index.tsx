@@ -9,7 +9,7 @@ import { AnimatedCounter } from "../components/AnimatedCounter";
 import { MarqueeText } from "../components/MarqueeText";
 import { LogoMarquee } from "../components/LogoMarquee";
 import { ProjectListItem } from "../components/ProjectListItem";
-import { CaseStudyCarousel } from "../components/CaseStudyCarousel";
+// CaseStudyCarousel removed — section hidden per request
 import { ArrowRight, CheckCircle2, MessageSquareQuote, Eye, Zap, Gem, Rocket } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -56,14 +56,7 @@ const featuredProjects = [
   { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/images/projects/ecomart.jpg", number: "03" },
 ];
 
-const caseStudies = [
-  { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/images/projects/silver-club.jpg" },
-  { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Viz"], image: "/images/projects/healthtrack.jpg" },
-  { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/images/projects/ecomart.jpg" },
-  { title: "Nova Finance", slug: "nova-finance", tags: ["Fintech", "Web Platform", "UX Strategy"], image: "/images/projects/nova-finance.jpg" },
-  { title: "Artisan Brew", slug: "artisan-brew", tags: ["Branding", "Packaging", "Web Design"], image: "/images/projects/artisan-brew.jpg" },
-  { title: "MindSpace", slug: "mindspace", tags: ["Mobile App", "Wellness", "Motion Design"], image: "/images/projects/mindspace.jpg" },
-];
+// caseStudies array removed — section hidden per request
 
 const whyUs = [
   { icon: Eye, title: "Always in the Loop", desc: "Transparent communication with regular updates, shared workspaces, and no black-box processes." },

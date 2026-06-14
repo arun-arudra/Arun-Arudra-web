@@ -15,18 +15,22 @@ interface SponsorSlotProps {
 export function SponsorSlot({ variant = "inline", storageKey = "sponsor-dismissed" }: SponsorSlotProps) {
   const [dismissed, setDismissed] = useState(true);
 
+  // Master switch — set VITE_SPONSOR_ENABLED="false" in .env to hide ALL ad/sponsor slots site-wide.
+  const enabled = (import.meta.env.VITE_SPONSOR_ENABLED ?? "true") !== "false";
+
   useEffect(() => {
+    if (!enabled) return;
     const stored = localStorage.getItem(storageKey);
     if (stored && Date.now() - parseInt(stored) < 86400000) return;
     setDismissed(false);
-  }, [storageKey]);
+  }, [storageKey, enabled]);
 
   const dismiss = () => {
     localStorage.setItem(storageKey, Date.now().toString());
     setDismissed(true);
   };
 
-  if (dismissed) return null;
+  if (!enabled || dismissed) return null;
 
   return (
     <aside
