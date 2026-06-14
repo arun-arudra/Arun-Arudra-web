@@ -11,7 +11,7 @@ env:
   NODE_VERSION: '20'
   BUILD_COMMAND: 'npm run build'
   DEPLOY_SOURCE: './dist/'
-  DEPLOY_DESTINATION: './public_html'  # Change this if needed
+  DEPLOY_DESTINATION: './public_html/'
   
   # Google AdSense Configuration (from .env)
   VITE_SPONSOR_ENABLED: "true"
@@ -54,7 +54,6 @@ jobs:
           local-dir: ${{ env.DEPLOY_SOURCE }}
           server-dir: ${{ env.DEPLOY_DESTINATION }}
           state-name: .ftp-deploy-sync-state.json
-          skip-single-file: false
           dry-run: false
 
       - name: Build completed successfully ✅
