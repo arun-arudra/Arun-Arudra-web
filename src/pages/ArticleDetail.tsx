@@ -7,12 +7,59 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { useContentful, getImageUrl } from "@/hooks/useContentful";
 
+// Fallback demo articles — used when an article slug isn't in Contentful yet.
+const fallbackArticles: Record<string, { title: string; category: string; date: string; image: string; body: string }> = {
+  "future-ui-design-2026": {
+    title: "The Future of UI Design in 2026",
+    category: "Design Trends",
+    date: "Mar 15, 2026",
+    image: "/placeholder.svg",
+    body: "Exploring how AI and spatial computing are reshaping interface design. From adaptive layouts to context-aware components, the next wave of UI is here.",
+  },
+  "accessibility-non-negotiable": {
+    title: "Why Accessibility is Non-Negotiable",
+    category: "Best Practices",
+    date: "Mar 8, 2026",
+    image: "/placeholder.svg",
+    body: "Making digital products inclusive isn't optional — it's essential. Here's how we approach accessibility from day one of every project.",
+  },
+  "wireframe-to-pixel-perfect": {
+    title: "From Wireframe to Pixel-Perfect",
+    category: "Process",
+    date: "Feb 28, 2026",
+    image: "/placeholder.svg",
+    body: "A deep dive into the design workflow that delivers consistent results across every project, regardless of scope or industry.",
+  },
+  "design-systems-that-scale": {
+    title: "Design Systems That Scale",
+    category: "Design Systems",
+    date: "Feb 15, 2026",
+    image: "/placeholder.svg",
+    body: "How to build and maintain a design system that grows with your product and team.",
+  },
+  "psychology-of-color": {
+    title: "The Psychology of Color in Digital Products",
+    category: "Design Theory",
+    date: "Feb 1, 2026",
+    image: "/placeholder.svg",
+    body: "Understanding how color influences user behavior and decision-making in interfaces.",
+  },
+  "designing-for-dark-mode": {
+    title: "Designing for Dark Mode",
+    category: "UI Design",
+    date: "Jan 20, 2026",
+    image: "/placeholder.svg",
+    body: "Best practices and common pitfalls when implementing dark mode in your applications.",
+  },
+};
+
 export default function ArticleDetail() {
   const { slug } = useParams();
   const { items, loading } = useContentful("article", slug);
-  const article = items[0];
+  const cms = items[0];
+  const fb = slug ? fallbackArticles[slug] : undefined;
 
-  if (loading) {
+  if (loading && !fb) {
     return (
       <Layout>
         <div className="min-h-[60vh] flex items-center justify-center text-muted-foreground">
@@ -22,7 +69,7 @@ export default function ArticleDetail() {
     );
   }
 
-  if (!article) {
+  if (!cms && !fb) {
     return (
       <Layout>
         <div className="container mx-auto px-6 py-32 text-center">
@@ -33,6 +80,13 @@ export default function ArticleDetail() {
     );
   }
 
+  const title = cms?.title || fb!.title;
+  const category = cms?.category || fb?.category;
+  const dateStr = cms
+    ? new Date(cms.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+    : fb!.date;
+  const image = cms ? getImageUrl(cms.image) : fb!.image;
+
   return (
     <Layout>
       <article className="pt-24 pb-24 md:pt-32 md:pb-32">
@@ -41,31 +95,30 @@ export default function ArticleDetail() {
             <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> Back to News
           </Link>
           <AnimatedSection direction="up">
-            {article.category && (
-              <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">{article.category}</p>
+            {category && (
+              <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">{category}</p>
             )}
-            <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">{article.title}</h1>
-            <p className="text-muted-foreground text-sm mb-10">
-              {new Date(article.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-            </p>
+            <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">{title}</h1>
+            <p className="text-muted-foreground text-sm mb-10">{dateStr}</p>
           </AnimatedSection>
 
           <AnimatedSection direction="up" className="mb-10">
             <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-muted">
-              <img src={getImageUrl(article.image)} alt={article.title} className="w-full h-full object-cover" />
+              <img src={image} alt={title} className="w-full h-full object-cover" />
             </div>
           </AnimatedSection>
 
-          {/* Minimal in-article sponsor */}
+          {/* Minimal in-article sponsor (toggle off site-wide with VITE_SPONSOR_ENABLED="false") */}
           <AnimatedSection direction="up" className="mb-10">
             <SponsorSlot storageKey={`sponsor-article-${slug}`} />
           </AnimatedSection>
 
           <AnimatedSection direction="up">
             <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-a:text-primary">
-              {article.body && documentToReactComponents(article.body)}
-              {!article.body && article.overview && documentToReactComponents(article.overview)}
-              {!article.body && !article.overview && article.excerpt && <p>{article.excerpt}</p>}
+              {cms?.body && documentToReactComponents(cms.body)}
+              {cms && !cms.body && cms.overview && documentToReactComponents(cms.overview)}
+              {cms && !cms.body && !cms.overview && cms.excerpt && <p>{cms.excerpt}</p>}
+              {!cms && fb && <p>{fb.body}</p>}
             </div>
           </AnimatedSection>
         </div>
