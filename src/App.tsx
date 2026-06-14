@@ -13,6 +13,7 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import ProjectDetail from "./pages/ProjectDetail";
 import ArticleDetail from "./pages/ArticleDetail";
+import { ScrollToTopOnRouteChange } from "./components/ScrollToTopOnRouteChange";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTopOnRouteChange />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<Services />} />
