@@ -11,7 +11,7 @@ env:
   NODE_VERSION: '20'
   BUILD_COMMAND: 'npm run build'
   DEPLOY_SOURCE: './dist/'
-  DEPLOY_DESTINATION: './public_html/ArunArudra/'
+  DEPLOY_DESTINATION: './ArunArudra/'
   
   # Google AdSense Configuration (from .env)
   VITE_SPONSOR_ENABLED: "true"
@@ -76,5 +76,5 @@ jobs:
           echo "✅ Build and Deployment Complete!"
           echo "======================================"
           echo "Website URL: https://arunarudra.com/ArunArudra/"
-          echo "Deployed to: /public_html/ArunArudra/"
+          echo "Deployed to: /ArunArudra/"
           echo "======================================"
