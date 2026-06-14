@@ -11,7 +11,7 @@ env:
   NODE_VERSION: '20'
   BUILD_COMMAND: 'npm run build'
   DEPLOY_SOURCE: './dist/'
-  DEPLOY_DESTINATION: './public_html/'
+  DEPLOY_DESTINATION: './public_html/ArunArudra/'
   
   # Google AdSense Configuration (from .env)
   VITE_SPONSOR_ENABLED: "true"
