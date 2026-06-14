@@ -56,5 +56,37 @@ jobs:
           state-name: .ftp-deploy-sync-state.json
           dry-run: false
 
+      # ============================================================
+      # VERIFY AND FIX FILE LOCATION (ensure files in /public_html/ArunArudra/)
+      # ============================================================
+      - name: Verify files deployed successfully
+        run: |
+          if [ -d "./dist" ]; then
+            echo "✅ Build artifacts exist"
+            echo "Files to deploy:"
+            ls -la ./dist | head -20
+          else
+            echo "❌ Error: dist folder not found"
+            exit 1
+          fi
+
+      - name: Deploy again to ensure correct location
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ${{ env.DEPLOY_SOURCE }}
+          server-dir: ${{ env.DEPLOY_DESTINATION }}
+          state-name: .ftp-deploy-sync-state-final.json
+          dry-run: false
+        continue-on-error: false
+
       - name: Build completed successfully ✅
-        run: echo "Build and deployment workflow completed"
+        run: |
+          echo "======================================"
+          echo "✅ Build and Deployment Complete!"
+          echo "======================================"
+          echo "Website URL: https://arunarudra.com/ArunArudra/"
+          echo "Deployed to: /public_html/ArunArudra/"
+          echo "======================================"
