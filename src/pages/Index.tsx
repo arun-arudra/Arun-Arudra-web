@@ -73,9 +73,9 @@ const whyUs = [
 ];
 
 const latestNews = [
-  { title: "The Future of UI Design in 2026", category: "Design Trends", date: "Mar 15, 2026", excerpt: "Exploring how AI and spatial computing are reshaping interface design.", slug: "future-ui-design-2026" },
-  { title: "Why Accessibility is Non-Negotiable", category: "Best Practices", date: "Mar 8, 2026", excerpt: "Making digital products inclusive isn't optional — it's essential.", slug: "accessibility-non-negotiable" },
-  { title: "From Wireframe to Pixel-Perfect", category: "Process", date: "Feb 28, 2026", excerpt: "A deep dive into the design workflow that delivers consistent results.", slug: "wireframe-to-pixel-perfect" },
+  { title: "The Future of UI Design in 2026", category: "Design Trends", date: "Mar 15, 2026", excerpt: "Exploring how AI and spatial computing are reshaping interface design.", slug: "future-ui-design-2026", image: "/placeholder.svg" },
+  { title: "Why Accessibility is Non-Negotiable", category: "Best Practices", date: "Mar 8, 2026", excerpt: "Making digital products inclusive isn't optional — it's essential.", slug: "accessibility-non-negotiable", image: "/placeholder.svg" },
+  { title: "From Wireframe to Pixel-Perfect", category: "Process", date: "Feb 28, 2026", excerpt: "A deep dive into the design workflow that delivers consistent results.", slug: "wireframe-to-pixel-perfect", image: "/placeholder.svg" },
 ];
 
 function HeroSection() {
@@ -332,6 +332,17 @@ function WhyUsSection() {
 }
 
 function NewsSection() {
+  const { items } = useContentful("article");
+  const cms = items.slice(0, 3).map((i) => ({
+    title: i.title || "Untitled",
+    slug: i.slug || i.id,
+    category: i.category || "Article",
+    date: new Date(i.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
+    excerpt: i.excerpt || "",
+    image: getImageUrl(i.image),
+  }));
+  const list = cms.length > 0 ? cms : latestNews;
+
   return (
     <section className="py-24 md:py-32 bg-surface">
       <div className="container mx-auto px-6">
@@ -341,16 +352,21 @@ function NewsSection() {
         </AnimatedSection>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {latestNews.map((n, i) => (
+          {list.map((n, i) => (
             <AnimatedSection key={n.slug} delay={i * 0.1} direction="up">
               <Link to={`/news/${n.slug}`} className="group block h-full">
-                <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-primary/20 transition-all duration-300 h-full relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-primary scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
-                  <span className="text-xs font-medium text-primary uppercase tracking-wider font-mono">{n.category}</span>
-                  <h3 className="font-display text-lg font-semibold mt-3 mb-2 group-hover:text-primary transition-colors">{n.title}</h3>
-                  <p className="text-muted-foreground text-sm mb-4">{n.excerpt}</p>
-                  <span className="text-xs text-muted-foreground">{n.date}</span>
-                </div>
+                <article className="rounded-2xl overflow-hidden border border-border/50 bg-card hover:border-primary/20 transition-all duration-300 h-full flex flex-col">
+                  <div className="aspect-[16/10] bg-muted overflow-hidden">
+                    <img src={n.image} alt={n.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                  </div>
+                  <div className="p-6 flex flex-col flex-1 relative">
+                    <div className="absolute top-0 left-0 w-full h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
+                    <span className="text-xs font-medium text-primary uppercase tracking-wider font-mono">{n.category}</span>
+                    <h3 className="font-display text-lg font-semibold mt-3 mb-2 group-hover:text-primary transition-colors leading-snug">{n.title}</h3>
+                    <p className="text-muted-foreground text-sm mb-4 flex-1 line-clamp-3">{n.excerpt}</p>
+                    <span className="text-xs text-muted-foreground mt-auto">{n.date}</span>
+                  </div>
+                </article>
               </Link>
             </AnimatedSection>
           ))}
@@ -404,7 +420,6 @@ const sections = [
   { id: "sec-stats", label: "Impact" },
   { id: "sec-services", label: "Services" },
   { id: "sec-projects", label: "Work" },
-  { id: "sec-case-studies", label: "Case Studies" },
   { id: "sec-why", label: "Why us" },
   { id: "sec-news", label: "News" },
   { id: "sec-cta", label: "Connect" },
@@ -420,10 +435,10 @@ export default function Index() {
       <div id="sec-services"><ServicesSection /></div>
       <MarqueeSection />
       <div id="sec-projects"><FeaturedProjectsSection /></div>
-      <div id="sec-case-studies"><CaseStudyCarousel studies={caseStudies} /></div>
       <div id="sec-why"><WhyUsSection /></div>
       <div id="sec-news"><NewsSection /></div>
       <div id="sec-cta"><CTASection /></div>
     </Layout>
   );
 }
+
