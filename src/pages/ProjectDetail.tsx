@@ -206,40 +206,44 @@ export default function ProjectDetail() {
           </section>
 
           {/* Challenge */}
-          <section className="py-24 md:py-32 bg-surface">
-            <div className="container mx-auto px-6 text-center max-w-4xl">
-              <AnimatedSection direction="scale">
-                <p className="text-primary font-medium mb-6 tracking-wider uppercase text-sm font-mono">The Challenge</p>
-                <blockquote className="font-display text-2xl md:text-3xl lg:text-4xl font-bold leading-snug">
-                  "{project.challenge}"
-                </blockquote>
-              </AnimatedSection>
-            </div>
-          </section>
+          {!project.hideChallenge && (
+            <section className="py-24 md:py-32 bg-surface">
+              <div className="container mx-auto px-6 text-center max-w-4xl">
+                <AnimatedSection direction="scale">
+                  <p className="text-primary font-medium mb-6 tracking-wider uppercase text-sm font-mono">The Challenge</p>
+                  <blockquote className="font-display text-2xl md:text-3xl lg:text-4xl font-bold leading-snug">
+                    "{project.challenge}"
+                  </blockquote>
+                </AnimatedSection>
+              </div>
+            </section>
+          )}
 
           {/* Process */}
-          <section className="py-24 md:py-32">
-            <div className="container mx-auto px-6">
-              <AnimatedSection>
-                <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Our Process</p>
-                <h2 className="font-display text-3xl md:text-5xl font-bold mb-16">How We Got There</h2>
-              </AnimatedSection>
-              <div className="grid md:grid-cols-5 gap-4">
-                {project.process.map((step, i) => (
-                  <AnimatedSection key={step.title} delay={i * 0.1} direction="up">
-                    <div className="text-center group">
-                      <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-                        <step.icon className="h-7 w-7" />
+          {!project.hideProcess && project.process.length > 0 && (
+            <section className="py-24 md:py-32">
+              <div className="container mx-auto px-6">
+                <AnimatedSection>
+                  <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Our Process</p>
+                  <h2 className="font-display text-3xl md:text-5xl font-bold mb-16">How We Got There</h2>
+                </AnimatedSection>
+                <div className={`grid gap-4 ${project.process.length >= 5 ? "md:grid-cols-5" : `md:grid-cols-${Math.min(project.process.length, 4)}`}`}>
+                  {project.process.map((step, i) => (
+                    <AnimatedSection key={`${step.title}-${i}`} delay={i * 0.1} direction="up">
+                      <div className="text-center group">
+                        <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                          <step.icon className="h-7 w-7" />
+                        </div>
+                        <span className="text-xs text-primary font-mono mb-1 block">0{i + 1}</span>
+                        <h3 className="font-display text-lg font-bold mb-2">{step.title}</h3>
+                        <p className="text-muted-foreground text-sm leading-relaxed">{step.desc}</p>
                       </div>
-                      <span className="text-xs text-primary font-mono mb-1 block">0{i + 1}</span>
-                      <h3 className="font-display text-lg font-bold mb-2">{step.title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{step.desc}</p>
-                    </div>
-                  </AnimatedSection>
-                ))}
+                    </AnimatedSection>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* Full-width image */}
           <section className="px-6">
@@ -251,26 +255,28 @@ export default function ProjectDetail() {
           </section>
 
           {/* Results */}
-          <section className="py-24 md:py-32">
-            <div className="container mx-auto px-6">
-              <AnimatedSection>
-                <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono text-center">Impact</p>
-                <h2 className="font-display text-3xl md:text-5xl font-bold mb-16 text-center">The Results</h2>
-              </AnimatedSection>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                {project.results.map((stat, i) => (
-                  <AnimatedSection key={stat.label} delay={i * 0.1} direction="up">
-                    <div className="text-center p-6 rounded-2xl border border-border/50 bg-card">
-                      <div className="font-display text-4xl md:text-5xl font-bold text-primary mb-2">
-                        <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+          {!project.hideResults && project.results.length > 0 && (
+            <section className="py-24 md:py-32">
+              <div className="container mx-auto px-6">
+                <AnimatedSection>
+                  <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono text-center">Impact</p>
+                  <h2 className="font-display text-3xl md:text-5xl font-bold mb-16 text-center">The Results</h2>
+                </AnimatedSection>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                  {project.results.map((stat, i) => (
+                    <AnimatedSection key={`${stat.label}-${i}`} delay={i * 0.1} direction="up">
+                      <div className="text-center p-6 rounded-2xl border border-border/50 bg-card">
+                        <div className="font-display text-4xl md:text-5xl font-bold text-primary mb-2">
+                          <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                        </div>
+                        <p className="text-sm text-muted-foreground uppercase tracking-wider">{stat.label}</p>
                       </div>
-                      <p className="text-sm text-muted-foreground uppercase tracking-wider">{stat.label}</p>
-                    </div>
-                  </AnimatedSection>
-                ))}
+                    </AnimatedSection>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
         </>
       )}
 
