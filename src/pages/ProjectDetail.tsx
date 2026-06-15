@@ -97,6 +97,18 @@ export default function ProjectDetail() {
     title: slug?.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") || "Case Study",
   };
 
+  // Allow Contentful to override process steps and results.
+  // In Contentful, add JSON fields `process` (array of {title, desc}) and
+  // `results` (array of {value, suffix, label}). Boolean fields
+  // `hideChallenge`, `hideProcess`, `hideResults` hide those sections.
+  const cmsProcess: any[] | undefined = Array.isArray((cms as any)?.process)
+    ? (cms as any).process
+    : undefined;
+  const cmsResults: any[] | undefined = Array.isArray((cms as any)?.results)
+    ? (cms as any).results
+    : undefined;
+  const processIcons = [Target, Lightbulb, Palette, Code, Rocket];
+
   const project = cms ? {
     title: cms.title || fallback.title,
     subtitle: (cms as any).subtitle || cms.excerpt || fallback.subtitle,
@@ -104,10 +116,25 @@ export default function ProjectDetail() {
     overview: cms.overview,
     overviewText: fallback.overview,
     challenge: typeof cms.challenge === "string" ? cms.challenge : fallback.challenge,
-    process: fallback.process,
-    results: fallback.results,
+    process: cmsProcess
+      ? cmsProcess.map((p: any, i: number) => ({
+          icon: processIcons[i % processIcons.length],
+          title: p.title || `Step ${i + 1}`,
+          desc: p.desc || p.description || "",
+        }))
+      : fallback.process,
+    results: cmsResults
+      ? cmsResults.map((r: any) => ({
+          value: Number(r.value) || 0,
+          suffix: r.suffix || "",
+          label: r.label || "",
+        }))
+      : fallback.results,
     heroImage: getImageUrl(cms.image),
-  } : { ...fallback, overview: null, overviewText: fallback.overview, heroImage: "/placeholder.svg" };
+    hideChallenge: !!(cms as any).hideChallenge,
+    hideProcess: !!(cms as any).hideProcess,
+    hideResults: !!(cms as any).hideResults,
+  } : { ...fallback, overview: null, overviewText: fallback.overview, heroImage: "/placeholder.svg", hideChallenge: false, hideProcess: false, hideResults: false };
 
   const currentIdx = projectOrder.indexOf(slug || "");
   const prevSlug = currentIdx > 0 ? projectOrder[currentIdx - 1] : projectOrder[projectOrder.length - 1];
