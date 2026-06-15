@@ -115,10 +115,23 @@ export default function ArticleDetail() {
 
           <AnimatedSection direction="up">
             <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-a:text-primary">
-              {cms?.body && documentToReactComponents(cms.body)}
-              {cms && !cms.body && cms.overview && documentToReactComponents(cms.overview)}
-              {cms && !cms.body && !cms.overview && cms.excerpt && <p>{cms.excerpt}</p>}
-              {!cms && fb && <p>{fb.body}</p>}
+              {(() => {
+                const body = cms?.body ?? cms?.overview;
+                // Rich text (Contentful JSON) has nodeType === "document"
+                if (body && typeof body === "object" && body.nodeType === "document") {
+                  return documentToReactComponents(body);
+                }
+                if (typeof body === "string" && body.trim()) {
+                  return body.split(/\n\n+/).map((p, i) => <p key={i}>{p}</p>);
+                }
+                if (cms?.excerpt) return <p>{cms.excerpt}</p>;
+                if (!cms && fb) return <p>{fb.body}</p>;
+                return (
+                  <p className="text-muted-foreground italic">
+                    No body content yet. Add a <code>body</code> (Rich Text or Long Text) field to this article in Contentful.
+                  </p>
+                );
+              })()}
             </div>
           </AnimatedSection>
         </div>
