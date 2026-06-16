@@ -327,7 +327,8 @@ function WhyUsSection() {
 }
 
 function NewsSection() {
-  const { items } = useContentful("article");
+  // Content type ID in Contentful is "news"
+  const { items } = useContentful("news");
   const cms = items.slice(0, siteConfig.latestBlogLimit).map((i) => ({
     title: i.title || "Untitled",
     slug: i.slug || i.id,

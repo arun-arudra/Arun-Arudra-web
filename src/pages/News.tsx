@@ -14,16 +14,18 @@ const fallback = [
 ];
 
 export default function News() {
-  const { items } = useContentful("article");
+  // Content type ID in Contentful is "news"
+  const { items, loading } = useContentful("news");
   const cms = items.map((i) => ({
     title: i.title || "Untitled",
     slug: i.slug || i.id,
-    category: i.category || "Article",
+    category: i.category || "News",
     date: new Date(i.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
     excerpt: i.excerpt || "",
     image: getImageUrl(i.image),
   }));
-  const articles = [...cms, ...fallback];
+  // While loading, show fallback so the page doesn't flash empty.
+  const articles = cms.length > 0 ? cms : (loading ? fallback : fallback);
   const [featured, ...rest] = articles;
 
   return (

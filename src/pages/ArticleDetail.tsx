@@ -55,7 +55,8 @@ const fallbackArticles: Record<string, { title: string; category: string; date: 
 
 export default function ArticleDetail() {
   const { slug } = useParams();
-  const { items, loading } = useContentful("article", slug);
+  // Content type ID in Contentful is "news"
+  const { items, loading } = useContentful("news", slug);
   const cms = items[0];
   const fb = slug ? fallbackArticles[slug] : undefined;
 
