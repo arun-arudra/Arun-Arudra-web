@@ -1,0 +1,9 @@
+# Placeholder ads.txt
+# Once Google AdSense approves your site, replace this with your actual ads.txt content
+# from AdSense → Account → Account settings
+
+# Format will be:
+# google.com, ca-pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+
+# For now, this placeholder ensures the file exists at /ads.txt
+# Update this after AdSense approval with the actual line from Google AdSense

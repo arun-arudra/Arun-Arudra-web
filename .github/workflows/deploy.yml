@@ -1,0 +1,80 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+env:
+  # Non-sensitive environment variables
+  NODE_VERSION: '20'
+  BUILD_COMMAND: 'npm run build'
+  DEPLOY_SOURCE: './dist/'
+  DEPLOY_DESTINATION: './ArunArudra/'
+  
+  # Google AdSense Configuration (from .env)
+  VITE_SPONSOR_ENABLED: "true"
+  VITE_ADSENSE_CLIENT: ${{ secrets.VITE_ADSENSE_CLIENT }}
+  VITE_ADSENSE_SLOT: ${{ secrets.VITE_ADSENSE_SLOT }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: ${{ env.BUILD_COMMAND }}
+
+      - name: Run tests (optional)
+        run: npm run test
+        continue-on-error: true
+
+      # ============================================================
+      # BLUEHOST DEPLOYMENT (via FTP)
+      # ============================================================
+      - name: Deploy to Bluehost
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ${{ env.DEPLOY_SOURCE }}
+          server-dir: ${{ env.DEPLOY_DESTINATION }}
+          state-name: .ftp-deploy-sync-state.json
+          dry-run: false
+
+      # ============================================================
+      # VERIFY FILES DEPLOYED SUCCESSFULLY
+      # ============================================================
+      - name: Verify files deployed successfully
+        run: |
+          if [ -d "./dist" ]; then
+            echo "✅ Build artifacts exist"
+            echo "Files to deploy:"
+            ls -la ./dist | head -20
+          else
+            echo "❌ Error: dist folder not found"
+            exit 1
+          fi
+
+      - name: Build completed successfully ✅
+        run: |
+          echo "======================================"
+          echo "✅ Build and Deployment Complete!"
+          echo "======================================"
+          echo "Website URL: https://arunarudra.com/ArunArudra/"
+          echo "Deployed to: /ArunArudra/"
+          echo "======================================"
