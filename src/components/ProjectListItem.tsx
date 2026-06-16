@@ -14,23 +14,29 @@ interface ProjectListItemProps {
 export function ProjectListItem({ title, slug, tags, image, number }: ProjectListItemProps) {
   const ref = useRef<HTMLAnchorElement>(null);
   const imgRef = useRef<HTMLDivElement>(null);
+  const PREVIEW_W = 460;
+  const PREVIEW_H = 320;
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 200, damping: 25 });
-  const springY = useSpring(mouseY, { stiffness: 200, damping: 25 });
+  const springX = useSpring(mouseX, { stiffness: 180, damping: 22, mass: 0.6 });
+  const springY = useSpring(mouseY, { stiffness: 180, damping: 22, mass: 0.6 });
   const opacity = useMotionValue(0);
-  const springOpacity = useSpring(opacity, { stiffness: 300, damping: 30 });
+  const scale = useMotionValue(0.85);
+  const springOpacity = useSpring(opacity, { stiffness: 260, damping: 28 });
+  const springScale = useSpring(scale, { stiffness: 220, damping: 20 });
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    mouseX.set(e.clientX - rect.left - 160);
-    mouseY.set(e.clientY - rect.top - 100);
+    mouseX.set(e.clientX - rect.left - PREVIEW_W / 2);
+    mouseY.set(e.clientY - rect.top - PREVIEW_H / 2);
     opacity.set(1);
+    scale.set(1);
   };
 
   const handleMouseLeave = () => {
     opacity.set(0);
+    scale.set(0.85);
   };
 
   return (
@@ -41,11 +47,11 @@ export function ProjectListItem({ title, slug, tags, image, number }: ProjectLis
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Floating image that follows cursor */}
+      {/* Large floating preview that follows the cursor (desktop only) */}
       <motion.div
         ref={imgRef}
-        style={{ x: springX, y: springY, opacity: springOpacity }}
-        className="absolute w-[320px] h-[200px] rounded-xl overflow-hidden z-10 pointer-events-none hidden md:block"
+        style={{ x: springX, y: springY, opacity: springOpacity, scale: springScale, width: PREVIEW_W, height: PREVIEW_H }}
+        className="absolute rounded-2xl overflow-hidden z-10 pointer-events-none hidden md:block shadow-2xl ring-1 ring-border/30"
       >
         <img src={image} alt={title} className="w-full h-full object-cover" />
       </motion.div>
