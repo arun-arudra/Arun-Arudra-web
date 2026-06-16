@@ -242,7 +242,11 @@ function FeaturedProjectsSection() {
     title: i.title || "Untitled",
     slug: i.slug || i.id,
     tags: Array.isArray(i.tags) ? i.tags : (i.category ? [i.category] : ["Case Study"]),
-    image: getImageUrl(i.image),
+    // Optional dedicated hover preview image — add a `hoverImage` (Media, single)
+    // field in Contentful to use a different image than the main `image` here.
+    image: getImageUrl((i as any).hoverImage) !== "/placeholder.svg"
+      ? getImageUrl((i as any).hoverImage)
+      : getImageUrl(i.image),
   }));
   const list = cmsFeatured.length > 0 ? cmsFeatured : featuredProjects.slice(0, limit);
   const numbered = list.map((p, i) => ({ ...p, number: String(i + 1).padStart(2, "0") }));
@@ -327,7 +331,8 @@ function WhyUsSection() {
 }
 
 function NewsSection() {
-  const { items } = useContentful("article");
+  // Content type ID in Contentful is "news"
+  const { items } = useContentful("news");
   const cms = items.slice(0, siteConfig.latestBlogLimit).map((i) => ({
     title: i.title || "Untitled",
     slug: i.slug || i.id,
