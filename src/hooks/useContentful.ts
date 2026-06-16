@@ -29,14 +29,60 @@ export interface ContentfulItem {
   [key: string]: any;
 }
 
+// In-memory cache shared across components for the lifetime of the SPA.
+// Also persisted to sessionStorage so the next page load is instant.
+const memCache = new Map<string, ContentfulItem[]>();
+const TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function readSession(key: string): ContentfulItem[] | null {
+  try {
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { t: number; v: ContentfulItem[] };
+    if (Date.now() - parsed.t > TTL_MS) return null;
+    return parsed.v;
+  } catch {
+    return null;
+  }
+}
+
+function writeSession(key: string, v: ContentfulItem[]) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify({ t: Date.now(), v }));
+  } catch {
+    /* quota — ignore */
+  }
+}
+
+function sortItems(items: ContentfulItem[]) {
+  return [...items].sort((a, b) => {
+    const fa = a.featured ? 1 : 0;
+    const fb = b.featured ? 1 : 0;
+    if (fa !== fb) return fb - fa;
+    const oa = typeof a.order === "number" ? a.order : 9999;
+    const ob = typeof b.order === "number" ? b.order : 9999;
+    if (oa !== ob) return oa - ob;
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  });
+}
+
 export function useContentful(contentType: string, slug?: string) {
-  const [items, setItems] = useState<ContentfulItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cacheKey = `cf:${contentType}:${slug ?? "*"}`;
+  const initial = memCache.get(cacheKey) ?? readSession(cacheKey) ?? [];
+  const [items, setItems] = useState<ContentfulItem[]>(initial);
+  const [loading, setLoading] = useState(initial.length === 0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
+    const cached = memCache.get(cacheKey) ?? readSession(cacheKey);
+    if (cached && cached.length > 0) {
+      setItems(cached);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
+
     const params = new URLSearchParams({ content_type: contentType, limit: "100" });
     if (slug) params.set("slug", slug);
 
@@ -49,18 +95,12 @@ export function useContentful(contentType: string, slug?: string) {
       .then((r) => r.json())
       .then((data) => {
         if (cancelled) return;
-        if (data.error) setError(data.error);
-        else {
-          // Sort: featured first, then by order asc, then by updatedAt desc
-          const sorted = [...(data.items || [])].sort((a: ContentfulItem, b: ContentfulItem) => {
-            const fa = a.featured ? 1 : 0;
-            const fb = b.featured ? 1 : 0;
-            if (fa !== fb) return fb - fa;
-            const oa = typeof a.order === "number" ? a.order : 9999;
-            const ob = typeof b.order === "number" ? b.order : 9999;
-            if (oa !== ob) return oa - ob;
-            return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-          });
+        if (data.error) {
+          setError(data.error);
+        } else {
+          const sorted = sortItems(data.items || []);
+          memCache.set(cacheKey, sorted);
+          writeSession(cacheKey, sorted);
           setItems(sorted);
         }
       })
@@ -70,7 +110,7 @@ export function useContentful(contentType: string, slug?: string) {
     return () => {
       cancelled = true;
     };
-  }, [contentType, slug]);
+  }, [contentType, slug, cacheKey]);
 
   return { items, loading, error };
 }

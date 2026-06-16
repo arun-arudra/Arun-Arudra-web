@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { siteConfig } from "@/config/site";
 
 interface SponsorSlotProps {
   variant?: "inline" | "sidebar";
@@ -35,9 +36,9 @@ export function SponsorSlot({ variant = "inline", storageKey = "sponsor-dismisse
   const [dismissed, setDismissed] = useState(true);
   const insRef = useRef<HTMLModElement | null>(null);
 
-  const enabled = (import.meta.env.VITE_SPONSOR_ENABLED ?? "true") !== "false";
-  const client = import.meta.env.VITE_ADSENSE_CLIENT as string | undefined;
-  const slot = slotId ?? (import.meta.env.VITE_ADSENSE_SLOT as string | undefined);
+  const enabled = siteConfig.sponsorEnabled;
+  const client = siteConfig.adsenseClient || undefined;
+  const slot = slotId ?? siteConfig.adsenseSlot ?? undefined;
 
   useEffect(() => {
     if (!enabled) return;

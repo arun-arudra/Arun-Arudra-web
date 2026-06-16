@@ -15,6 +15,7 @@ import { Button } from "../components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { useContentful, getImageUrl } from "@/hooks/useContentful";
+import { siteConfig } from "@/config/site";
 
 const trustPoints = [
   "User-First Design",
@@ -232,17 +233,22 @@ function ServicesSection() {
 
 function FeaturedProjectsSection() {
   const { items } = useContentful("project");
-  // Use Contentful items marked as featured; fall back to local list if none
-  const cmsFeatured = items
-    .filter((i) => i.featured)
-    .slice(0, 4)
-    .map((i) => ({
-      title: i.title || "Untitled",
-      slug: i.slug || i.id,
-      tags: Array.isArray(i.tags) ? i.tags : (i.category ? [i.category] : ["Case Study"]),
-      image: getImageUrl(i.image),
-    }));
-  const list = cmsFeatured.length > 0 ? cmsFeatured : featuredProjects;
+  const limit = Math.min(Math.max(siteConfig.featuredProjectsLimit, 1), 10);
+  // Prefer projects explicitly marked featured in Contentful; otherwise fall
+  // back to the top of the sorted list (still respects `order` field).
+  const cmsList = items.filter((i) => i.featured);
+  const cmsSource = cmsList.length > 0 ? cmsList : items;
+  const cmsFeatured = cmsSource.slice(0, limit).map((i) => ({
+    title: i.title || "Untitled",
+    slug: i.slug || i.id,
+    tags: Array.isArray(i.tags) ? i.tags : (i.category ? [i.category] : ["Case Study"]),
+    // Optional dedicated hover preview image — add a `hoverImage` (Media, single)
+    // field in Contentful to use a different image than the main `image` here.
+    image: getImageUrl((i as any).hoverImage) !== "/placeholder.svg"
+      ? getImageUrl((i as any).hoverImage)
+      : getImageUrl(i.image),
+  }));
+  const list = cmsFeatured.length > 0 ? cmsFeatured : featuredProjects.slice(0, limit);
   const numbered = list.map((p, i) => ({ ...p, number: String(i + 1).padStart(2, "0") }));
 
   return (
@@ -325,8 +331,9 @@ function WhyUsSection() {
 }
 
 function NewsSection() {
-  const { items } = useContentful("article");
-  const cms = items.slice(0, 3).map((i) => ({
+  // Content type ID in Contentful is "news"
+  const { items } = useContentful("news");
+  const cms = items.slice(0, siteConfig.latestBlogLimit).map((i) => ({
     title: i.title || "Untitled",
     slug: i.slug || i.id,
     category: i.category || "Article",
@@ -334,7 +341,7 @@ function NewsSection() {
     excerpt: i.excerpt || "",
     image: getImageUrl(i.image),
   }));
-  const list = cms.length > 0 ? cms : latestNews;
+  const list = cms.length > 0 ? cms : latestNews.slice(0, siteConfig.latestBlogLimit);
 
   return (
     <section className="py-24 md:py-32 bg-surface">
