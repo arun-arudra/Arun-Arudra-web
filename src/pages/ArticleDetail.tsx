@@ -1,33 +1,106 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
+import { useEffect, useState, useRef, ReactNode } from "react";
+import { Linkedin, Instagram, Twitter, Facebook, Loader2 } from "lucide-react";
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { Layout } from "../components/layout/Layout";
-import { AnimatedSection } from "../components/AnimatedSection";
 import { SponsorSlot } from "../components/SponsorSlot";
 import { Button } from "../components/ui/button";
-import { ArrowLeft, Loader2, Clock, Share2, Calendar } from "lucide-react";
-import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
+import { cn } from "@/lib/utils";
 import { useContentful, getImageUrl } from "@/hooks/useContentful";
 
-const fallbackArticles: Record<string, { title: string; category: string; date: string; image: string; body: string }> = {
-  "future-ui-design-2026": { title: "The Future of UI Design in 2026", category: "Design Trends", date: "Mar 15, 2026", image: "/placeholder.svg", body: "Exploring how AI and spatial computing are reshaping interface design. From adaptive layouts to context-aware components, the next wave of UI is here." },
-  "accessibility-non-negotiable": { title: "Why Accessibility is Non-Negotiable", category: "Best Practices", date: "Mar 8, 2026", image: "/placeholder.svg", body: "Making digital products inclusive isn't optional — it's essential. Here's how we approach accessibility from day one of every project." },
-  "wireframe-to-pixel-perfect": { title: "From Wireframe to Pixel-Perfect", category: "Process", date: "Feb 28, 2026", image: "/placeholder.svg", body: "A deep dive into the design workflow that delivers consistent results across every project." },
-  "design-systems-that-scale": { title: "Design Systems That Scale", category: "Design Systems", date: "Feb 15, 2026", image: "/placeholder.svg", body: "How to build and maintain a design system that grows with your product and team." },
-  "psychology-of-color": { title: "The Psychology of Color in Digital Products", category: "Design Theory", date: "Feb 1, 2026", image: "/placeholder.svg", body: "Understanding how color influences user behavior and decision-making in interfaces." },
-  "designing-for-dark-mode": { title: "Designing for Dark Mode", category: "UI Design", date: "Jan 20, 2026", image: "/placeholder.svg", body: "Best practices and common pitfalls when implementing dark mode in your applications." },
+interface TOC { id: string; title: string; level: number; }
+
+const fallback: Record<string, { title: string; category: string; publishedAt: string; image: string; content: string; readTime: string; tags: string[]; }> = {
+  "future-ui-design-2026": {
+    title: "The Future of UI Design in 2026",
+    category: "Design Trends",
+    publishedAt: "2026-03-15",
+    image: "/placeholder.svg",
+    readTime: "6 min read",
+    tags: ["UI", "Trends", "AI"],
+    content: `## Introduction\nExploring how AI and spatial computing are reshaping interface design.\n\n## What's Changing\nFrom adaptive layouts to context-aware components, the next wave is here.\n\n### Adaptive Layouts\nInterfaces respond to user intent.\n\n## Closing\nDesigners must prepare today.`,
+  },
 };
 
-function estimateReadTime(text: string): number {
+const formatDate = (d: string) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+function estimateReadTime(text: string): string {
   const words = text.trim().split(/\s+/).length;
-  return Math.max(1, Math.round(words / 220));
+  return `${Math.max(1, Math.round(words / 220))} min read`;
+}
+
+function extractPlainFromRich(node: any): string {
+  if (!node) return "";
+  if (typeof node.value === "string") return node.value;
+  if (Array.isArray(node.content)) return node.content.map(extractPlainFromRich).join(" ");
+  return "";
+}
+
+function richHeadings(doc: any): TOC[] {
+  const out: TOC[] = [];
+  if (!doc?.content) return out;
+  doc.content.forEach((n: any) => {
+    if (n.nodeType === "heading-2" || n.nodeType === "heading-3") {
+      const title = extractPlainFromRich(n).trim();
+      const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      out.push({ id, title, level: n.nodeType === "heading-2" ? 2 : 3 });
+    }
+  });
+  return out;
 }
 
 export default function ArticleDetail() {
   const { slug } = useParams();
   const { items, loading } = useContentful("news", slug);
   const cms = items[0];
-  const fb = slug ? fallbackArticles[slug] : undefined;
+  const fb = slug ? fallback[slug] : undefined;
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState<string>("");
+  const [toc, setToc] = useState<TOC[]>([]);
 
-  if (loading && !fb && !cms) {
+  const body = cms?.body ?? cms?.overview;
+  const isRich = body && typeof body === "object" && body.nodeType === "document";
+  const isString = typeof body === "string";
+
+  // Build TOC
+  useEffect(() => {
+    let headings: TOC[] = [];
+    if (isRich) {
+      headings = richHeadings(body);
+    } else {
+      const source = isString ? body : (fb?.content ?? "");
+      source.split("\n").forEach((line: string) => {
+        if (line.startsWith("## ")) {
+          const title = line.replace("## ", "").trim();
+          headings.push({ id: title.toLowerCase().replace(/[^a-z0-9]+/g, "-"), title, level: 2 });
+        } else if (line.startsWith("### ")) {
+          const title = line.replace("### ", "").trim();
+          headings.push({ id: title.toLowerCase().replace(/[^a-z0-9]+/g, "-"), title, level: 3 });
+        }
+      });
+    }
+    setToc(headings);
+    if (headings.length > 0) setActiveSection(headings[0].id);
+  }, [cms?.id, slug]);
+
+  // Scroll spy
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!contentRef.current) return;
+      const headingEls = contentRef.current.querySelectorAll("h2, h3");
+      const scrollPos = window.scrollY + 150;
+      let current = "";
+      headingEls.forEach((h) => {
+        const el = h as HTMLElement;
+        if (el.offsetTop <= scrollPos) current = el.id;
+      });
+      if (current) setActiveSection(current);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [toc]);
+
+  if (loading && !cms && !fb) {
     return (
       <Layout>
         <div className="min-h-[60vh] flex items-center justify-center text-muted-foreground">
@@ -37,134 +110,159 @@ export default function ArticleDetail() {
     );
   }
 
-  if (!cms && !fb) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-6 py-32 text-center">
-          <h1 className="font-display text-4xl font-bold mb-4">Article not found</h1>
-          <p className="text-muted-foreground mb-6">This article may have been moved or hasn't been published yet.</p>
-          <Button asChild className="rounded-full mt-4"><Link to="/news">Back to News</Link></Button>
-        </div>
-      </Layout>
-    );
-  }
+  if (!cms && !fb) return <Navigate to="/news" replace />;
 
   const title = cms?.title || fb!.title;
-  const category = cms?.category || fb?.category;
-  const dateStr = cms
-    ? new Date(cms.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
-    : fb!.date;
+  const category = cms?.category || fb?.category || "News";
+  const publishedAt = cms?.createdAt || fb!.publishedAt;
   const image = cms ? getImageUrl(cms.image) : fb!.image;
   const excerpt = cms?.excerpt;
+  const tags: string[] = (cms?.tags as string[]) || fb?.tags || [];
 
-  // Determine body content + plain text for read-time
-  const body = cms?.body ?? cms?.overview;
-  let plain = "";
-  if (typeof body === "string") plain = body;
-  else if (body?.nodeType === "document") {
-    const walk = (n: any): string => {
-      if (!n) return "";
-      if (typeof n.value === "string") return n.value;
-      if (Array.isArray(n.content)) return n.content.map(walk).join(" ");
-      return "";
-    };
-    plain = walk(body);
-  } else if (excerpt) plain = excerpt;
-  else if (fb) plain = fb.body;
-  const readMin = estimateReadTime(plain);
+  const plain = isRich ? extractPlainFromRich(body) : (isString ? body : (excerpt || fb?.content || ""));
+  const readTime = estimateReadTime(plain);
 
-  const handleShare = async () => {
-    const url = typeof window !== "undefined" ? window.location.href : "";
-    if (navigator.share) {
-      try { await navigator.share({ title, url }); } catch { /* user cancelled */ }
-    } else if (navigator.clipboard) {
-      await navigator.clipboard.writeText(url);
-    }
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) window.scrollTo({ top: el.offsetTop - 120, behavior: "smooth" });
+  };
+
+  const renderStringContent = (text: string): ReactNode[] => {
+    return text.split("\n").map((line, index) => {
+      if (line.startsWith("## ")) {
+        const title = line.replace("## ", "").trim();
+        const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        return <h2 key={index} id={id} className="font-display text-3xl md:text-4xl font-bold text-foreground mt-16 mb-6 scroll-mt-32">{title}</h2>;
+      }
+      if (line.startsWith("### ")) {
+        const title = line.replace("### ", "").trim();
+        const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        return <h3 key={index} id={id} className="font-display text-xl md:text-2xl font-semibold text-foreground mt-10 mb-4 scroll-mt-32">{title}</h3>;
+      }
+      if (line.startsWith("**") && line.endsWith("**") && line.length > 4) {
+        return <p key={index} className="font-semibold text-foreground my-4">{line.replace(/\*\*/g, "")}</p>;
+      }
+      if (line.startsWith("- ")) {
+        return <li key={index} className="text-muted-foreground ml-6 my-2 list-disc">{line.replace("- ", "")}</li>;
+      }
+      if (line.trim()) {
+        return <p key={index} className="text-muted-foreground leading-relaxed my-4 text-lg">{line}</p>;
+      }
+      return null;
+    });
   };
 
   return (
     <Layout>
-      {/* Hero with image background */}
-      <section className="relative pt-28 pb-16 md:pt-40 md:pb-24 overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <img src={image} alt="" aria-hidden className="w-full h-full object-cover opacity-30 blur-xl scale-110" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
-        </div>
-        <div className="container mx-auto px-6 max-w-4xl">
-          <Link to="/news" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-8 group">
-            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> Back to News
-          </Link>
-          <AnimatedSection direction="up">
-            {category && (
-              <span className="inline-block text-primary font-medium mb-5 tracking-[0.2em] uppercase text-xs font-mono px-3 py-1 rounded-full border border-primary/30 bg-primary/5">
-                {category}
-              </span>
-            )}
-            <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.05] mb-6">{title}</h1>
-            {excerpt && (
-              <p className="text-muted-foreground text-lg md:text-xl max-w-2xl leading-relaxed mb-8">{excerpt}</p>
-            )}
-            <div className="flex flex-wrap items-center gap-5 text-sm text-muted-foreground border-t border-border/40 pt-6">
-              <span className="flex items-center gap-2"><Calendar className="h-4 w-4 text-primary" /> {dateStr}</span>
-              <span className="flex items-center gap-2"><Clock className="h-4 w-4 text-primary" /> {readMin} min read</span>
-              <button onClick={handleShare} className="ml-auto flex items-center gap-2 hover:text-primary transition-colors">
-                <Share2 className="h-4 w-4" /> Share
-              </button>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* Hero image */}
-      <section className="px-6 -mt-4 mb-16 md:mb-24">
-        <AnimatedSection direction="scale">
-          <div className="aspect-[21/9] rounded-3xl overflow-hidden bg-muted max-w-5xl mx-auto shadow-2xl ring-1 ring-border/30">
-            <img src={image} alt={title} className="w-full h-full object-cover" />
+      <main className="pt-32 pb-20">
+        <div className="container mx-auto px-6">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
+            <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+            <span>/</span>
+            <Link to="/news" className="hover:text-foreground transition-colors">Blog</Link>
+            <span>/</span>
+            <span className="text-foreground truncate max-w-[240px]">{title}</span>
           </div>
-        </AnimatedSection>
-      </section>
 
-      {/* Article body */}
-      <article className="pb-24 md:pb-32">
-        <div className="container mx-auto px-6 max-w-3xl">
-          <AnimatedSection direction="up">
-            <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-blockquote:border-l-primary prose-blockquote:not-italic prose-blockquote:font-display">
-              {(() => {
-                if (body && typeof body === "object" && body.nodeType === "document") {
-                  return documentToReactComponents(body);
-                }
-                if (typeof body === "string" && body.trim()) {
-                  return body.split(/\n\n+/).map((p, i) => <p key={i}>{p}</p>);
-                }
-                if (excerpt) return <p>{excerpt}</p>;
-                if (!cms && fb) return <p>{fb.body}</p>;
-                return (
-                  <p className="text-muted-foreground italic">
-                    Add a <code>body</code> field (Long Text) to this News entry in Contentful to fill in the article.
-                  </p>
-                );
-              })()}
+          {/* Hero */}
+          <div className="grid lg:grid-cols-2 gap-8 mb-12">
+            <div>
+              <span className="inline-block px-3 py-1 rounded-full bg-primary/15 text-primary text-xs font-medium mb-4">{category}</span>
+              <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-6">{title}</h1>
+              {excerpt && <p className="text-muted-foreground text-lg mb-6">{excerpt}</p>}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span>{formatDate(publishedAt)}</span>
+                <span className="w-1 h-1 rounded-full bg-muted-foreground" />
+                <span>{readTime}</span>
+              </div>
             </div>
-          </AnimatedSection>
-
-          {/* Sponsor (toggle off site-wide with VITE_SPONSOR_ENABLED="false") */}
-          <AnimatedSection direction="up" className="mt-16">
-            <SponsorSlot storageKey={`sponsor-article-${slug}`} />
-          </AnimatedSection>
-
-          {/* Footer / next steps */}
-          <AnimatedSection direction="up" className="mt-16 pt-10 border-t border-border/40">
-            <div className="flex flex-wrap items-center justify-between gap-6">
-              <Button asChild variant="outline" className="rounded-full">
-                <Link to="/news"><ArrowLeft className="mr-2 h-4 w-4" /> All Articles</Link>
-              </Button>
-              <Button asChild className="rounded-full">
-                <Link to="/contact">Work With Us</Link>
-              </Button>
+            <div className="aspect-[16/10] rounded-2xl overflow-hidden">
+              <img src={image} alt={title} className="w-full h-full object-cover" />
             </div>
-          </AnimatedSection>
+          </div>
+
+          {/* Body with sidebar */}
+          <div className="grid lg:grid-cols-4 gap-12">
+            <aside className="hidden lg:block">
+              <div className="sticky top-32">
+                {toc.length > 0 && (
+                  <>
+                    <h4 className="text-sm font-bold text-foreground mb-6">In this article:</h4>
+                    <nav className="space-y-1 border-l-2 border-border">
+                      {toc.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => scrollToSection(item.id)}
+                          className={cn(
+                            "block w-full text-left text-sm py-2 transition-all duration-200 border-l-2 -ml-0.5",
+                            item.level === 3 ? "pl-8" : "pl-4",
+                            activeSection === item.id
+                              ? "text-primary border-primary font-medium"
+                              : "text-muted-foreground border-transparent hover:text-foreground hover:border-muted-foreground"
+                          )}
+                        >
+                          {item.title}
+                        </button>
+                      ))}
+                    </nav>
+                  </>
+                )}
+
+                <div className="mt-12 pt-8 border-t border-border">
+                  <p className="text-sm text-muted-foreground mb-4">Connect:</p>
+                  <div className="flex items-center gap-3">
+                    {[Linkedin, Instagram, Twitter, Facebook].map((Icon, i) => (
+                      <a key={i} href="#" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+                        <Icon className="w-4 h-4" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            <div ref={contentRef} className="lg:col-span-3 max-w-3xl">
+              <article className="prose-custom">
+                {isRich ? (
+                  <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-primary prose-img:rounded-xl">
+                    {documentToReactComponents(body)}
+                  </div>
+                ) : isString ? (
+                  renderStringContent(body)
+                ) : (
+                  renderStringContent(fb?.content || excerpt || "Add a `body` field (Long Text or Rich Text) to this entry in Contentful.")
+                )}
+              </article>
+
+              {/* CTA */}
+              <div className="mt-16 p-8 rounded-2xl bg-card border border-border">
+                <div className="bg-secondary/50 p-6 rounded-xl">
+                  <h4 className="font-bold text-foreground mb-2 font-display">Like what you read? Let's work together.</h4>
+                  <Button asChild size="sm" className="mt-4 rounded-full">
+                    <Link to="/contact">Contact Us</Link>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Sponsor */}
+              <div className="mt-12">
+                <SponsorSlot storageKey={`sponsor-article-${slug}`} />
+              </div>
+
+              {/* Tags */}
+              {tags.length > 0 && (
+                <div className="flex items-center gap-3 flex-wrap mt-12 pt-8 border-t border-border">
+                  <span className="text-sm text-muted-foreground">Tags:</span>
+                  {tags.map((tag) => (
+                    <span key={tag} className="px-4 py-1.5 rounded-full bg-secondary text-muted-foreground text-sm">{tag}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </article>
+      </main>
     </Layout>
   );
 }
