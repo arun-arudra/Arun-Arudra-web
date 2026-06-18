@@ -160,7 +160,7 @@ export default function ArticleDetail() {
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
             <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
             <span>/</span>
-            <Link to="/news" className="hover:text-foreground transition-colors">Blog</Link>
+            <Link to="/news" className="hover:text-foreground transition-colors">News</Link>
             <span>/</span>
             <span className="text-foreground truncate max-w-[240px]">{title}</span>
           </div>
@@ -222,7 +222,7 @@ export default function ArticleDetail() {
               </div>
             </aside>
 
-            <div ref={contentRef} className="lg:col-span-3 max-w-3xl">
+            <div ref={contentRef} className="lg:col-span-3 w-full">
               <article className="prose-custom">
                 {isRich ? (
                   <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-primary prose-img:rounded-xl">
