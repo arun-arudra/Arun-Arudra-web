@@ -222,7 +222,7 @@ export default function ArticleDetail() {
               </div>
             </aside>
 
-            <div ref={contentRef} className="lg:col-span-3 max-w-3xl">
+            <div ref={contentRef} className="lg:col-span-3 w-full">
               <article className="prose-custom">
                 {isRich ? (
                   <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-primary prose-img:rounded-xl">
