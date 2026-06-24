@@ -8,6 +8,7 @@ import { Mail, Send } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { siteConfig } from "@/config/site";
 
 export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -48,7 +49,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Email me at</p>
-                    <a href="mailto:hi@arunarudra.com" className="font-medium hover:text-primary transition-colors">hi@arunarudra.com</a>
+                    <a href={`mailto:${siteConfig.contactEmail}`} className="font-medium hover:text-primary transition-colors">{siteConfig.contactEmail}</a>
                   </div>
                 </div>
               </AnimatedSection>
