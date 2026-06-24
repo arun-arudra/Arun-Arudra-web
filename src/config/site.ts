@@ -1,8 +1,9 @@
 /**
  * Central site configuration.
  *
- * Edit values here directly, or override via .env (VITE_* vars take precedence).
- * Restart the dev server after changing .env.
+ * All values can be overridden through .env (VITE_* vars take precedence).
+ * Restart the dev server after changing .env. Variables are also safe to set
+ * via GitHub Actions secrets — the build step injects them.
  */
 
 const envBool = (v: string | undefined, fallback: boolean) =>
@@ -13,23 +14,42 @@ const envInt = (v: string | undefined, fallback: number) => {
   return Number.isFinite(n) && n > 0 ? n : fallback;
 };
 
+const envStr = (v: string | undefined, fallback: string) =>
+  v && v.trim() !== "" ? v : fallback;
+
 export const siteConfig = {
-  /** Max featured projects to show on the homepage (1–10). */
+  // ---------- Content limits ----------
   featuredProjectsLimit: envInt(import.meta.env.VITE_FEATURED_LIMIT, 4),
-
-  /** Max latest blog posts on the homepage. */
   latestBlogLimit: envInt(import.meta.env.VITE_BLOG_LIMIT, 3),
+  newsPerPage: envInt(import.meta.env.VITE_NEWS_PER_PAGE, 10),
 
-  /** Master switch for all sponsor / ad slots. */
+  // ---------- Sponsor / Ads ----------
   sponsorEnabled: envBool(import.meta.env.VITE_SPONSOR_ENABLED, true),
+  adsenseClient: envStr(import.meta.env.VITE_ADSENSE_CLIENT, ""),
+  adsenseSlot: envStr(import.meta.env.VITE_ADSENSE_SLOT, ""),
 
-  /** Google AdSense Publisher ID, e.g. "ca-pub-1234567890123456". */
-  adsenseClient:
-    (import.meta.env.VITE_ADSENSE_CLIENT as string | undefined) ||
-    // 👇 Or hard-code a dummy/live value here so you don't have to touch .env
-    "",
+  // ---------- Branding ----------
+  brandName: envStr(import.meta.env.VITE_BRAND_NAME, "ArunArudra"),
+  copyrightText: envStr(
+    import.meta.env.VITE_COPYRIGHT,
+    `Copyright © ${new Date().getFullYear()} - ArunArudra`,
+  ),
 
-  /** Default AdSense slot ID. */
-  adsenseSlot:
-    (import.meta.env.VITE_ADSENSE_SLOT as string | undefined) || "",
+  // ---------- Contact ----------
+  /** Public mailto address shown on the contact page. */
+  contactEmail: envStr(import.meta.env.VITE_CONTACT_EMAIL, "hi@arunarudra.com"),
+  /** Internal recipient that receives form submissions (used by edge funcs / forwarders). */
+  contactRecipient: envStr(
+    import.meta.env.VITE_CONTACT_RECIPIENT,
+    envStr(import.meta.env.VITE_CONTACT_EMAIL, "hi@arunarudra.com"),
+  ),
+
+  // ---------- Social links ----------
+  social: {
+    facebook: envStr(import.meta.env.VITE_SOCIAL_FACEBOOK, ""),
+    twitter: envStr(import.meta.env.VITE_SOCIAL_TWITTER, ""),
+    instagram: envStr(import.meta.env.VITE_SOCIAL_INSTAGRAM, ""),
+    linkedin: envStr(import.meta.env.VITE_SOCIAL_LINKEDIN, ""),
+    github: envStr(import.meta.env.VITE_SOCIAL_GITHUB, ""),
+  },
 };

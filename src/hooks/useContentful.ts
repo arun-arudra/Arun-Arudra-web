@@ -67,7 +67,7 @@ function sortItems(items: ContentfulItem[]) {
 }
 
 export function useContentful(contentType: string, slug?: string) {
-  const cacheKey = `cf:${contentType}:${slug ?? "*"}`;
+  const cacheKey = `cf2:${contentType}:${slug ?? "*"}`;
   const initial = memCache.get(cacheKey) ?? readSession(cacheKey) ?? [];
   const [items, setItems] = useState<ContentfulItem[]>(initial);
   const [loading, setLoading] = useState(initial.length === 0);

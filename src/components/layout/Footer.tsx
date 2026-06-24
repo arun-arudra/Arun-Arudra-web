@@ -6,6 +6,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { siteConfig } from "@/config/site";
 
 const footerLinks = [
   { label: "HOME", path: "/" },
@@ -17,12 +18,12 @@ const footerLinks = [
 ];
 
 const socialLinks = [
-  { Icon: Facebook, href: "#", label: "Facebook" },
-  { Icon: () => <span className="font-bold text-sm">𝕏</span>, href: "#", label: "X" },
-  { Icon: Instagram, href: "#", label: "Instagram" },
-  { Icon: Linkedin, href: "#", label: "LinkedIn" },
-  { Icon: Github, href: "#", label: "GitHub" },
-];
+  { Icon: Facebook, href: siteConfig.social.facebook, label: "Facebook" },
+  { Icon: () => <span className="font-bold text-sm">𝕏</span>, href: siteConfig.social.twitter, label: "X" },
+  { Icon: Instagram, href: siteConfig.social.instagram, label: "Instagram" },
+  { Icon: Linkedin, href: siteConfig.social.linkedin, label: "LinkedIn" },
+  { Icon: Github, href: siteConfig.social.github, label: "GitHub" },
+].filter((s) => s.href && s.href.trim() !== "");
 
 export function Footer() {
   const [email, setEmail] = useState("");
@@ -162,7 +163,7 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10 text-sm text-white/50">
-          <p>Copyright © 2026 - ArunArudra</p>
+          <p>{siteConfig.copyrightText}</p>
           <div className="flex items-center gap-4">
             <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
             <span>|</span>
