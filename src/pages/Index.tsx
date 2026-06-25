@@ -356,7 +356,7 @@ function NewsSection() {
             <AnimatedSection key={n.slug} delay={i * 0.1} direction="up">
               <Link to={`/news/${n.slug}`} className="group block h-full">
                 <article className="rounded-2xl overflow-hidden border border-border/50 bg-card hover:border-primary/20 transition-all duration-300 h-full flex flex-col">
-                  <div className="aspect-[16/10] bg-muted overflow-hidden">
+                  <div className="aspect-video bg-muted overflow-hidden">
                     <img src={n.image} alt={n.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                   </div>
                   <div className="p-6 flex flex-col flex-1 relative">

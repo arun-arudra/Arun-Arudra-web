@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "../ThemeToggle";
 import { Button } from "../ui/button";
+import { Logo } from "../Logo";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
@@ -28,8 +29,8 @@ export function Navbar() {
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b transition-all duration-300 ${scrolled ? "bg-background/95 border-border h-14" : "bg-background/80 border-border/50 h-16"}`}>
       <div className={`container mx-auto px-6 flex items-center justify-between transition-all duration-300 ${scrolled ? "h-14" : "h-16"}`}>
-        <Link to="/" className="font-display text-xl font-bold tracking-tight">
-          <span className="text-primary">Arun</span>Arudra
+        <Link to="/" aria-label="ArunArudra — Home" className="flex items-center">
+          <Logo className="h-8 w-auto [&_svg]:h-8 [&_svg]:w-auto" />
         </Link>
 
         {/* Desktop nav */}

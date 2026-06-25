@@ -7,16 +7,62 @@ on:
     branches: [main, master]
 
 env:
-  # Non-sensitive environment variables
-  NODE_VERSION: '20'
-  BUILD_COMMAND: 'npm run build'
-  DEPLOY_SOURCE: './dist/'
-  DEPLOY_DESTINATION: './ArunArudra/'
-  
-  # Google AdSense Configuration (from .env)
-  VITE_SPONSOR_ENABLED: "true"
+  # ============================================================
+  # Build Configuration
+  # ============================================================
+  NODE_VERSION: "24"
+  BUILD_COMMAND: "npm run build"
+  DEPLOY_SOURCE: "./dist/"
+  DEPLOY_DESTINATION: "./"
+  WEBSITE_URL: "https://arunarudra.com/"
+
+  # ============================================================
+  # Supabase Configuration (GitHub Secrets)
+  # Add these under:
+  # Repository → Settings → Secrets and variables → Actions → Secrets
+  # ============================================================
+  VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+  VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+  VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+  # ============================================================
+  # Google AdSense Configuration (GitHub Secrets)
+  # ============================================================
+  VITE_SPONSOR_ENABLED: ${{ vars.VITE_SPONSOR_ENABLED }}
   VITE_ADSENSE_CLIENT: ${{ secrets.VITE_ADSENSE_CLIENT }}
   VITE_ADSENSE_SLOT: ${{ secrets.VITE_ADSENSE_SLOT }}
+
+  # ============================================================
+  # Site Content Limits (GitHub Variables)
+  # Repository → Settings → Secrets and variables → Actions → Variables
+  # ============================================================
+  VITE_FEATURED_LIMIT: ${{ vars.VITE_FEATURED_LIMIT }}
+  VITE_BLOG_LIMIT: ${{ vars.VITE_BLOG_LIMIT }}
+  VITE_NEWS_PER_PAGE: ${{ vars.VITE_NEWS_PER_PAGE }}
+
+  # ============================================================
+  # Branding (GitHub Variables)
+  # ============================================================
+  VITE_BRAND_NAME: ${{ vars.VITE_BRAND_NAME }}
+  VITE_COPYRIGHT: ${{ vars.VITE_COPYRIGHT }}
+
+  # ============================================================
+  # Contact Information (GitHub Variables)
+  # ============================================================
+  # Email shown publicly on the Contact page (mailto: link)
+  VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
+  # Optional separate recipient for form submissions (defaults to VITE_CONTACT_EMAIL)
+  VITE_CONTACT_RECIPIENT: ${{ vars.VITE_CONTACT_RECIPIENT }}
+
+  # ============================================================
+  # Social Links (GitHub Variables)
+  # Leave empty to hide unused icons
+  # ============================================================
+  VITE_SOCIAL_FACEBOOK: ${{ vars.VITE_SOCIAL_FACEBOOK }}
+  VITE_SOCIAL_TWITTER: ${{ vars.VITE_SOCIAL_TWITTER }}
+  VITE_SOCIAL_INSTAGRAM: ${{ vars.VITE_SOCIAL_INSTAGRAM }}
+  VITE_SOCIAL_LINKEDIN: ${{ vars.VITE_SOCIAL_LINKEDIN }}
+  VITE_SOCIAL_GITHUB: ${{ vars.VITE_SOCIAL_GITHUB }}
 
 jobs:
   build-and-deploy:
@@ -75,6 +121,6 @@ jobs:
           echo "======================================"
           echo "✅ Build and Deployment Complete!"
           echo "======================================"
-          echo "Website URL: https://arunarudra.com/ArunArudra/"
-          echo "Deployed to: /ArunArudra/"
+          echo "🌐 Website URL: ${{ env.WEBSITE_URL }}"
+          echo "📂 Deployed to: ${{ env.DEPLOY_DESTINATION }}"
           echo "======================================"
