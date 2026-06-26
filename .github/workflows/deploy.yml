@@ -103,11 +103,11 @@ jobs:
       - name: Verify build artifacts
         run: |
           if [ -d "./dist" ]; then
-            echo "Build artifacts exist"
+            echo "✅ Build artifacts exist"
             echo "Files to deploy:"
             ls -la ./dist | head -20
           else
-            echo "Error: dist folder not found"
+            echo "❌ Error: dist folder not found"
             exit 1
           fi
 
@@ -132,12 +132,12 @@ jobs:
             ArunArudra/**
           dry-run: false
 
-      - name: Build completed successfully
+      - name: Build completed successfully ✅
         run: |
           echo "======================================"
-          echo "Build and Deployment Complete"
+          echo "✅ Build and Deployment Complete ✅"
           echo "======================================"
-          echo "Website URL: ${{ env.WEBSITE_URL }}"
+          echo "🌐 Website URL: ${{ env.WEBSITE_URL }}"
           echo "Base path: ${{ env.VITE_BASE_PATH }}"
-          echo "Deployed to: ${{ env.DEPLOY_DESTINATION }}"
+          echo "📂Deployed to: ${{ env.DEPLOY_DESTINATION }}"
           echo "======================================"
