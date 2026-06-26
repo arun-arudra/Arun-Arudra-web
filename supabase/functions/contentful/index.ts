@@ -13,25 +13,12 @@ serve(async (req) => {
   }
 
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-  if (!LOVABLE_API_KEY) {
-    return new Response(JSON.stringify({ error: "LOVABLE_API_KEY not configured" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
   const CONTENTFUL_API_KEY = Deno.env.get("CONTENTFUL_API_KEY");
-  if (!CONTENTFUL_API_KEY) {
-    return new Response(JSON.stringify({ error: "CONTENTFUL_API_KEY not configured" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
   const CONTENTFUL_SPACE_ID = Deno.env.get("CONTENTFUL_SPACE_ID");
-  if (!CONTENTFUL_SPACE_ID) {
-    return new Response(JSON.stringify({ error: "CONTENTFUL_SPACE_ID not configured" }), {
-      status: 500,
+  if (!LOVABLE_API_KEY || !CONTENTFUL_API_KEY || !CONTENTFUL_SPACE_ID) {
+    console.error("Contentful function missing required configuration");
+    return new Response(JSON.stringify({ error: "Service temporarily unavailable" }), {
+      status: 503,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
@@ -42,11 +29,13 @@ serve(async (req) => {
     const limit = url.searchParams.get("limit") || "100";
     const slug = url.searchParams.get("slug");
 
-    let apiUrl = `${GATEWAY_URL}/spaces/${CONTENTFUL_SPACE_ID}/entries?content_type=${contentType}&limit=${limit}&include=2`;
-    
-    if (slug) {
-      apiUrl += `&fields.slug=${slug}`;
-    }
+    const params = new URLSearchParams({
+      content_type: contentType,
+      limit,
+      include: "2",
+    });
+    if (slug) params.set("fields.slug", slug);
+    const apiUrl = `${GATEWAY_URL}/spaces/${CONTENTFUL_SPACE_ID}/entries?${params.toString()}`;
 
     const response = await fetch(apiUrl, {
       headers: {
@@ -57,7 +46,8 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Contentful API error [${response.status}]: ${errorText}`);
+      console.error(`Contentful API error [${response.status}]: ${errorText}`);
+      throw new Error("Upstream content fetch failed");
     }
 
     const data = await response.json();
@@ -143,8 +133,7 @@ serve(async (req) => {
     });
   } catch (error: unknown) {
     console.error("Contentful fetch error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: "Failed to load content" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
