@@ -16,6 +16,7 @@ import ArticleDetail from "./pages/ArticleDetail";
 import { ScrollToTopOnRouteChange } from "./components/ScrollToTopOnRouteChange";
 
 const queryClient = new QueryClient();
+const routerBasename = import.meta.env.BASE_URL === "/" ? undefined : import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const App = () => (
   <ThemeProvider defaultTheme="system">
@@ -23,7 +24,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter basename="/ArunArudra/">
+        <BrowserRouter basename={routerBasename}>
           <ScrollToTopOnRouteChange />
           <Routes>
             <Route path="/" element={<Index />} />
