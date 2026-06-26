@@ -13,25 +13,12 @@ serve(async (req) => {
   }
 
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-  if (!LOVABLE_API_KEY) {
-    return new Response(JSON.stringify({ error: "LOVABLE_API_KEY not configured" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
   const CONTENTFUL_API_KEY = Deno.env.get("CONTENTFUL_API_KEY");
-  if (!CONTENTFUL_API_KEY) {
-    return new Response(JSON.stringify({ error: "CONTENTFUL_API_KEY not configured" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
   const CONTENTFUL_SPACE_ID = Deno.env.get("CONTENTFUL_SPACE_ID");
-  if (!CONTENTFUL_SPACE_ID) {
-    return new Response(JSON.stringify({ error: "CONTENTFUL_SPACE_ID not configured" }), {
-      status: 500,
+  if (!LOVABLE_API_KEY || !CONTENTFUL_API_KEY || !CONTENTFUL_SPACE_ID) {
+    console.error("Contentful function missing required configuration");
+    return new Response(JSON.stringify({ error: "Service temporarily unavailable" }), {
+      status: 503,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
