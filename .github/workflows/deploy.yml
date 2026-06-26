@@ -132,7 +132,7 @@ jobs:
             ArunArudra/**
           dry-run: false
 
-      - name: Build completed successfully ✅
+      - name: Build completed successfully
         run: |
           echo "======================================"
           echo "✅ Build and Deployment Complete ✅"
