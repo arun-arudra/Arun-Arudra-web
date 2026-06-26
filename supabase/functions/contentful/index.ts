@@ -29,11 +29,13 @@ serve(async (req) => {
     const limit = url.searchParams.get("limit") || "100";
     const slug = url.searchParams.get("slug");
 
-    let apiUrl = `${GATEWAY_URL}/spaces/${CONTENTFUL_SPACE_ID}/entries?content_type=${contentType}&limit=${limit}&include=2`;
-    
-    if (slug) {
-      apiUrl += `&fields.slug=${slug}`;
-    }
+    const params = new URLSearchParams({
+      content_type: contentType,
+      limit,
+      include: "2",
+    });
+    if (slug) params.set("fields.slug", slug);
+    const apiUrl = `${GATEWAY_URL}/spaces/${CONTENTFUL_SPACE_ID}/entries?${params.toString()}`;
 
     const response = await fetch(apiUrl, {
       headers: {
@@ -44,7 +46,8 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Contentful API error [${response.status}]: ${errorText}`);
+      console.error(`Contentful API error [${response.status}]: ${errorText}`);
+      throw new Error("Upstream content fetch failed");
     }
 
     const data = await response.json();
