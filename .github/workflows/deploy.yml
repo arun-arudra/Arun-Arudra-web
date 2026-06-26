@@ -1,10 +1,15 @@
-name: Deploy to Production
+name: Build and Deploy
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - dev
   pull_request:
-    branches: [main, master]
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
 
 env:
   # ============================================================
@@ -13,20 +18,24 @@ env:
   NODE_VERSION: "24"
   BUILD_COMMAND: "npm run build"
   DEPLOY_SOURCE: "./dist/"
-  DEPLOY_DESTINATION: "./"
-  WEBSITE_URL: "https://arunarudra.com/"
+
+  # Branch-based deployment:
+  # main -> https://arunarudra.com/
+  # dev  -> https://arunarudra.com/ArunArudra/
+  VITE_BASE_PATH: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && '/' || '/ArunArudra/' }}
+  DEPLOY_DESTINATION: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && './' || './ArunArudra/' }}
+  WEBSITE_URL: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && 'https://arunarudra.com/' || 'https://arunarudra.com/ArunArudra/' }}
 
   # ============================================================
   # Supabase Configuration (GitHub Secrets)
-  # Add these under:
-  # Repository → Settings → Secrets and variables → Actions → Secrets
+  # Repository -> Settings -> Secrets and variables -> Actions
   # ============================================================
   VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
   VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
   VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
   # ============================================================
-  # Google AdSense Configuration (GitHub Secrets)
+  # Google AdSense Configuration
   # ============================================================
   VITE_SPONSOR_ENABLED: ${{ vars.VITE_SPONSOR_ENABLED }}
   VITE_ADSENSE_CLIENT: ${{ secrets.VITE_ADSENSE_CLIENT }}
@@ -34,7 +43,6 @@ env:
 
   # ============================================================
   # Site Content Limits (GitHub Variables)
-  # Repository → Settings → Secrets and variables → Actions → Variables
   # ============================================================
   VITE_FEATURED_LIMIT: ${{ vars.VITE_FEATURED_LIMIT }}
   VITE_BLOG_LIMIT: ${{ vars.VITE_BLOG_LIMIT }}
@@ -49,9 +57,7 @@ env:
   # ============================================================
   # Contact Information (GitHub Variables)
   # ============================================================
-  # Email shown publicly on the Contact page (mailto: link)
   VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
-  # Optional separate recipient for form submissions (defaults to VITE_CONTACT_EMAIL)
   VITE_CONTACT_RECIPIENT: ${{ vars.VITE_CONTACT_RECIPIENT }}
 
   # ============================================================
@@ -76,22 +82,41 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Show branch deployment config
+        run: |
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Base path: ${{ env.VITE_BASE_PATH }}"
+          echo "Deploy destination: ${{ env.DEPLOY_DESTINATION }}"
+          echo "Website URL: ${{ env.WEBSITE_URL }}"
 
       - name: Build project
         run: ${{ env.BUILD_COMMAND }}
 
-      - name: Run tests (optional)
+      - name: Run tests
         run: npm run test
-        continue-on-error: true
+
+      - name: Verify build artifacts
+        run: |
+          if [ -d "./dist" ]; then
+            echo "Build artifacts exist"
+            echo "Files to deploy:"
+            ls -la ./dist | head -20
+          else
+            echo "Error: dist folder not found"
+            exit 1
+          fi
 
       # ============================================================
       # BLUEHOST DEPLOYMENT (via FTP)
+      # Deploy only for push/manual runs, not pull requests.
       # ============================================================
       - name: Deploy to Bluehost
+        if: github.event_name != 'pull_request'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -99,28 +124,20 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ${{ env.DEPLOY_SOURCE }}
           server-dir: ${{ env.DEPLOY_DESTINATION }}
-          state-name: .ftp-deploy-sync-state.json
+          state-name: .ftp-deploy-sync-state-${{ github.ref_name }}.json
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            ArunArudra/**
           dry-run: false
 
-      # ============================================================
-      # VERIFY FILES DEPLOYED SUCCESSFULLY
-      # ============================================================
-      - name: Verify files deployed successfully
-        run: |
-          if [ -d "./dist" ]; then
-            echo "✅ Build artifacts exist"
-            echo "Files to deploy:"
-            ls -la ./dist | head -20
-          else
-            echo "❌ Error: dist folder not found"
-            exit 1
-          fi
-
-      - name: Build completed successfully ✅
+      - name: Build completed successfully
         run: |
           echo "======================================"
-          echo "✅ Build and Deployment Complete!"
+          echo "Build and Deployment Complete"
           echo "======================================"
-          echo "🌐 Website URL: ${{ env.WEBSITE_URL }}"
-          echo "📂 Deployed to: ${{ env.DEPLOY_DESTINATION }}"
+          echo "Website URL: ${{ env.WEBSITE_URL }}"
+          echo "Base path: ${{ env.VITE_BASE_PATH }}"
+          echo "Deployed to: ${{ env.DEPLOY_DESTINATION }}"
           echo "======================================"
