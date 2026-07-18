@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,11 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import ImageUploader from "@/components/admin/ImageUploader";
+import { Sun, Moon } from "lucide-react"; 
 import { 
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle 
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Trash2, Send, Clock, Image as ImageIcon, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Trash2, Send, Clock, Image as ImageIcon, Loader2, Save, X } from "lucide-react";
+
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function ReviewPost() {
   const location = useLocation();
@@ -21,7 +25,6 @@ export default function ReviewPost() {
   
   const [entry, setEntry] = useState(location.state?.entry);
 
-  // Core Content State
   const [title, setTitle] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -30,22 +33,86 @@ export default function ReviewPost() {
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
   
-  // SEO & Meta State
   const [excerpt, setExcerpt] = useState("");
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
   const [focusKeyword, setFocusKeyword] = useState("");
   
-  // Stats & Visuals State
   const [wordCount, setWordCount] = useState(0);
   const [readTime, setReadTime] = useState("0 min read");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  // Processing & Error UI States
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDiscarding, setIsDiscarding] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const [editorTheme, setEditorTheme] = useState<'dark' | 'light'>('dark');
+
+  const quillRef = useRef<ReactQuill>(null);
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+  const [contentfulAssets, setContentfulAssets] = useState<any[]>([]);
+
+  const fetchExistingAssets = async () => {
+    try {
+      const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
+      const token = import.meta.env.VITE_CONTENTFUL_MANAGEMENT_TOKEN;
+      const res = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/assets?order=-sys.createdAt`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setContentfulAssets(data.items);
+    } catch (error) {
+      console.error("Failed to load existing assets", error);
+    }
+  };
+
+  const getAssetUrlById = async (assetId: string): Promise<string> => {
+    try {
+      const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
+      const token = import.meta.env.VITE_CONTENTFUL_MANAGEMENT_TOKEN;
+      const response = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/assets/${assetId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await response.json();
+      return `https:${data.fields?.file?.['en-US']?.url}`;
+    } catch (error) {
+      console.error("Failed to fetch image URL", error);
+      return "";
+    }
+  };
+
+  const insertImageIntoEditor = async (assetId: string) => {
+    const url = await getAssetUrlById(assetId);
+    if (!url) return;
+
+    const quill = quillRef.current?.getEditor();
+    if (quill) {
+      const range = quill.getSelection(true); 
+      quill.insertEmbed(range.index, 'image', url); 
+      quill.setSelection(range.index + 1, 0); 
+    }
+    setIsMediaModalOpen(false);
+    toast({ title: "Image Inserted", description: "Media successfully added to the post." });
+  };
+
+  const modules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, 4, false] }],
+        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+        [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+        ['link', 'image', 'video'],
+        ['clean']
+      ],
+      handlers: {
+        image: () => {
+          fetchExistingAssets();
+          setIsMediaModalOpen(true);
+        }
+      }
+    }
+  }), []);
 
   const calculateStats = (text: string) => {
     if (!text) {
@@ -53,7 +120,8 @@ export default function ReviewPost() {
       setReadTime("0 min read");
       return;
     }
-    const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+    const plainText = text.replace(/<[^>]*>?/gm, '');
+    const words = plainText.trim().split(/\s+/).filter(w => w.length > 0).length;
     setWordCount(words);
     setReadTime(`${Math.ceil(words / 200)} min read`);
   };
@@ -79,7 +147,7 @@ export default function ReviewPost() {
       setFocusKeyword(fields.focusKeyword?.['en-US'] || "");
 
       const assetId = fields.coverImage?.['en-US']?.sys?.id || fields.image?.['en-US']?.sys?.id;
-      if (assetId) fetchAssetUrl(assetId);
+      if (assetId) fetchCoverAssetUrl(assetId);
     } else {
       setTitle("New Blank Post");
       setSlug(`draft-${Date.now()}`);
@@ -90,34 +158,22 @@ export default function ReviewPost() {
     if (isEditingTitle && titleInputRef.current) titleInputRef.current.focus();
   }, [isEditingTitle]);
 
-  const fetchAssetUrl = async (assetId: string) => {
-    try {
-      const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
-      const token = import.meta.env.VITE_CONTENTFUL_MANAGEMENT_TOKEN;
-      const response = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/assets/${assetId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await response.json();
-      const url = data.fields?.file?.['en-US']?.url;
-      if (url) setImageUrl(`https:${url}`);
-    } catch (error) {
-      console.error("Failed to fetch image asset", error);
-    }
+  const fetchCoverAssetUrl = async (assetId: string) => {
+    const url = await getAssetUrlById(assetId);
+    if (url) setImageUrl(url);
   };
 
   const handleSlugChange = (val: string) => {
     setSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''));
   };
 
-  const handleBodyChange = (val: string) => {
-    setBody(val);
-    calculateStats(val);
+  const handleBodyChange = (html: string) => {
+    setBody(html);
+    calculateStats(html);
   };
 
   const prepareFieldsPayload = () => {
     const tagArray = tags.split(',').map(t => t.trim()).filter(Boolean);
-    
-    // Assembling complete payload matching your Contentful Schema explicitly
     const updatedFields: any = {
       title: { 'en-US': title || 'Untitled' },
       slug: { 'en-US': slug || `untitled-${Date.now()}` },
@@ -129,7 +185,6 @@ export default function ReviewPost() {
       focusKeyword: { 'en-US': focusKeyword },
       wordCount: { 'en-US': wordCount },
       readTime: { 'en-US': readTime },
-      // Adding missing parameters n8n handles to fulfill validation
       featured: { 'en-US': entry?.fields?.featured?.['en-US'] ?? false },
       publishedDate: { 'en-US': entry?.fields?.publishedDate?.['en-US'] || new Date().toISOString() }
     };
@@ -155,7 +210,6 @@ export default function ReviewPost() {
       let currentVersion = entry?.sys?.version || 1;
       let entryId = entry?.sys?.id;
 
-      // STEP 1: CREATE OR UPDATE DRAFT
       if (id === 'new' && !entryId) {
         const createRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries`, {
           method: 'POST',
@@ -194,19 +248,15 @@ export default function ReviewPost() {
         currentVersion = updateData.sys.version;
       }
 
-      // STEP 2: PUBLISH ENTRY LIVE
       if (publishAfter) {
-        // --- ADDED: Publish the Cover Image Asset first if it exists ---
         const assetId = updatedFields.coverImage?.['en-US']?.sys?.id;
         if (assetId) {
           try {
-            // Get latest asset version
             const assetRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/assets/${assetId}`, {
               headers: { Authorization: `Bearer ${token}` }
             });
             const assetData = await assetRes.json();
             
-            // Publish the asset
             await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/assets/${assetId}/published`, {
               method: 'PUT',
               headers: { 
@@ -219,7 +269,6 @@ export default function ReviewPost() {
           }
         }
 
-        // --- Original Publish logic ---
         const publishRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}/published`, {
           method: 'PUT',
           headers: { 
@@ -239,7 +288,6 @@ export default function ReviewPost() {
       } else {
         toast({ title: "Draft Saved 💾", description: "Your progress has been safely stored." });
       }
-
     } catch (error: any) {
       toast({
         title: "Contentful Operation Error",
@@ -278,7 +326,6 @@ export default function ReviewPost() {
       navigate('/admin');
       return;
     }
-
     setIsDiscarding(true);
     try {
       const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
@@ -305,59 +352,6 @@ export default function ReviewPost() {
       setIsDiscarding(false);
     }
   };
-  
-
-  const updateEntryCoverImage = async (newAssetId: string) => {
-    try {
-      const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
-      const token = import.meta.env.VITE_CONTENTFUL_MANAGEMENT_TOKEN;
-      const entryId = entry.sys.id;
-
-      // 1. Get the current entry version
-      const getRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const entryDetails = await getRes.json();
-
-      // 2. IMPORTANT: Create the correct Asset Link structure
-      const updatedFields = {
-        ...entryDetails.fields,
-        coverImage: { 
-          'en-US': { 
-            sys: { type: 'Link', linkType: 'Asset', id: newAssetId } 
-          } 
-        }
-      };
-
-      // 3. Update the entry
-      const updateRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}`, {
-        method: 'PUT',
-        headers: { 
-          Authorization: `Bearer ${token}`, 
-          'Content-Type': 'application/vnd.contentful.management.v1+json',
-          'X-Contentful-Version': entryDetails.sys.version.toString() 
-        },
-        body: JSON.stringify({ fields: updatedFields })
-      });
-
-      if (updateRes.ok) {
-        const data = await updateRes.json();
-        setEntry(data); // Sync state with the response
-        
-        // Update the URL preview
-        const assetUrl = `https://images.ctfassets.net/${spaceId}/${newAssetId}/image.jpg`; // Fallback/Constructor
-        setImageUrl(assetUrl);
-        
-        toast({ title: "Image Linked", description: "The cover image is now associated with this post." });
-      } else {
-        const errorData = await updateRes.json();
-        console.error("422 Details:", errorData);
-        toast({ title: "Error", description: "Check console for field mismatch.", variant: "destructive" });
-      }
-    } catch (error) {
-      console.error("Failed to update cover image:", error);
-    }
-  };
 
   const getBorderClass = (fieldName: string) => 
     `bg-zinc-900 border ${fieldErrors[fieldName] ? 'border-red-500 ring-1 ring-red-500 focus-visible:ring-red-500' : 'border-zinc-800 focus-visible:ring-zinc-700'} text-white placeholder:text-zinc-600`;
@@ -365,7 +359,59 @@ export default function ReviewPost() {
   const isPublished = !!entry?.sys?.publishedVersion;
 
   return (
-    <div className="min-h-screen bg-black text-white pb-20">
+    <div className="min-h-screen bg-black text-white pb-20 relative">
+      
+      {/* MEDIA LIBRARY MODAL */}
+      {isMediaModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-6 backdrop-blur-sm">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-xl w-full max-w-5xl h-[80vh] flex flex-col shadow-2xl">
+            <div className="flex items-center justify-between p-6 border-b border-zinc-800">
+              <h2 className="text-xl font-bold">Media Library</h2>
+              <button onClick={() => setIsMediaModalOpen(false)} className="text-zinc-400 hover:text-white">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-hidden flex flex-col p-6 gap-8">
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Option 1: Upload New Image</h3>
+                <div className="w-full max-w-md">
+                  <ImageUploader 
+                    onUploadComplete={async (newAssetId) => {
+                      toast({ title: "Processing...", description: "Inserting newly uploaded image." });
+                      await insertImageIntoEditor(newAssetId);
+                    }} 
+                  />
+                </div>
+              </div>
+
+              <div className="w-full h-px bg-zinc-800" />
+
+              <div className="flex-1 overflow-hidden flex flex-col space-y-4">
+                <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Option 2: Select Existing Media</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto pr-2 pb-10">
+                  {contentfulAssets.map((asset: any) => {
+                    const url = asset.fields?.file?.['en-US']?.url;
+                    if (!url) return null;
+                    return (
+                      <div 
+                        key={asset.sys.id} 
+                        onClick={() => insertImageIntoEditor(asset.sys.id)}
+                        className="aspect-square bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden cursor-pointer hover:border-white hover:ring-2 hover:ring-zinc-700 transition-all group"
+                      >
+                        <img src={`https:${url}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="Contentful Asset" />
+                      </div>
+                    );
+                  })}
+                  {contentfulAssets.length === 0 && <p className="text-zinc-500 col-span-full">Loading existing media...</p>}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DISCARD DIALOG */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent className="bg-zinc-950 border border-zinc-800 text-white">
           <AlertDialogHeader>
@@ -390,7 +436,7 @@ export default function ReviewPost() {
       </AlertDialog>
 
       {/* Control Bar */}
-      <div className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
+      <div className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4 flex-1 min-w-0">
             <Button variant="ghost" size="icon" onClick={() => navigate('/admin')} className="text-zinc-400 hover:text-white hover:bg-zinc-800 flex-shrink-0">
@@ -448,26 +494,35 @@ export default function ReviewPost() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-8">
-            {/* <div className="space-y-3">
-              <Label className="text-zinc-300 text-base font-semibold">Cover Image</Label>
-              <div className="w-full aspect-video bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex items-center justify-center relative group">
-                {imageUrl ? (
-                  <img src={imageUrl} alt="Cover" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="text-zinc-600 flex flex-col items-center">
-                    <ImageIcon className="w-8 h-8 mb-2" />
-                    <span>Visual placeholder mapping...</span>
-                  </div>
-                )}
-              </div>
-            </div> */}
-
             <div className="space-y-3">
-              <Label className="text-zinc-300 text-base font-semibold">Markdown Body</Label>
-              <Textarea 
-                value={body} onChange={(e) => handleBodyChange(e.target.value)} 
-                className={`${getBorderClass('body')} min-h-[600px] font-mono leading-relaxed p-6 rounded-xl resize-y`} 
-              />
+              <div className="flex justify-between items-end">
+                <Label className="text-zinc-300 text-base font-semibold">Body Content (Rich Text)</Label>
+                <span className={`text-xs ${body.replace(/<[^>]*>?/gm, '').length > 50000 ? 'text-red-500' : 'text-zinc-500'}`}>
+                  {body.replace(/<[^>]*>?/gm, '').length} / 50000 characters
+                </span>
+              </div>
+
+              {/* WYSIWYG EDITOR - Fixed Background Conflict & Theme classes */}
+              <div className={`relative border border-zinc-800 rounded-xl overflow-hidden transition-colors duration-200 ${editorTheme === 'dark' ? 'editor-dark' : 'editor-light'}`}>
+                
+                {/* Fixed placement native toggle button directly inside the container */}
+                <button 
+                  type="button"
+                  onClick={() => setEditorTheme(prev => prev === 'dark' ? 'light' : 'dark')}
+                  className={`absolute top-2 right-4 z-10 p-1.5 rounded-md transition-colors ${editorTheme === 'dark' ? 'text-zinc-400 hover:text-white hover:bg-zinc-800' : 'text-zinc-500 hover:text-black hover:bg-zinc-200'}`}
+                  title={`Switch to ${editorTheme === 'dark' ? 'Light' : 'Dark'} Mode`}
+                >
+                  {editorTheme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+
+                <ReactQuill 
+                  ref={quillRef}
+                  theme="snow" 
+                  value={body} 
+                  onChange={handleBodyChange} 
+                  modules={modules} 
+                />
+              </div>
               {fieldErrors.body && <p className="text-red-500 text-xs mt-1">{fieldErrors.body}</p>}
             </div>
           </div>
@@ -485,10 +540,8 @@ export default function ReviewPost() {
                   </div>
                 )}
               </div>
-              {/* ADDING THE UPLOADER HERE */}
               <ImageUploader 
                 onUploadComplete={async (newAssetId) => {
-                  // 1. Update the Entry state
                   setEntry((prev: any) => ({
                     ...prev,
                     fields: {
@@ -496,14 +549,12 @@ export default function ReviewPost() {
                       coverImage: { 'en-US': { sys: { type: 'Link', linkType: 'Asset', id: newAssetId } } }
                     }
                   }));
-
-                  // 2. IMPORTANT: Fetch the new URL immediately so the preview updates
-                  await fetchAssetUrl(newAssetId); 
-                  
+                  await fetchCoverAssetUrl(newAssetId); 
                   toast({ title: "Image Uploaded", description: "Cover image updated in draft." });
                 }} 
               />
             </div>
+            
             <div className="p-6 bg-zinc-950 border border-zinc-800 rounded-xl space-y-5">
               <h3 className="font-semibold text-white text-lg">Taxonomy</h3>
               <div className="space-y-2">
