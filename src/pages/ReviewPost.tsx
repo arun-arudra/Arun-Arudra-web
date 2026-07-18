@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import ImageUploader from "@/components/admin/ImageUploader";
 import { 
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle 
@@ -18,7 +19,7 @@ export default function ReviewPost() {
   const { id } = useParams();
   const { toast } = useToast();
   
-  const entry = location.state?.entry;
+  const [entry, setEntry] = useState(location.state?.entry);
 
   // Core Content State
   const [title, setTitle] = useState("");
@@ -195,11 +196,35 @@ export default function ReviewPost() {
 
       // STEP 2: PUBLISH ENTRY LIVE
       if (publishAfter) {
+        // --- ADDED: Publish the Cover Image Asset first if it exists ---
+        const assetId = updatedFields.coverImage?.['en-US']?.sys?.id;
+        if (assetId) {
+          try {
+            // Get latest asset version
+            const assetRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/assets/${assetId}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            const assetData = await assetRes.json();
+            
+            // Publish the asset
+            await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/assets/${assetId}/published`, {
+              method: 'PUT',
+              headers: { 
+                'Authorization': `Bearer ${token}`, 
+                'X-Contentful-Version': assetData.sys.version.toString() 
+              }
+            });
+          } catch (e) {
+            console.error("Could not publish asset, but continuing to publish entry...");
+          }
+        }
+
+        // --- Original Publish logic ---
         const publishRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}/published`, {
           method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'X-Contentful-Version': currentVersion.toString()
+          headers: { 
+            'Authorization': `Bearer ${token}`, 
+            'X-Contentful-Version': currentVersion.toString() 
           }
         });
         
@@ -209,7 +234,7 @@ export default function ReviewPost() {
           return;
         }
 
-        toast({ title: "Success! 🚀", description: "Your post is now live." });
+        toast({ title: "Published! 🚀", description: "Your post is now live." });
         navigate('/admin');
       } else {
         toast({ title: "Draft Saved 💾", description: "Your progress has been safely stored." });
@@ -278,6 +303,59 @@ export default function ReviewPost() {
       toast({ title: "Purge Error", description: error.message, variant: "destructive" });
     } finally {
       setIsDiscarding(false);
+    }
+  };
+  
+
+  const updateEntryCoverImage = async (newAssetId: string) => {
+    try {
+      const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
+      const token = import.meta.env.VITE_CONTENTFUL_MANAGEMENT_TOKEN;
+      const entryId = entry.sys.id;
+
+      // 1. Get the current entry version
+      const getRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const entryDetails = await getRes.json();
+
+      // 2. IMPORTANT: Create the correct Asset Link structure
+      const updatedFields = {
+        ...entryDetails.fields,
+        coverImage: { 
+          'en-US': { 
+            sys: { type: 'Link', linkType: 'Asset', id: newAssetId } 
+          } 
+        }
+      };
+
+      // 3. Update the entry
+      const updateRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}`, {
+        method: 'PUT',
+        headers: { 
+          Authorization: `Bearer ${token}`, 
+          'Content-Type': 'application/vnd.contentful.management.v1+json',
+          'X-Contentful-Version': entryDetails.sys.version.toString() 
+        },
+        body: JSON.stringify({ fields: updatedFields })
+      });
+
+      if (updateRes.ok) {
+        const data = await updateRes.json();
+        setEntry(data); // Sync state with the response
+        
+        // Update the URL preview
+        const assetUrl = `https://images.ctfassets.net/${spaceId}/${newAssetId}/image.jpg`; // Fallback/Constructor
+        setImageUrl(assetUrl);
+        
+        toast({ title: "Image Linked", description: "The cover image is now associated with this post." });
+      } else {
+        const errorData = await updateRes.json();
+        console.error("422 Details:", errorData);
+        toast({ title: "Error", description: "Check console for field mismatch.", variant: "destructive" });
+      }
+    } catch (error) {
+      console.error("Failed to update cover image:", error);
     }
   };
 
@@ -370,7 +448,7 @@ export default function ReviewPost() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-8">
-            <div className="space-y-3">
+            {/* <div className="space-y-3">
               <Label className="text-zinc-300 text-base font-semibold">Cover Image</Label>
               <div className="w-full aspect-video bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex items-center justify-center relative group">
                 {imageUrl ? (
@@ -382,7 +460,7 @@ export default function ReviewPost() {
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
 
             <div className="space-y-3">
               <Label className="text-zinc-300 text-base font-semibold">Markdown Body</Label>
@@ -395,6 +473,37 @@ export default function ReviewPost() {
           </div>
 
           <div className="space-y-6">
+            <div className="space-y-3">
+              <Label className="text-zinc-300 text-base font-semibold">Cover Image</Label>
+              <div className="w-full aspect-video bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex items-center justify-center relative group">
+                {imageUrl ? (
+                  <img src={imageUrl} alt="Cover" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="text-zinc-600 flex flex-col items-center">
+                    <ImageIcon className="w-8 h-8 mb-2" />
+                    <span>Visual placeholder mapping...</span>
+                  </div>
+                )}
+              </div>
+              {/* ADDING THE UPLOADER HERE */}
+              <ImageUploader 
+                onUploadComplete={async (newAssetId) => {
+                  // 1. Update the Entry state
+                  setEntry((prev: any) => ({
+                    ...prev,
+                    fields: {
+                      ...prev.fields,
+                      coverImage: { 'en-US': { sys: { type: 'Link', linkType: 'Asset', id: newAssetId } } }
+                    }
+                  }));
+
+                  // 2. IMPORTANT: Fetch the new URL immediately so the preview updates
+                  await fetchAssetUrl(newAssetId); 
+                  
+                  toast({ title: "Image Uploaded", description: "Cover image updated in draft." });
+                }} 
+              />
+            </div>
             <div className="p-6 bg-zinc-950 border border-zinc-800 rounded-xl space-y-5">
               <h3 className="font-semibold text-white text-lg">Taxonomy</h3>
               <div className="space-y-2">
