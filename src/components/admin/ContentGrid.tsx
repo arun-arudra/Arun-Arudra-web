@@ -26,30 +26,6 @@ export default function ContentGrid() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = async () => {
-    if (!deleteId) return;
-    setIsDeleting(true);
-    try {
-      const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
-      const token = import.meta.env.VITE_CONTENTFUL_MANAGEMENT_TOKEN;
-      
-      // Note: Deleting a published entry requires unpublishing it first
-      // But for speed, let's try a direct delete or a two-step if 409 error occurs
-      await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${deleteId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}`, 'X-Contentful-Version': '0' } // Simplification
-      });
-      
-      toast({ title: "Entry Deleted", description: "The content has been removed." });
-      setEntries(entries.filter(e => e.sys.id !== deleteId));
-    } catch (error) {
-      toast({ title: "Error", description: "Failed to delete entry.", variant: "destructive" });
-    } finally {
-      setIsDeleting(false);
-      setDeleteId(null);
-    }
-  };
-
   const fetchEntries = async () => {
     setLoading(true);
     try {
@@ -72,6 +48,26 @@ export default function ContentGrid() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    setIsDeleting(true);
+    try {
+      const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
+      const token = import.meta.env.VITE_CONTENTFUL_MANAGEMENT_TOKEN;
+      await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${deleteId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}`, 'X-Contentful-Version': '0' }
+      });
+      toast({ title: "Entry Deleted", description: "The content has been removed." });
+      setEntries(entries.filter(e => e.sys.id !== deleteId));
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to delete entry.", variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
+      setDeleteId(null);
+    }
+  };
+
   useEffect(() => {
     const handler = setTimeout(fetchEntries, 300);
     return () => clearTimeout(handler);
@@ -80,9 +76,6 @@ export default function ContentGrid() {
   const toggleSort = (field: string) => {
     setSortField(prev => prev === field ? `-${field}` : field);
   };
-
-  const getHeaderStyle = (field: string) => 
-    "text-zinc-400 cursor-pointer hover:text-white transition-colors";
 
   return (
     <Card className="bg-zinc-950 border-zinc-800 text-zinc-100 shadow-xl h-full">
@@ -103,19 +96,21 @@ export default function ContentGrid() {
           <Table>
             <TableHeader className="bg-zinc-900/50">
               <TableRow className="border-zinc-800 hover:bg-transparent">
-                <TableHead className={getHeaderStyle("fields.title")} onClick={() => toggleSort("fields.title")}>Title <ArrowUpDown className="w-3 h-3 inline" /></TableHead>
-                <TableHead className={getHeaderStyle("fields.category")} onClick={() => toggleSort("fields.category")}>Category <ArrowUpDown className="w-3 h-3 inline" /></TableHead>
-                <TableHead className={getHeaderStyle("sys.publishedVersion")} onClick={() => toggleSort("sys.publishedVersion")}>Status <ArrowUpDown className="w-3 h-3 inline" /></TableHead>
-                <TableHead className={getHeaderStyle("sys.updatedAt")} onClick={() => toggleSort("sys.updatedAt")}>Published Date <ArrowUpDown className="w-3 h-3 inline" /></TableHead>
+                <TableHead className="text-zinc-400 cursor-pointer hover:text-white" onClick={() => toggleSort("fields.title")}>Title <ArrowUpDown className="w-3 h-3 inline" /></TableHead>
+                <TableHead className="text-zinc-400 cursor-pointer hover:text-white" onClick={() => toggleSort("fields.category")}>Category <ArrowUpDown className="w-3 h-3 inline" /></TableHead>
+                <TableHead className="text-zinc-400 cursor-pointer hover:text-white" onClick={() => toggleSort("sys.publishedVersion")}>Status <ArrowUpDown className="w-3 h-3 inline" /></TableHead>
+                <TableHead className="text-zinc-400 cursor-pointer hover:text-white" onClick={() => toggleSort("sys.updatedAt")}>Published Date <ArrowUpDown className="w-3 h-3 inline" /></TableHead>
                 <TableHead className="text-right text-zinc-400">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={5} className="text-center py-10">Loading content...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center py-10">Loading...</TableCell></TableRow>
+              ) : entries.length === 0 ? (
+                <TableRow><TableCell colSpan={5} className="text-center py-10 text-zinc-500">No content found.</TableCell></TableRow>
               ) : entries.map((entry) => {
                 const isPublished = !!entry.sys.publishedVersion;
-                const pubDate = entry.sys.publishedAt ? new Date(entry.sys.publishedAt).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : "N/A";
+                const pubDate = entry.sys.publishedAt ? new Date(entry.sys.publishedAt).toLocaleString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }) : "N/A";
                 return (
                   <TableRow key={entry.sys.id} className="border-zinc-800 hover:bg-zinc-900/50">
                     <TableCell className="font-medium">{entry.fields.title?.['en-US'] || 'Untitled'}</TableCell>
@@ -154,23 +149,24 @@ export default function ContentGrid() {
             </div>
           </div>
         </div>
-        <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-          <AlertDialogContent className="bg-zinc-950 border border-zinc-800 text-white">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription className="text-zinc-400">
-                This will permanently delete this post. This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-red-900 hover:bg-red-800">
-                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Yes, Delete"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </CardContent>
+
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent className="bg-zinc-950 border border-zinc-800 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400">
+              This will permanently delete this post. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-900 hover:bg-red-800">
+              {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Yes, Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
