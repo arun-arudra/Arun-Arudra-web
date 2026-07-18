@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Edit2 } from "lucide-react";
 import ReviewModal from "./ReviewModal";
+import { useNavigate } from "react-router-dom";
+
 
 export default function ContentGrid() {
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEntry, setSelectedEntry] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const navigate = useNavigate();
   const fetchEntries = async () => {
     try {
       const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
@@ -99,15 +101,15 @@ export default function ContentGrid() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                            <Button size="sm" variant="ghost" className="text-zinc-400 hover:text-white hover:bg-zinc-800"
-                                onClick={() => {
-                                    setSelectedEntry(entry);
-                                    setIsModalOpen(true);
-                                }}
-                            >
-                            <Edit2 className="w-4 h-4 mr-2" />
-                            Review
-                          </Button>
+                            <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="text-zinc-400 hover:text-white hover:bg-zinc-800"
+                                onClick={() => navigate(`/admin/review/${entry.sys.id}`, { state: { entry } })}
+                                >
+                                <Edit2 className="w-4 h-4 mr-2" />
+                                Review
+                            </Button>
                         </TableCell>
                       </TableRow>
                     );
@@ -118,11 +120,11 @@ export default function ContentGrid() {
           </div>
         )}
       </CardContent>
-      <ReviewModal 
+      {/* <ReviewModal 
        entry={selectedEntry} 
        isOpen={isModalOpen} 
        onClose={() => setIsModalOpen(false)} 
-     />
+     /> */}
     </Card>
   );
 }
