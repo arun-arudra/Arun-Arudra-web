@@ -6,7 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Trash2, Send, Clock, Image as ImageIcon, Loader2 } from "lucide-react";
+import { 
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle 
+} from "@/components/ui/alert-dialog";
+import { ArrowLeft, Trash2, Send, Clock, Image as ImageIcon, Loader2, Save } from "lucide-react";
 
 export default function ReviewPost() {
   const location = useLocation();
@@ -16,30 +20,31 @@ export default function ReviewPost() {
   
   const entry = location.state?.entry;
 
-  // Core Content
+  // Core Content State
   const [title, setTitle] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  
   const [slug, setSlug] = useState("");
   const [body, setBody] = useState("");
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
   
-  // SEO & Meta
+  // SEO & Meta State
   const [excerpt, setExcerpt] = useState("");
   const [seoTitle, setSeoTitle] = useState("");
   const [seoDescription, setSeoDescription] = useState("");
   const [focusKeyword, setFocusKeyword] = useState("");
   
-  // Stats & Visuals
+  // Stats & Visuals State
   const [wordCount, setWordCount] = useState(0);
   const [readTime, setReadTime] = useState("0 min read");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-  // Processing States
+  // Processing & Error UI States
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDiscarding, setIsDiscarding] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const calculateStats = (text: string) => {
     if (!text) {
@@ -53,38 +58,35 @@ export default function ReviewPost() {
   };
 
   useEffect(() => {
-    if (!entry) {
+    if (!entry && id !== 'new') {
       navigate('/admin');
       return;
     }
 
-    const fields = entry.fields;
-    setTitle(fields.title?.['en-US'] || "Untitled Post");
-    setSlug(fields.slug?.['en-US'] || "");
-    
-    const bodyText = fields.body?.['en-US'] || "";
-    setBody(bodyText);
-    calculateStats(bodyText);
+    if (entry) {
+      const fields = entry.fields;
+      setTitle(fields.title?.['en-US'] || "");
+      setSlug(fields.slug?.['en-US'] || "");
+      const bodyText = fields.body?.['en-US'] || "";
+      setBody(bodyText);
+      calculateStats(bodyText);
+      setCategory(fields.category?.['en-US'] || "");
+      setTags(fields.tags?.['en-US']?.join(", ") || "");
+      setExcerpt(fields.excerpt?.['en-US'] || "");
+      setSeoTitle(fields.seoTitle?.['en-US'] || "");
+      setSeoDescription(fields.seoDescription?.['en-US'] || "");
+      setFocusKeyword(fields.focusKeyword?.['en-US'] || "");
 
-    setCategory(fields.category?.['en-US'] || "");
-    setTags(fields.tags?.['en-US']?.join(", ") || "");
-    setExcerpt(fields.excerpt?.['en-US'] || "");
-    setSeoTitle(fields.seoTitle?.['en-US'] || "");
-    setSeoDescription(fields.seoDescription?.['en-US'] || "");
-    setFocusKeyword(fields.focusKeyword?.['en-US'] || "");
-
-    const assetId = fields.coverImage?.['en-US']?.sys?.id;
-    if (assetId) {
-      fetchAssetUrl(assetId);
+      const assetId = fields.coverImage?.['en-US']?.sys?.id || fields.image?.['en-US']?.sys?.id;
+      if (assetId) fetchAssetUrl(assetId);
     } else {
-      setImageUrl(null);
+      setTitle("New Blank Post");
+      setSlug(`draft-${Date.now()}`);
     }
-  }, [entry, navigate]);
+  }, [entry, id, navigate]);
 
   useEffect(() => {
-    if (isEditingTitle && titleInputRef.current) {
-      titleInputRef.current.focus();
-    }
+    if (isEditingTitle && titleInputRef.current) titleInputRef.current.focus();
   }, [isEditingTitle]);
 
   const fetchAssetUrl = async (assetId: string) => {
@@ -103,8 +105,7 @@ export default function ReviewPost() {
   };
 
   const handleSlugChange = (val: string) => {
-    const formatted = val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    setSlug(formatted);
+    setSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''));
   };
 
   const handleBodyChange = (val: string) => {
@@ -112,73 +113,112 @@ export default function ReviewPost() {
     calculateStats(val);
   };
 
-  // --- API ACTIONS ---
+  const prepareFieldsPayload = () => {
+    const tagArray = tags.split(',').map(t => t.trim()).filter(Boolean);
+    
+    // Assembling complete payload matching your Contentful Schema explicitly
+    const updatedFields: any = {
+      title: { 'en-US': title || 'Untitled' },
+      slug: { 'en-US': slug || `untitled-${Date.now()}` },
+      body: { 'en-US': body },
+      category: { 'en-US': category || 'Uncategorized' },
+      excerpt: { 'en-US': excerpt },
+      seoTitle: { 'en-US': seoTitle },
+      seoDescription: { 'en-US': seoDescription || excerpt },
+      focusKeyword: { 'en-US': focusKeyword },
+      wordCount: { 'en-US': wordCount },
+      readTime: { 'en-US': readTime },
+      // Adding missing parameters n8n handles to fulfill validation
+      featured: { 'en-US': entry?.fields?.featured?.['en-US'] ?? false },
+      publishedDate: { 'en-US': entry?.fields?.publishedDate?.['en-US'] || new Date().toISOString() }
+    };
 
-  const handlePublish = async () => {
+    if (tagArray.length > 0) updatedFields.tags = { 'en-US': tagArray };
+
+    if (entry?.fields) {
+      if (entry.fields.image) updatedFields.image = entry.fields.image;
+      if (entry.fields.coverImage) updatedFields.coverImage = entry.fields.coverImage;
+    }
+
+    return updatedFields;
+  };
+
+  const saveEntry = async (publishAfter: boolean) => {
     setIsProcessing(true);
+    setFieldErrors({});
     try {
       const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
       const token = import.meta.env.VITE_CONTENTFUL_MANAGEMENT_TOKEN;
-      const entryId = entry.sys.id;
-      let currentVersion = entry.sys.version;
-
-      // Prepare updated fields, preserving any existing image links
-      const updatedFields = {
-        ...entry.fields,
-        title: { 'en-US': title },
-        slug: { 'en-US': slug },
-        body: { 'en-US': body },
-        category: { 'en-US': category },
-        tags: { 'en-US': tags.split(',').map(t => t.trim()).filter(Boolean) },
-        excerpt: { 'en-US': excerpt },
-        seoTitle: { 'en-US': seoTitle },
-        seoDescription: { 'en-US': excerpt }, // Mirroring excerpt for meta description
-        focusKeyword: { 'en-US': focusKeyword },
-        wordCount: { 'en-US': wordCount },
-        readTime: { 'en-US': readTime },
-      };
-
-      // STEP 1: Update the Entry
-      const updateRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/vnd.contentful.management.v1+json',
-          'X-Contentful-Version': currentVersion.toString()
-        },
-        body: JSON.stringify({ fields: updatedFields })
-      });
-
-      if (!updateRes.ok) throw new Error('Failed to save updates');
-      const updateData = await updateRes.json();
+      const updatedFields = prepareFieldsPayload();
       
-      // Contentful increments the version number after an update
-      currentVersion = updateData.sys.version; 
+      let currentVersion = entry?.sys?.version || 1;
+      let entryId = entry?.sys?.id;
 
-      // STEP 2: Publish the Entry
-      const publishRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}/published`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'X-Contentful-Version': currentVersion.toString()
+      // STEP 1: CREATE OR UPDATE DRAFT
+      if (id === 'new' && !entryId) {
+        const createRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/vnd.contentful.management.v1+json',
+            'X-Contentful-Content-Type': 'news'
+          },
+          body: JSON.stringify({ fields: updatedFields })
+        });
+        const createData = await createRes.json();
+        
+        if (!createRes.ok) {
+          handleApiErrors(createData);
+          return;
         }
-      });
+        entryId = createData.sys.id;
+        currentVersion = createData.sys.version;
+        window.history.replaceState({ entry: createData }, '', `/admin/review/${entryId}`);
+      } else {
+        const updateRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/vnd.contentful.management.v1+json',
+            'X-Contentful-Version': currentVersion.toString()
+          },
+          body: JSON.stringify({ fields: updatedFields })
+        });
+        const updateData = await updateRes.json();
+        
+        if (!updateRes.ok) {
+          handleApiErrors(updateData);
+          return;
+        }
+        currentVersion = updateData.sys.version;
+      }
 
-      if (!publishRes.ok) throw new Error('Failed to publish entry');
+      // STEP 2: PUBLISH ENTRY LIVE
+      if (publishAfter) {
+        const publishRes = await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${entryId}/published`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'X-Contentful-Version': currentVersion.toString()
+          }
+        });
+        
+        if (!publishRes.ok) {
+          const publishData = await publishRes.json();
+          handleApiErrors(publishData);
+          return;
+        }
 
+        toast({ title: "Success! 🚀", description: "Your post is now live." });
+        navigate('/admin');
+      } else {
+        toast({ title: "Draft Saved 💾", description: "Your progress has been safely stored." });
+      }
+
+    } catch (error: any) {
       toast({
-        title: "Success! 🚀",
-        description: "Your post is now live.",
-      });
-      
-      // Return to dashboard
-      navigate('/admin');
-
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: "Publishing Error",
-        description: "Something went wrong saving the post to Contentful.",
+        title: "Contentful Operation Error",
+        description: error.message || "Failed to update entry schema.",
         variant: "destructive"
       });
     } finally {
@@ -186,9 +226,34 @@ export default function ReviewPost() {
     }
   };
 
+  const handleApiErrors = (data: any) => {
+    if (data.details?.errors) {
+      const newErrors: Record<string, string> = {};
+      data.details.errors.forEach((err: any) => {
+        const fieldPath = err.path ? err.path[1] : 'general';
+        newErrors[fieldPath] = err.details || err.name;
+      });
+      setFieldErrors(newErrors);
+      toast({
+        title: "Validation Failure",
+        description: "Review highlighted elements causing schema mismatch.",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Server Error",
+        description: data.message || "Action could not be executed.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleDiscard = async () => {
-    if (!confirm("Are you sure you want to permanently delete this draft?")) return;
-    
+    if (id === 'new' && !entry?.sys?.id) {
+      navigate('/admin');
+      return;
+    }
+
     setIsDiscarding(true);
     try {
       const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
@@ -204,62 +269,68 @@ export default function ReviewPost() {
         }
       });
 
-      if (!deleteRes.ok) throw new Error('Failed to delete entry');
+      if (!deleteRes.ok) throw new Error('Failed to purge resource');
 
-      toast({
-        title: "Draft Discarded",
-        description: "The draft was permanently removed from your space.",
-      });
+      setIsDeleteDialogOpen(false);
+      toast({ title: "Post Discarded", description: `"${title}" has been expunged.` });
       navigate('/admin');
-
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: "Deletion Error",
-        description: "Could not discard the draft.",
-        variant: "destructive"
-      });
+    } catch (error: any) {
+      toast({ title: "Purge Error", description: error.message, variant: "destructive" });
     } finally {
       setIsDiscarding(false);
     }
   };
 
-  if (!entry) return null;
-  const isPublished = !!entry.sys.publishedVersion;
+  const getBorderClass = (fieldName: string) => 
+    `bg-zinc-900 border ${fieldErrors[fieldName] ? 'border-red-500 ring-1 ring-red-500 focus-visible:ring-red-500' : 'border-zinc-800 focus-visible:ring-zinc-700'} text-white placeholder:text-zinc-600`;
+
+  const isPublished = !!entry?.sys?.publishedVersion;
 
   return (
     <div className="min-h-screen bg-black text-white pb-20">
-      {/* Top Command Bar */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent className="bg-zinc-950 border border-zinc-800 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to discard this post?</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400">
+              This will permanently delete your work from Contentful. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={(e) => { e.preventDefault(); handleDiscard(); }} 
+              className="bg-red-900 text-red-100 hover:bg-red-800 border border-red-800"
+            >
+              {isDiscarding ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              Confirm Discard
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Control Bar */}
       <div className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
-          
           <div className="flex items-center gap-4 flex-1 min-w-0">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => navigate('/admin')}
-              className="text-zinc-400 hover:text-white hover:bg-zinc-800 flex-shrink-0"
-            >
+            <Button variant="ghost" size="icon" onClick={() => navigate('/admin')} className="text-zinc-400 hover:text-white hover:bg-zinc-800 flex-shrink-0">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            
             <div className="flex-1 min-w-0 pr-4">
               {isEditingTitle ? (
                 <Input 
-                  ref={titleInputRef}
-                  value={title} 
-                  onChange={(e) => setTitle(e.target.value)} 
-                  onBlur={() => setIsEditingTitle(false)}
-                  onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
+                  ref={titleInputRef} value={title} onChange={(e) => setTitle(e.target.value)} 
+                  onBlur={() => setIsEditingTitle(false)} onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
                   className="bg-zinc-900 border-zinc-700 text-white font-bold text-lg h-9 w-full lg:max-w-2xl" 
                 />
               ) : (
                 <h1 
                   onClick={() => setIsEditingTitle(true)}
                   className="text-lg font-bold text-white truncate cursor-text hover:bg-zinc-800/50 py-1 px-2 rounded-md transition-colors lg:max-w-2xl inline-block"
-                  title="Click to edit title"
                 >
-                  {title}
+                  {title || "Untitled Post"}
                 </h1>
               )}
             </div>
@@ -268,36 +339,24 @@ export default function ReviewPost() {
           <div className="flex items-center gap-3 flex-shrink-0">
             {!isPublished && (
               <>
-                <Button 
-                  variant="ghost" 
-                  onClick={handleDiscard}
-                  disabled={isDiscarding || isProcessing}
-                  className="text-red-400 hover:text-red-300 hover:bg-red-950/50"
-                >
-                  {isDiscarding ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                  Discard
+                <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(true)} disabled={isDiscarding || isProcessing} className="text-red-400 hover:text-red-300 hover:bg-red-950/50">
+                  <Trash2 className="w-4 h-4 mr-2" /> Discard
                 </Button>
                 <Button variant="outline" className="bg-transparent border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800">
                   <Clock className="w-4 h-4 mr-2" /> Schedule
                 </Button>
+                <Button variant="outline" onClick={() => saveEntry(false)} disabled={isProcessing || isDiscarding} className="bg-zinc-900 border-zinc-700 text-white hover:bg-zinc-800">
+                  {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Save Draft
+                </Button>
               </>
             )}
-            <Button 
-              onClick={handlePublish}
-              disabled={isProcessing || isDiscarding}
-              className="bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_15px_rgba(255,255,255,0.1)]"
-            >
-              {isProcessing ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...</>
-              ) : (
-                <><Send className="w-4 h-4 mr-2" /> {isPublished ? "Save Updates" : "Publish Now"}</>
-              )}
+            <Button onClick={() => saveEntry(true)} disabled={isProcessing || isDiscarding} className="bg-white text-black hover:bg-zinc-200 font-semibold">
+              {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />} Publish Now
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Editor Grid */}
       <div className="max-w-[1600px] mx-auto px-6 py-8">
         <div className="flex items-center gap-3 mb-8">
           <Badge variant={isPublished ? "default" : "secondary"} className={isPublished ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-amber-500/10 text-amber-400 border-amber-500/20"}>
@@ -312,31 +371,26 @@ export default function ReviewPost() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-8">
             <div className="space-y-3">
-              <Label className="text-zinc-300 text-base font-semibold">Cover Image (1920x1080)</Label>
+              <Label className="text-zinc-300 text-base font-semibold">Cover Image</Label>
               <div className="w-full aspect-video bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex items-center justify-center relative group">
                 {imageUrl ? (
                   <img src={imageUrl} alt="Cover" className="w-full h-full object-cover" />
                 ) : (
                   <div className="text-zinc-600 flex flex-col items-center">
                     <ImageIcon className="w-8 h-8 mb-2" />
-                    <span>Loading or missing image...</span>
+                    <span>Visual placeholder mapping...</span>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                  <Button variant="secondary" className="bg-white text-black hover:bg-zinc-200">
-                    Upload Replacement
-                  </Button>
-                </div>
               </div>
             </div>
 
             <div className="space-y-3">
               <Label className="text-zinc-300 text-base font-semibold">Markdown Body</Label>
               <Textarea 
-                value={body} 
-                onChange={(e) => handleBodyChange(e.target.value)} 
-                className="bg-zinc-900/50 border-zinc-800 text-zinc-300 min-h-[600px] font-mono text-sm leading-relaxed p-6 rounded-xl resize-y" 
+                value={body} onChange={(e) => handleBodyChange(e.target.value)} 
+                className={`${getBorderClass('body')} min-h-[600px] font-mono leading-relaxed p-6 rounded-xl resize-y`} 
               />
+              {fieldErrors.body && <p className="text-red-500 text-xs mt-1">{fieldErrors.body}</p>}
             </div>
           </div>
 
@@ -345,15 +399,18 @@ export default function ReviewPost() {
               <h3 className="font-semibold text-white text-lg">Taxonomy</h3>
               <div className="space-y-2">
                 <Label className="text-zinc-400 text-xs uppercase tracking-wider">URL SLUG</Label>
-                <Input value={slug} onChange={(e) => handleSlugChange(e.target.value)} className="bg-zinc-900 border-zinc-800 text-zinc-300 font-mono text-xs h-9" />
+                <Input value={slug} onChange={(e) => handleSlugChange(e.target.value)} className={getBorderClass('slug')} />
+                {fieldErrors.slug && <p className="text-red-500 text-xs mt-1">{fieldErrors.slug}</p>}
               </div>
               <div className="space-y-2">
                 <Label className="text-zinc-400 text-xs uppercase tracking-wider">CATEGORY</Label>
-                <Input value={category} onChange={(e) => setCategory(e.target.value)} className="bg-zinc-900 border-zinc-800 text-zinc-300 h-9 text-sm" />
+                <Input value={category} onChange={(e) => setCategory(e.target.value)} className={getBorderClass('category')} />
+                {fieldErrors.category && <p className="text-red-500 text-xs mt-1">{fieldErrors.category}</p>}
               </div>
               <div className="space-y-2">
                 <Label className="text-zinc-400 text-xs uppercase tracking-wider">TAGS (COMMA SEPARATED)</Label>
-                <Input value={tags} onChange={(e) => setTags(e.target.value)} className="bg-zinc-900 border-zinc-800 text-zinc-300 h-9 text-sm" />
+                <Input value={tags} onChange={(e) => setTags(e.target.value)} className={getBorderClass('tags')} />
+                {fieldErrors.tags && <p className="text-red-500 text-xs mt-1">{fieldErrors.tags}</p>}
               </div>
             </div>
 
@@ -361,15 +418,18 @@ export default function ReviewPost() {
               <h3 className="font-semibold text-white text-lg">Search Optimization</h3>
               <div className="space-y-2">
                 <Label className="text-zinc-400 text-xs uppercase tracking-wider">SEO TITLE</Label>
-                <Input value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} className="bg-zinc-900 border-zinc-800 text-zinc-300 h-9 text-sm" />
+                <Input value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} className={getBorderClass('seoTitle')} />
+                {fieldErrors.seoTitle && <p className="text-red-500 text-xs mt-1">{fieldErrors.seoTitle}</p>}
               </div>
               <div className="space-y-2">
                 <Label className="text-zinc-400 text-xs uppercase tracking-wider">FOCUS KEYWORD</Label>
-                <Input value={focusKeyword} onChange={(e) => setFocusKeyword(e.target.value)} className="bg-zinc-900 border-emerald-900/50 text-emerald-400 font-medium h-9 text-sm focus-visible:ring-emerald-900" />
+                <Input value={focusKeyword} onChange={(e) => setFocusKeyword(e.target.value)} className={getBorderClass('focusKeyword')} />
+                {fieldErrors.focusKeyword && <p className="text-red-500 text-xs mt-1">{fieldErrors.focusKeyword}</p>}
               </div>
               <div className="space-y-2">
                 <Label className="text-zinc-400 text-xs uppercase tracking-wider">EXCERPT / META DESCRIPTION</Label>
-                <Textarea value={excerpt} onChange={(e) => setExcerpt(e.target.value)} className="bg-zinc-900 border-zinc-800 text-zinc-300 text-sm min-h-[120px] resize-none" />
+                <Textarea value={excerpt} onChange={(e) => setExcerpt(e.target.value)} className={`${getBorderClass('excerpt')} min-h-[120px] resize-none`} />
+                {fieldErrors.excerpt && <p className="text-red-500 text-xs mt-1">{fieldErrors.excerpt}</p>}
               </div>
             </div>
           </div>
