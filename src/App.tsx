@@ -15,6 +15,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import ArticleDetail from "./pages/ArticleDetail";
 import { ScrollToTopOnRouteChange } from "./components/ScrollToTopOnRouteChange";
 import ReviewPost from "./pages/ReviewPost";
+import AdminSettings from "./pages/AdminSettings";
 
 
 // adding admin pages from here
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/review/:id" element={<ProtectedRoute><ReviewPost /></ProtectedRoute>} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
