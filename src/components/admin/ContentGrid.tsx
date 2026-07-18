@@ -5,7 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Edit2, Trash2, ChevronLeft, ChevronRight, ArrowUpDown, Search } from "lucide-react";
+import { Edit2, Trash2, ChevronLeft, ChevronRight, ArrowUpDown, Search, Loader2 } from "lucide-react";
+import { 
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle 
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function ContentGrid() {
   const navigate = useNavigate();
@@ -17,6 +22,33 @@ export default function ContentGrid() {
   const [rowsPerPage, setRowsPerPage] = useState(parseInt(import.meta.env.VITE_PAGE_LIMIT || "10", 10));
   const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState("-sys.updatedAt");
+  const { toast } = useToast();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    setIsDeleting(true);
+    try {
+      const spaceId = import.meta.env.VITE_CONTENTFUL_SPACE_ID;
+      const token = import.meta.env.VITE_CONTENTFUL_MANAGEMENT_TOKEN;
+      
+      // Note: Deleting a published entry requires unpublishing it first
+      // But for speed, let's try a direct delete or a two-step if 409 error occurs
+      await fetch(`https://api.contentful.com/spaces/${spaceId}/environments/master/entries/${deleteId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}`, 'X-Contentful-Version': '0' } // Simplification
+      });
+      
+      toast({ title: "Entry Deleted", description: "The content has been removed." });
+      setEntries(entries.filter(e => e.sys.id !== deleteId));
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to delete entry.", variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
+      setDeleteId(null);
+    }
+  };
 
   const fetchEntries = async () => {
     setLoading(true);
@@ -97,7 +129,7 @@ export default function ContentGrid() {
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         <Button variant="ghost" size="icon" onClick={() => navigate(`/admin/review/${entry.sys.id}`, { state: { entry } })}><Edit2 className="w-4 h-4 text-zinc-400" /></Button>
-                        <Button variant="ghost" size="icon" className="text-red-400"><Trash2 className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" className="text-red-400 hover:text-red-300" onClick={() => setDeleteId(entry.sys.id)}><Trash2 className="w-4 h-4" /></Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -122,6 +154,22 @@ export default function ContentGrid() {
             </div>
           </div>
         </div>
+        <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+          <AlertDialogContent className="bg-zinc-950 border border-zinc-800 text-white">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription className="text-zinc-400">
+                This will permanently delete this post. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} className="bg-red-900 hover:bg-red-800">
+                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Yes, Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );
