@@ -40,3 +40,35 @@
 .read-the-docs {
   color: #888;
 }
+
+/* --- QUILL EDITOR FIXED HEIGHT --- */
+.ql-container { 
+  height: 600px !important; 
+  overflow-y: auto !important; /* Adds scrollbar strictly inside the editor */
+}
+.ql-editor { 
+  min-height: 100% !important; 
+}
+
+/* --- QUILL EDITOR THEMES --- */
+/* Light Mode */
+.editor-light { background-color: #ffffff !important; }
+.editor-light .ql-editor { color: #000000 !important; }
+.editor-light .ql-toolbar { background-color: #f4f4f5 !important; border-bottom: 1px solid #e4e4e7 !important; }
+.editor-light .ql-editor.ql-blank::before { color: #a1a1aa !important; } /* Placeholder color */
+
+/* Toolbar Icons Light Mode */
+.editor-light .ql-snow .ql-stroke { stroke: #3f3f46 !important; }
+.editor-light .ql-snow .ql-fill { fill: #3f3f46 !important; }
+.editor-light .ql-snow .ql-picker { color: #3f3f46 !important; }
+
+/* Dark Mode (High-contrast pure black aesthetic) */
+.editor-dark { background-color: #000000 !important; }
+.editor-dark .ql-editor { color: #d4d4d8 !important; }
+.editor-dark .ql-toolbar { background-color: #09090b !important; border-bottom: 1px solid #27272a !important; }
+.editor-dark .ql-editor.ql-blank::before { color: #52525b !important; } /* Placeholder color */
+
+/* Toolbar Icons Dark Mode */
+.editor-dark .ql-snow .ql-stroke { stroke: #a1a1aa !important; }
+.editor-dark .ql-snow .ql-fill { fill: #a1a1aa !important; }
+.editor-dark .ql-snow .ql-picker { color: #a1a1aa !important; }

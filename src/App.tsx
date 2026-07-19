@@ -14,6 +14,13 @@ import NotFound from "./pages/NotFound";
 import ProjectDetail from "./pages/ProjectDetail";
 import ArticleDetail from "./pages/ArticleDetail";
 import { ScrollToTopOnRouteChange } from "./components/ScrollToTopOnRouteChange";
+import ReviewPost from "./pages/ReviewPost";
+
+
+// adding admin pages from here
+import AdminLogin from "./pages/AdminLogin";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 const routerBasename = import.meta.env.BASE_URL === "/" ? undefined : import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -36,6 +43,11 @@ const App = () => (
             <Route path="/news/:slug" element={<ArticleDetail />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />
+            // adding admin pages from here
+            <Route path="/admin" element={<ProtectedRoute> <AdminDashboard /> </ProtectedRoute> } />
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/review/:id" element={<ProtectedRoute><ReviewPost /></ProtectedRoute>} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
