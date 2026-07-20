@@ -41,35 +41,44 @@ export default function AdminLogin() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      // 1. FIRST, check if they have any MFA factors set up
+      // 1. Fetch current MFA factors
       const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
       if (factorsError) throw factorsError;
 
       const totpFactors = factors.totp || [];
 
-      // 2. If NO factors exist, lock them on the page and force enrollment
-      if (totpFactors.length === 0) {
+      // 2. Clean up any unverified factors (prevents 422 "friendly name already exists" error)
+      for (const factor of totpFactors) {
+        if ((factor.status as string) === 'unverified') {
+          await supabase.auth.mfa.unenroll({ factorId: factor.id });
+        }
+      }
+
+      // 3. Filter to verified factors only
+      const verifiedFactors = totpFactors.filter((f) => (f.status as string) === 'verified');
+
+      // 4. If NO verified factors exist, force enrollment
+      if (verifiedFactors.length === 0) {
         const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
           factorType: 'totp',
+          friendlyName: 'Admin Authenticator App',
         });
         if (enrollError) throw enrollError;
 
         setFactorId(enrollData.id);
         setQrCodeSvg(enrollData.totp.qr_code);
         setStep('enroll');
-        return; // Stop here until they scan the QR code
+        return;
       }
 
-      // 3. If they DO have factors, check if they are already verified
+      // 5. If verified factors DO exist, check assurance level
       const { data: mfaStatus, error: mfaError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (mfaError) throw mfaError;
 
       if (mfaStatus.currentLevel === 'aal2') {
-        // They are fully verified
-        navigate("/admin");
+        navigate('/admin');
       } else {
-        // They need to enter their 6-digit code
-        setFactorId(totpFactors[0].id);
+        setFactorId(verifiedFactors[0].id);
         setStep('verify');
       }
 
