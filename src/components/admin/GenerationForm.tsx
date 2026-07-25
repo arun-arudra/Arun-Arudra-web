@@ -33,7 +33,7 @@ export default function GenerationForm() {
     setIsGenerating(true);
 
     try {
-      const webhookUrl = "https://arunarudra-n8n.onrender.com/webhook/generate-draft";
+      const webhookUrl = "https://arunarudra-n8n.onrender.com/webhook/generate-draft-v2";
 
       const response = await fetch(webhookUrl, {
         method: "POST",
