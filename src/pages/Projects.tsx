@@ -13,11 +13,14 @@ import { motion } from "framer-motion";
 // Fallback projects shown ONLY if Contentful returns zero items
 const fallbackProjects = [
   { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/images/projects/silver-club.jpg" },
-  { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Visualization"], image: "/images/projects/healthtrack.jpg" },
-  { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/images/projects/ecomart.jpg" },
-  { title: "Nova Finance", slug: "nova-finance", tags: ["Fintech", "Web Platform", "UX Strategy"], image: "/images/projects/nova-finance.jpg" },
-  { title: "Artisan Brew", slug: "artisan-brew", tags: ["Branding", "Packaging", "Web Design"], image: "/images/projects/artisan-brew.jpg" },
-  { title: "MindSpace", slug: "mindspace", tags: ["Mobile App", "Wellness", "Motion Design"], image: "/images/projects/mindspace.jpg" },
+  { title: "Asset Management App UI UX Design Case Study", slug: "asset-management-app", tags: ["Fintech", "Dashboard", "UI Design"], image: "/images/projects/asset-management.jpg" },
+  { title: "Darecat", slug: "darecat", tags: ["Case Study", "Development"], image: "/images/projects/darecat.jpg" },
+  { title: "FE Casters Web Design and Development Case Study", slug: "fe-casters", tags: ["Case Study", "Development", "Web Design"], image: "/images/projects/fe-casters.jpg" },
+  { title: "Krinserv Website Design and Development Case Study", slug: "krinserv", tags: ["Food Tech", "Web Design", "Development"], image: "/images/projects/krinserv.jpg" },
+  { title: "PASSIVE Social Media App UI UX Design Case Study", slug: "passive-social", tags: ["Mobile App", "Social Media", "UI Design"], image: "/images/projects/passive.jpg" },
+  { title: "Soccer Bolt App UI UX Design Case Study", slug: "soccer-bolt", tags: ["Mobile App", "Sports", "UI Design"], image: "/images/projects/soccer-bolt.jpg" },
+  { title: "Silver Club — Designing a Social Space for People Aged 45+", slug: "silver-club-case-study", tags: ["Case Study", "Mobile App", "UX Research"], image: "/images/projects/silver-club-2.jpg" },
+  { title: "Krinserv — Restaurant Website Design, Branding & Referral Experience", slug: "krinserv-branding", tags: ["Case Study", "Food Tech", "Web Design"], image: "/images/projects/krinserv-2.jpg" },
 ];
 
 function SkeletonRow({ i }: { i: number }) {
@@ -111,7 +114,7 @@ export default function Projects() {
             </div>
           ) : projects.length === 0 ? (
             <div className="py-20 text-center text-muted-foreground">
-              No projects in this category yet.
+              No projects in this category yet. Check back soon — more case studies are being added regularly.
             </div>
           ) : (
             <div className="border-t border-border/30">
