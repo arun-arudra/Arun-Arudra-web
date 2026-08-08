@@ -216,7 +216,7 @@ export default function Services() {
         <div className="container mx-auto px-6">
           <AnimatedSection>
             <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Our Expertise</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-12">What We Bring to the Table</h2>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-12">Everything You Need, Under One Roof</h2>
           </AnimatedSection>
           <div className="border-t border-border/30">
             {pillars.map((p, i) => (
@@ -229,7 +229,7 @@ export default function Services() {
       {/* Marquee */}
       <div className="py-8 border-y border-border/20 overflow-hidden">
         <MarqueeText
-          text="Strategy · Design · Development · Optimization"
+          text="UI/UX Design · React Development · Figma · WordPress · SaaS · Mobile Apps · Dashboards"
           className="font-display text-5xl md:text-7xl font-bold text-foreground/5"
           speed={25}
         />
@@ -252,7 +252,7 @@ export default function Services() {
         <div className="container mx-auto px-6">
           <AnimatedSection>
             <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Solutions</p>
-            <h2 className="font-display text-3xl md:text-5xl font-bold mb-16">The Digital Solutions We Build</h2>
+            <h2 className="font-display text-3xl md:text-5xl font-bold mb-16">What We Design &amp; Build</h2>
           </AnimatedSection>
           <div className="space-y-6">
             {solutions.map((s, i) => (
@@ -286,7 +286,7 @@ export default function Services() {
         <div className="container mx-auto px-6 text-center relative z-10">
           <AnimatedSection direction="scale">
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Ready to Turn Ideas Into<br />High-Performing Products?</h2>
-            <p className="text-muted-foreground max-w-lg mx-auto mb-8">Let's discuss how our design and development services can accelerate your growth.</p>
+            <p className="text-muted-foreground max-w-lg mx-auto mb-8">Whether you're building from scratch or fixing a product that looks unprofessional — let's talk about what the right design can do for your business.</p>
             <MagneticButton>
               <Button size="lg" className="rounded-full px-10 text-base h-14" asChild>
                 <Link to="/contact">Book a Call <ArrowRight className="ml-2 h-4 w-4" /></Link>
