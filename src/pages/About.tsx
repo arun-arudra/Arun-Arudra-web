@@ -14,24 +14,24 @@ import process1 from "/images/about/process-1.jpg";
 import collab1 from "/images/about/collab-1.jpg";
 
 const stats = [
-  { value: 4, suffix: "+", label: "Years in craft" },
+  { value: 7, suffix: "+", label: "Years in craft" },
   { value: 15, suffix: "+", label: "Projects delivered" },
-  { value: 8, suffix: "+", label: "Industries served" },
+  { value: 6, suffix: "+", label: "Industries served" },
 ];
 
 const principles = [
-  { n: "01", title: "Clarity over cleverness", desc: "We design for understanding first. Smart only matters if it helps and serves the user. Complexity is the enemy of conversion." },
-  { n: "02", title: "Outcomes over outputs", desc: "Files are deliverables. Results are the goal. We measure success in conversions, retention, and revenue — not the number of screens shipped." },
-  { n: "03", title: "Craft in every pixel", desc: "Spacing, motion, micro-copy — the 1% details compound into a product people genuinely trust. We sweat the small stuff so your users never have to think twice." },
-  { n: "04", title: "Partnership over delivery", desc: "We embed with your team — not behind a wall. Honest feedback, shared ownership, and real velocity come from treating your product as our own." },
+  { n: "01", title: "Clarity over cleverness", desc: "A confused user is a lost user. I design for immediate understanding — clean layouts, clear hierarchy, and every element earning its place on screen." },
+  { n: "02", title: "Outcomes over outputs", desc: "Screens are not the goal. A product your users love and your business grows from is. I measure my work by what changes after launch — not what I handed over." },
+  { n: "03", title: "Craft in every pixel", desc: "Seven years of design has taught me that the difference between amateur and professional is always in the details — the spacing, the motion, the micro-copy that makes users feel something." },
+  { n: "04", title: "Partnership over delivery", desc: "I don't disappear after the kickoff call. I stay involved, give honest pushback when needed, and treat your product decisions with the same care I'd give my own." },
 ];
 
 const capabilities = [
-  "Brand Strategy", "Product Design", "Web Engineering", "Motion Design",
-  "Design Systems", "Conversion Optimization", "SEO", "WordPress & React",
+  "UI/UX Design", "Product Strategy", "React Development", "WordPress Development",
+  "Design Systems", "Figma Prototyping", "Conversion Optimization", "Motion Design",
 ];
 
-const tools = ["Figma", "React", "Next.js", "WordPress", "HTML/CSS", "After Effects", "Photoshop", "Notion"];
+const tools = ["Figma", "React", "Next.js", "WordPress", "HTML / CSS", "After Effects", "Photoshop", "Notion"];
 
 const press = ["Awwwards", "CSS Design Awards", "Behance", "Dribbble", "Site Inspire", "FWA"];
 
@@ -59,7 +59,7 @@ export default function About() {
             </div>
             <AnimatedSection delay={0.4} className="lg:col-span-4">
               <p className="text-muted-foreground text-lg leading-relaxed mb-10">
-                Arunarudra is a focused design and development studio led by Arun, a senior product designer with 4+ years of experience. We partner with ambitious founders, SaaS teams, and growing businesses to ship work that earns attention — and pays back.
+                ArunArudra is a design and development studio led by Arun — a product designer and front-end developer with 7+ years of experience across graphic design, UI/UX, and front-end development. We work with startups and growing businesses to ship products that earn attention, win users, and pay back.
               </p>
               <div className="grid grid-cols-3 gap-4 pt-8 border-t border-border">
                 {stats.map((s) => (
@@ -79,7 +79,7 @@ export default function About() {
       {/* Manifesto marquee */}
       <div className="py-6 border-y border-border bg-surface overflow-hidden">
         <MarqueeText
-          text="Strategy ✦ Design ✦ Engineering ✦ Growth"
+          text="UI/UX Design ✦ Front-End Development ✦ Strategy ✦ Figma ✦ React ✦ WordPress"
           className="font-display text-4xl md:text-6xl font-bold text-foreground/80"
           speed={30}
         />
@@ -97,10 +97,10 @@ export default function About() {
             </AnimatedSection>
             <AnimatedSection delay={0.2} className="lg:col-span-7 lg:pt-4">
               <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-                We're not a 200-person agency. We're a focused, senior-level studio that has spent the last four years shipping product for fast-moving startups, SaaS companies, fintech brands, healthcare platforms, and e-commerce businesses. Every project gets senior attention from day one — no juniors handed your work after the sales call.
+                Most designers hand off Figma files and hope for the best. Most developers receive those files and struggle with the original intent. I do both — which means what gets built is exactly what was designed, because the same person did both.
               </p>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                Our work has helped clients raise capital, get discovered by top publications, and grow their user base from zero to thousands. We treat your roadmap like our own — with urgency, honest opinion, and genuine accountability.
+                With roots in graphic design and 4+ years of dedicated UI/UX and front-end development experience, I've shipped products across fintech, healthcare, social apps, food tech, e-commerce, and SaaS. Every project I take gets my full, senior-level attention — no outsourcing, no junior handoffs.
               </p>
             </AnimatedSection>
           </div>
@@ -211,7 +211,7 @@ export default function About() {
       <section className="relative py-32 md:py-40 overflow-hidden bg-foreground text-background">
         <div className="absolute inset-0 opacity-10">
           <MarqueeText
-            text="Let's build something that earns attention ✦"
+            text="Let's turn your idea into a product people love ✦"
             className="font-display text-7xl md:text-9xl font-bold"
             speed={40}
           />
@@ -219,7 +219,7 @@ export default function About() {
         <div className="container relative mx-auto px-6 text-center">
           <AnimatedSection direction="scale">
             <h2 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-8 leading-tight max-w-4xl mx-auto">
-              Ready to ship work that <span className="italic text-primary">actually moves</span> the number?
+              Ready to build something your users <span className="italic text-primary">actually love</span>?
             </h2>
             <MagneticButton>
               <Button size="lg" className="rounded-full px-10 h-14 text-base bg-primary hover:bg-primary/90 text-primary-foreground" asChild>
