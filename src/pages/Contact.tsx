@@ -21,7 +21,7 @@ export default function Contact() {
     try {
       const { error } = await supabase.from("contact_submissions").insert(form);
       if (error) throw error;
-      toast({ title: "Message sent!", description: "I'll get back to you shortly." });
+      toast({ title: "Message sent!", description: "Thanks for reaching out — I'll get back to you within 24 hours." });
       setForm({ name: "", email: "", message: "" });
     } catch {
       toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" });
@@ -36,10 +36,10 @@ export default function Contact() {
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             <div>
               <AnimatedSection direction="left">
-                <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">Contact</p>
-                <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">Let's Create Something Great Together</h1>
+                <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm">Get In Touch</p>
+                <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">Let's Build Something Your Users Will Love</h1>
                 <p className="text-muted-foreground text-lg mb-8">
-                  Have a project idea, a question, or just want to say hi? Fill out the form and I'll get back to you within 24 hours.
+                  Whether you need a product designed from scratch, a redesign that finally looks professional, or a long-term design partner — I'd love to hear about it. Fill in the form and I'll get back to you within 24 hours.
                 </p>
               </AnimatedSection>
               <AnimatedSection delay={0.15} direction="left">
@@ -61,7 +61,7 @@ export default function Contact() {
                   <label htmlFor="name" className="text-sm font-medium mb-2 block">Your Name</label>
                   <Input
                     id="name"
-                    placeholder="John Doe"
+                    placeholder="Your name"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     className="rounded-xl h-12"
@@ -73,7 +73,7 @@ export default function Contact() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="john@example.com"
+                    placeholder="your@email.com"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                     className="rounded-xl h-12"
@@ -84,7 +84,7 @@ export default function Contact() {
                   <label htmlFor="message" className="text-sm font-medium mb-2 block">Your Message</label>
                   <Textarea
                     id="message"
-                    placeholder="Tell me about your project..."
+                    placeholder="Tell me about your project — what are you building, what's the problem you're trying to solve, and what stage are you at?"
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
                     className="rounded-xl min-h-[140px]"
