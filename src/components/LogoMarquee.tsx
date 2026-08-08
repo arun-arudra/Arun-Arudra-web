@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 
 const clients = [
-  "TechVault", "Meridian Labs", "Pulse AI", "CloudNine", "Synapse",
-  "BrightEdge", "Nexora", "Finova", "Archway", "Luminos",
+  "PulseAI", "GroundBlimp", "Syncope", "BrightEdge", "Novoro",
+  "Finema", "Animoxy", "Luminex", "TechSurf", "MandorenLabs",
 ];
 
 export function LogoMarquee() {
