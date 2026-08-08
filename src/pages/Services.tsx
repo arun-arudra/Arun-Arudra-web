@@ -45,10 +45,10 @@ const pillars = [
     tagline: "Pixel-perfect implementation with clean, scalable code.",
     thumb: "/images/projects/healthtrack.jpg",
     items: [
-      { name: "Frontend Development", detail: "React, Next.js, and modern frameworks for responsive, fast interfaces." },
-      { name: "Webflow & CMS", detail: "No-code/low-code implementations for marketing sites and landing pages." },
-      { name: "Dev Handoff", detail: "Detailed specs, component libraries, and developer-friendly documentation." },
-      { name: "QA Support", detail: "Cross-browser testing, accessibility audits, and performance optimization." },
+      { name: "React / Next.js", detail: "Modern, performant front-end builds with React and Next.js — pixel-perfect, fully responsive, and production-ready." },
+      { name: "WordPress Development", detail: "Custom WordPress themes and plugins for marketing sites, blogs, and business websites." },
+      { name: "HTML / CSS / Tailwind", detail: "Clean, semantic, accessible markup and styling — built to last and easy to maintain." },
+      { name: "Figma to Code", detail: "Pixel-perfect Figma-to-code conversion with cross-browser QA, accessibility checks, and performance optimization." },
     ],
   },
   {
@@ -60,16 +60,16 @@ const pillars = [
     items: [
       { name: "Performance Optimization", detail: "Speed audits, Core Web Vitals improvements, and caching strategies." },
       { name: "Conversion Rate Optimization", detail: "A/B testing, heatmaps, and funnel analysis to maximize conversions." },
-      { name: "User Retention", detail: "Engagement analysis, onboarding flows, and feature adoption strategies." },
+      { name: "A/B Testing", detail: "Structured experimentation to validate hypotheses and maximize conversion rates." },
       { name: "Analytics Setup", detail: "Event tracking, dashboards, and KPI monitoring for data-driven decisions." },
     ],
   },
 ];
 
 const solutions = [
-  { icon: Globe, title: "Websites", desc: "High-performance, responsive websites designed for conversion, SEO, and brand storytelling.", tags: ["Corporate", "Landing Pages", "Marketing Sites", "Portfolios"] },
-  { icon: Smartphone, title: "Apps", desc: "Native-feel mobile and web applications with intuitive UX and scalable architecture.", tags: ["iOS & Android", "Progressive Web Apps", "SaaS Platforms", "Dashboards"] },
-  { icon: Layers, title: "Products", desc: "End-to-end digital product design from concept to launch — strategy, design, and post-launch support.", tags: ["MVP Design", "Product Redesign", "Feature Expansion", "Design Systems"] },
+  { icon: Globe, title: "Websites", desc: "High-performance, conversion-focused websites designed for SEO, brand storytelling, and lead generation — built to rank, engage, and convert.", tags: ["Corporate", "Landing Pages", "Marketing Sites", "Portfolios"] },
+  { icon: Smartphone, title: "Apps", desc: "Intuitive mobile and web applications with user-centered UX design and scalable front-end architecture — designed to onboard fast and retain longer.", tags: ["iOS & Android", "Progressive Web Apps", "SaaS Platforms", "Dashboards"] },
+  { icon: Layers, title: "Products", desc: "End-to-end digital product design and development from concept to launch — strategy, design, build, and post-launch growth support.", tags: ["MVP Design", "Product Redesign", "Feature Expansion", "Design Systems"] },
 ];
 
 function ServiceAccordion({ pillar, index }: { pillar: typeof pillars[0]; index: number }) {
@@ -184,7 +184,7 @@ export default function Services() {
           </SplitTextReveal>
           <AnimatedSection delay={0.6}>
             <p className="text-muted-foreground text-lg max-w-2xl mt-6">
-              We combine strategy, design, and technology to create products that look stunning, work flawlessly, and deliver measurable business impact.
+              We combine strategy, design, and technology to create products that look stunning, work flawlessly, and deliver measurable business results — from first wireframe to final deployment.
             </p>
           </AnimatedSection>
         </div>
@@ -195,10 +195,10 @@ export default function Services() {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { value: 50, suffix: "+", label: "Projects" },
-              { value: 7, suffix: "+", label: "Years Experience" },
+              { value: 15, suffix: "+", label: "Projects" },
+              { value: 4, suffix: "+", label: "Years Experience" },
               { value: 98, suffix: "%", label: "Satisfaction" },
-              { value: 15, suffix: "+", label: "Team Members" },
+              { value: 5, suffix: "+", label: "Industries Served" },
             ].map((stat, i) => (
               <div key={stat.label}>
                 <div className="font-display text-3xl md:text-4xl font-bold text-primary">
@@ -286,7 +286,7 @@ export default function Services() {
         <div className="container mx-auto px-6 text-center relative z-10">
           <AnimatedSection direction="scale">
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Ready to Turn Ideas Into<br />High-Performing Products?</h2>
-            <p className="text-muted-foreground max-w-lg mx-auto mb-8">Let's discuss how our design services can accelerate your growth.</p>
+            <p className="text-muted-foreground max-w-lg mx-auto mb-8">Let's discuss how our design and development services can accelerate your growth.</p>
             <MagneticButton>
               <Button size="lg" className="rounded-full px-10 text-base h-14" asChild>
                 <Link to="/contact">Book a Call <ArrowRight className="ml-2 h-4 w-4" /></Link>
