@@ -83,8 +83,8 @@ export function CaseStudyCarousel({ studies }: CaseStudyCarouselProps) {
   return (
     <section className="py-24 md:py-32 bg-card overflow-hidden">
       <div className="container mx-auto px-6 mb-12">
-        <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Case Studies</p>
-        <h2 className="font-display text-3xl md:text-5xl font-bold">Our Recent Work</h2>
+        <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">UI/UX Case Studies</p>
+        <h2 className="font-display text-3xl md:text-5xl font-bold">Real Work, Real Results</h2>
       </div>
 
       <div
