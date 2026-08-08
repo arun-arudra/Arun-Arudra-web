@@ -20,9 +20,9 @@ interface NewsPost {
 const PER_PAGE = Math.max(1, Number(import.meta.env.VITE_NEWS_PER_PAGE) || 10);
 
 const fallback: NewsPost[] = [
-  { id: "1", slug: "future-ui-design-2026", title: "The Future of UI Design in 2026", excerpt: "Exploring how AI and spatial computing are reshaping interface design.", image: "/placeholder.svg", category: "Design Trends", publishedAt: "2026-03-15" },
-  { id: "2", slug: "accessibility-non-negotiable", title: "Why Accessibility is Non-Negotiable", excerpt: "Making digital products inclusive isn't optional — it's essential.", image: "/placeholder.svg", category: "Best Practices", publishedAt: "2026-03-08" },
-  { id: "3", slug: "wireframe-to-pixel-perfect", title: "From Wireframe to Pixel-Perfect", excerpt: "A deep dive into the design workflow that delivers consistent results.", image: "/placeholder.svg", category: "Process", publishedAt: "2026-02-28" },
+  { id: "1", slug: "saas-dashboard-design-guide", title: "How to Design a SaaS Dashboard Users Actually Understand", excerpt: "Most SaaS dashboards overwhelm users with data. Here's how to design one that helps them make faster, smarter decisions.", image: "/placeholder.svg", category: "UI/UX", publishedAt: "2026-08-01" },
+  { id: "2", slug: "figma-auto-layout-guide", title: "Figma Auto Layout: The Complete Beginner's Guide", excerpt: "Auto Layout is the most powerful feature in Figma. Learn how to use it with real-world examples and step-by-step walkthroughs.", image: "/placeholder.svg", category: "Figma", publishedAt: "2026-07-20" },
+  { id: "3", slug: "why-your-app-looks-unprofessional", title: "Why Your App Looks Unprofessional (And How to Fix It)", excerpt: "The difference between amateur and professional UI is rarely the idea — it comes down to 5 specific design decisions most people get wrong.", image: "/placeholder.svg", category: "UI Design", publishedAt: "2026-07-10" },
 ];
 
 const formatDate = (d: string) =>
@@ -122,7 +122,7 @@ export default function News() {
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">News</h1>
             <p className="text-muted-foreground max-w-md">
-              Insights, updates, and stories from the studio.
+              UI/UX design tutorials, Figma guides, product insights, and what makes digital products actually work — written from 7 years of real project experience.
             </p>
           </div>
 
