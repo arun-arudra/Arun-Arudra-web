@@ -18,35 +18,35 @@ import { useContentful, getImageUrl } from "@/hooks/useContentful";
 import { siteConfig } from "@/config/site";
 
 const trustPoints = [
-  "User-First Design",
-  "Conversion Focused",
-  "Pixel-Perfect Delivery",
+  "7+ Years of Design Craft",
+  "Design + Development Combined",
+  "Fintech · SaaS · Healthcare & More",
 ];
 
 const stats = [
   { value: 15, suffix: "+", label: "Projects Delivered" },
   { value: 98, suffix: "%", label: "Client Satisfaction" },
-  { value: 4, suffix: "+", label: "Years of Experience" },
-  { value: 3, suffix: "x", label: "Avg. Conversion Lift" },
+  { value: 7, suffix: "+", label: "Years of Experience" },
+  { value: 6, suffix: "+", label: "Industries Served" },
 ];
 
 const serviceBlocks = [
   {
     number: "01",
     title: "Strategy",
-    desc: "We start with your goals, not a blank canvas. User research, competitive analysis, and market mapping shape every decision before a single wireframe is drawn.",
+    desc: "Before a single wireframe is drawn, we dig into your users, your competition, and your business model — so every design decision that follows has a clear reason behind it.",
     subs: ["User Research", "Competitive Analysis", "Product Strategy", "UX Audits"],
   },
   {
     number: "02",
     title: "Design",
-    desc: "Clean, intuitive interfaces designed for clarity, usability, and conversion — not just aesthetics. Every screen earns its place.",
-    subs: ["UI/UX Design", "Figma Prototyping", "Design Systems", "Mobile & Web Apps"],
+    desc: "From low-fidelity wireframes to pixel-perfect Figma prototypes — interfaces your users understand on first glance and come back to willingly.",
+    subs: ["UI/UX Design", "Figma Prototyping", "Design Systems", "Apps & Dashboards"],
   },
   {
     number: "03",
     title: "Development",
-    desc: "From Figma to live product — no handoff friction, no miscommunication. Pixel-perfect builds in React, Next.js, and WordPress.",
+    desc: "We don't stop at design files. We build the product too — in React, Next.js, and WordPress. One person, full process, no gap between what was designed and what gets shipped.",
     subs: ["React / Next.js", "WordPress", "HTML / CSS", "Responsive Builds"],
   },
 ];
@@ -60,16 +60,16 @@ const featuredProjects = [
 // caseStudies array removed — section hidden per request
 
 const whyUs = [
-  { icon: Eye, title: "Always in the Loop", desc: "Transparent communication at every stage — weekly updates, shared progress boards, and zero surprises. You always know where your project stands." },
-  { icon: Gem, title: "Your Vision, Our Expertise", desc: "We don't just execute briefs. We challenge assumptions, ask the hard questions, and connect your product vision to real business outcomes." },
-  { icon: Zap, title: "Efficiency That Matches Pace", desc: "Startups and growing teams can't afford slow. We move fast, iterate smart, and deliver clean work — without cutting corners where it matters." },
-  { icon: Rocket, title: "Built for Long-Term Success", desc: "Scalable design systems and clean front-end code that grow with your product — not a one-time deliverable you'll outgrow in six months." },
+  { icon: Eye, title: "Always in the Loop", desc: "You'll never be left wondering. Regular updates, shared Figma files, and clear timelines keep you involved at every stage — no black box, no surprises." },
+  { icon: Gem, title: "Your Vision, Our Expertise", desc: "We bring 7 years of design instinct to every decision. If something won't work for your users, we say so — and suggest what will." },
+  { icon: Zap, title: "Efficiency That Matches Pace", desc: "Whether you're a two-person startup or a scaling SaaS company, we match your pace. Fast iterations, honest timelines, work shipped on schedule." },
+  { icon: Rocket, title: "Built for Long-Term Success", desc: "Design systems, clean React components, and proper structure mean your product is ready for the next feature — not another full redesign in six months." },
 ];
 
 const latestNews = [
-  { title: "The Future of UI Design in 2026", category: "Design Trends", date: "Mar 15, 2026", excerpt: "Exploring how AI and spatial computing are reshaping interface design.", slug: "future-ui-design-2026", image: "/placeholder.svg" },
-  { title: "Why Accessibility is Non-Negotiable", category: "Best Practices", date: "Mar 8, 2026", excerpt: "Making digital products inclusive isn't optional — it's essential.", slug: "accessibility-non-negotiable", image: "/placeholder.svg" },
-  { title: "From Wireframe to Pixel-Perfect", category: "Process", date: "Feb 28, 2026", excerpt: "A deep dive into the design workflow that delivers consistent results.", slug: "wireframe-to-pixel-perfect", image: "/placeholder.svg" },
+  { title: "How to Design a SaaS Dashboard Users Actually Understand", category: "UI/UX", date: "Aug 1, 2026", excerpt: "Most SaaS dashboards overwhelm users with data. Here's how to design one that helps them make decisions fast.", slug: "saas-dashboard-design-guide", image: "/placeholder.svg" },
+  { title: "Figma Auto Layout: The Complete Beginner's Guide", category: "Figma", date: "Jul 20, 2026", excerpt: "Auto Layout is the most powerful feature in Figma. Here's how to master it with real-world examples.", slug: "figma-auto-layout-guide", image: "/placeholder.svg" },
+  { title: "Why Your App Looks Unprofessional (And How to Fix It)", category: "UI Design", date: "Jul 10, 2026", excerpt: "The difference between amateur and professional UI is rarely the idea — it's in 5 specific design decisions.", slug: "why-your-app-looks-unprofessional", image: "/placeholder.svg" },
 ];
 
 function HeroSection() {
@@ -105,7 +105,7 @@ function HeroSection() {
 
           <AnimatedSection delay={0.7}>
             <p className="text-muted-foreground text-lg md:text-xl max-w-xl mb-10 leading-relaxed">
-              Arun Arudra helps startups, SaaS teams, and growing businesses design and build products people love — through strategy-first thinking, pixel-perfect UI, and clean front-end development.
+              Arun Arudra is a UI/UX designer and developer based in India with 7+ years of experience. He helps startups, SaaS companies, and growing businesses turn rough ideas and unprofessional products into digital experiences people love — and actually use.
             </p>
           </AnimatedSection>
 
@@ -137,9 +137,9 @@ function HeroSection() {
             <div className="mt-12 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/30 max-w-md">
               <MessageSquareQuote className="h-5 w-5 text-primary mb-3" />
               <p className="text-sm text-muted-foreground italic leading-relaxed">
-                "Arun delivered a complete redesign that transformed how our users experience the product. Strategic, fast, and pixel-perfect."
+                "What we had looked amateurish. What Arun delivered made our product finally feel credible — and our users noticed immediately."
               </p>
-              <p className="text-xs font-medium mt-3 text-foreground/80">— Founder, SaaS Startup</p>
+              <p className="text-xs font-medium mt-3 text-foreground/80">— Startup Founder</p>
             </div>
           </AnimatedSection>
         </div>
@@ -193,7 +193,7 @@ function ServicesSection() {
         <AnimatedSection direction="left">
           <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">What We Do</p>
           <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Services</h2>
-          <p className="text-muted-foreground max-w-xl mb-16">Strategy, design, and development that helps brands launch, grow, and stand out in competitive markets.</p>
+          <p className="text-muted-foreground max-w-xl mb-16">Strategy, design, and front-end development — from a designer who understands your business goals, not just your brief.</p>
         </AnimatedSection>
 
         <div className="grid lg:grid-cols-3 gap-px bg-border/50 rounded-2xl overflow-hidden">
@@ -349,6 +349,7 @@ function NewsSection() {
         <AnimatedSection direction="left">
           <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Design Insights</p>
           <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Latest from the Blog</h2>
+          <p className="text-muted-foreground mb-16 max-w-xl">Practical UI/UX tutorials, Figma guides, product design breakdowns, and what makes digital products actually work — written from real project experience.</p>
         </AnimatedSection>
 
         <div className="grid md:grid-cols-3 gap-6">
