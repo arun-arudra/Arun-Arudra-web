@@ -113,10 +113,8 @@ jobs:
 
       # ============================================================
       # BLUEHOST DEPLOYMENT (via FTP)
-      # Deploy only for push/manual runs, not pull requests.
       # ============================================================
       - name: Deploy to Bluehost
-        if: github.event_name != 'pull_request'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -124,14 +122,14 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ${{ env.DEPLOY_SOURCE }}
           server-dir: ${{ env.DEPLOY_DESTINATION }}
-          state-name: .ftp-deploy-sync-state-${{ github.ref_name }}.json
+          state-name: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && '.ftp-deploy-sync-state-main.json' || '.ftp-deploy-sync-state-dev.json' }}
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
             ArunArudra/**
           dry-run: false
-
+          
       - name: Build completed successfully
         run: |
           echo "======================================"

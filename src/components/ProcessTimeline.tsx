@@ -4,22 +4,22 @@ const steps = [
   {
     number: "01",
     title: "Discovery & Definition",
-    desc: "We dive deep into your business, users, and market landscape. Research-backed insights shape a clear strategy before any pixels are drawn.",
+    desc: "We dive deep into your business, users, and competitive landscape. Stakeholder interviews, technical scoping, and heuristic analysis shape a clear strategy and roadmap — so everyone agrees before we begin.",
   },
   {
     number: "02",
     title: "Design & Prototyping",
-    desc: "From wireframes to high-fidelity prototypes, we craft every interaction with intention. User testing validates decisions before development begins.",
+    desc: "From low-fidelity wireframes to high-fidelity Figma prototypes, we craft every screen and interaction with intention. Clickable prototypes let you experience and give feedback before a single line of code is written.",
   },
   {
     number: "03",
     title: "Development & Testing",
-    desc: "Pixel-perfect implementation with clean, scalable code. Rigorous QA ensures everything works flawlessly across devices and browsers.",
+    desc: "Pixel-perfect front-end implementation with clean, scalable code. Rigorous QA testing validates that everything works flawlessly across all devices, browsers, and screen sizes before launch.",
   },
   {
     number: "04",
     title: "Refine & Optimize",
-    desc: "Post-launch isn't the end — it's the beginning. We analyze real user data, iterate on feedback, and continuously improve performance.",
+    desc: "Post-launch isn't the finish line — it's the starting line. We analyze real user data, act on feedback, and continuously improve performance to maximize your return on investment.",
   },
 ];
 

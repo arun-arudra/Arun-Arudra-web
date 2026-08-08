@@ -24,9 +24,9 @@ const trustPoints = [
 ];
 
 const stats = [
-  { value: 50, suffix: "+", label: "Projects Delivered" },
+  { value: 15, suffix: "+", label: "Projects Delivered" },
   { value: 98, suffix: "%", label: "Client Satisfaction" },
-  { value: 12, suffix: "+", label: "Industries Served" },
+  { value: 4, suffix: "+", label: "Years of Experience" },
   { value: 3, suffix: "x", label: "Avg. Conversion Lift" },
 ];
 
@@ -34,20 +34,20 @@ const serviceBlocks = [
   {
     number: "01",
     title: "Strategy",
-    desc: "We uncover what your users need and align it with your business goals — before design begins.",
-    subs: ["Market Research", "Brand Positioning", "Product Strategy", "UX Audits"],
+    desc: "We start with your goals, not a blank canvas. User research, competitive analysis, and market mapping shape every decision before a single wireframe is drawn.",
+    subs: ["User Research", "Competitive Analysis", "Product Strategy", "UX Audits"],
   },
   {
     number: "02",
     title: "Design",
-    desc: "From wireframes to polished interfaces, we craft every pixel with purpose and precision.",
-    subs: ["UI/UX Design", "Brand Identity", "Motion Design", "Design Systems"],
+    desc: "Clean, intuitive interfaces designed for clarity, usability, and conversion — not just aesthetics. Every screen earns its place.",
+    subs: ["UI/UX Design", "Figma Prototyping", "Design Systems", "Mobile & Web Apps"],
   },
   {
     number: "03",
-    title: "Delivery",
-    desc: "We don't just design — we ensure flawless handoff, QA support, and post-launch optimization.",
-    subs: ["Dev Handoff", "Frontend Support", "Performance", "Analytics"],
+    title: "Development",
+    desc: "From Figma to live product — no handoff friction, no miscommunication. Pixel-perfect builds in React, Next.js, and WordPress.",
+    subs: ["React / Next.js", "WordPress", "HTML / CSS", "Responsive Builds"],
   },
 ];
 
@@ -60,10 +60,10 @@ const featuredProjects = [
 // caseStudies array removed — section hidden per request
 
 const whyUs = [
-  { icon: Eye, title: "Always in the Loop", desc: "Transparent communication with regular updates, shared workspaces, and no black-box processes." },
-  { icon: Gem, title: "Your Vision, Our Expertise", desc: "We don't impose — we listen, challenge, and elevate your ideas into something extraordinary." },
-  { icon: Zap, title: "Efficiency That Matches Pace", desc: "Lean team, fast iterations, and a process built for startups that move quickly." },
-  { icon: Rocket, title: "Built for Long-Term Success", desc: "Scalable design systems and strategic thinking that grow with your product." },
+  { icon: Eye, title: "Always in the Loop", desc: "Transparent communication at every stage — weekly updates, shared progress boards, and zero surprises. You always know where your project stands." },
+  { icon: Gem, title: "Your Vision, Our Expertise", desc: "We don't just execute briefs. We challenge assumptions, ask the hard questions, and connect your product vision to real business outcomes." },
+  { icon: Zap, title: "Efficiency That Matches Pace", desc: "Startups and growing teams can't afford slow. We move fast, iterate smart, and deliver clean work — without cutting corners where it matters." },
+  { icon: Rocket, title: "Built for Long-Term Success", desc: "Scalable design systems and clean front-end code that grow with your product — not a one-time deliverable you'll outgrow in six months." },
 ];
 
 const latestNews = [
@@ -91,7 +91,7 @@ function HeroSection() {
         <div className="max-w-5xl">
           <AnimatedSection direction="none">
             <TextScramble className="text-primary font-medium mb-6 tracking-wider uppercase text-sm block font-mono" delay={0.2}>
-              Design Agency
+              Full-Stack Product Designer
             </TextScramble>
           </AnimatedSection>
 
@@ -105,7 +105,7 @@ function HeroSection() {
 
           <AnimatedSection delay={0.7}>
             <p className="text-muted-foreground text-lg md:text-xl max-w-xl mb-10 leading-relaxed">
-              ArunArudra helps startups and brands build products people love through strategic design, user-first thinking, and pixel-perfect execution.
+              Arun Arudra helps startups, SaaS teams, and growing businesses design and build products people love — through strategy-first thinking, pixel-perfect UI, and clean front-end development.
             </p>
           </AnimatedSection>
 
@@ -137,9 +137,9 @@ function HeroSection() {
             <div className="mt-12 p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/30 max-w-md">
               <MessageSquareQuote className="h-5 w-5 text-primary mb-3" />
               <p className="text-sm text-muted-foreground italic leading-relaxed">
-                "ArunArudra transformed our product from a clunky MVP into something our users genuinely love. The attention to detail is unmatched."
+                "Arun delivered a complete redesign that transformed how our users experience the product. Strategic, fast, and pixel-perfect."
               </p>
-              <p className="text-xs font-medium mt-3 text-foreground/80">— Sarah Chen, CEO at Pulse AI</p>
+              <p className="text-xs font-medium mt-3 text-foreground/80">— Founder, SaaS Startup</p>
             </div>
           </AnimatedSection>
         </div>
@@ -193,7 +193,7 @@ function ServicesSection() {
         <AnimatedSection direction="left">
           <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">What We Do</p>
           <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Services</h2>
-          <p className="text-muted-foreground max-w-xl mb-16">Strategic design services that help brands stand out and products succeed.</p>
+          <p className="text-muted-foreground max-w-xl mb-16">Strategy, design, and development that helps brands launch, grow, and stand out in competitive markets.</p>
         </AnimatedSection>
 
         <div className="grid lg:grid-cols-3 gap-px bg-border/50 rounded-2xl overflow-hidden">
@@ -347,8 +347,8 @@ function NewsSection() {
     <section className="py-24 md:py-32 bg-surface">
       <div className="container mx-auto px-6">
         <AnimatedSection direction="left">
-          <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Insights</p>
-          <h2 className="font-display text-3xl md:text-5xl font-bold mb-16">Latest from the Blog</h2>
+          <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Design Insights</p>
+          <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Latest from the Blog</h2>
         </AnimatedSection>
 
         <div className="grid md:grid-cols-3 gap-6">

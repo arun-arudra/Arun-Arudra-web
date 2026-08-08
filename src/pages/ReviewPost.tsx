@@ -16,6 +16,7 @@ import { ArrowLeft, Trash2, Send, Clock, Image as ImageIcon, Loader2, Save, X } 
 
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import UserMenu from "@/components/admin/UserMenu";
 
 export default function ReviewPost() {
   const location = useLocation();
@@ -477,6 +478,7 @@ export default function ReviewPost() {
             <Button onClick={() => saveEntry(true)} disabled={isProcessing || isDiscarding} className="bg-white text-black hover:bg-zinc-200 font-semibold">
               {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />} Publish Now
             </Button>
+            <UserMenu />
           </div>
         </div>
       </div>
@@ -521,6 +523,7 @@ export default function ReviewPost() {
                   value={body} 
                   onChange={handleBodyChange} 
                   modules={modules} 
+                  
                 />
               </div>
               {fieldErrors.body && <p className="text-red-500 text-xs mt-1">{fieldErrors.body}</p>}

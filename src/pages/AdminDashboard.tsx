@@ -4,6 +4,7 @@ import ContentGrid from "@/components/admin/ContentGrid";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Plus, BarChart2 } from "lucide-react";
+import UserMenu from "@/components/admin/UserMenu";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -60,13 +61,16 @@ export default function AdminDashboard() {
             </h1>
             <p className="text-zinc-400 mt-2">Welcome to your secure publishing pipeline.</p>
           </div>
-          <Button 
-            onClick={() => navigate('/admin/review/new')} 
-            className="bg-white text-black hover:bg-zinc-200 font-semibold shadow-lg"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Blank Post
-          </Button>
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <Button 
+              onClick={() => navigate('/admin/review/new')} 
+              className="bg-white text-black hover:bg-zinc-200 font-semibold shadow-lg"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Blank Post
+            </Button>
+            <UserMenu />
+          </div>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
