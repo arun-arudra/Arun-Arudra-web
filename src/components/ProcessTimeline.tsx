@@ -4,22 +4,22 @@ const steps = [
   {
     number: "01",
     title: "Discovery & Definition",
-    desc: "We dive deep into your business, users, and competitive landscape. Stakeholder interviews, technical scoping, and heuristic analysis shape a clear strategy and roadmap — so everyone agrees before we begin.",
+    desc: "We start by understanding your problem deeply — not just the brief. What are users really struggling with? Where is the current product failing? What does success actually look like? This shapes everything that follows.",
   },
   {
     number: "02",
     title: "Design & Prototyping",
-    desc: "From low-fidelity wireframes to high-fidelity Figma prototypes, we craft every screen and interaction with intention. Clickable prototypes let you experience and give feedback before a single line of code is written.",
+    desc: "Wireframes first. High-fidelity Figma prototypes second. Every screen is intentional. You get to click through the product and catch issues before development begins — saving weeks of back-and-forth later.",
   },
   {
     number: "03",
     title: "Development & Testing",
-    desc: "Pixel-perfect front-end implementation with clean, scalable code. Rigorous QA testing validates that everything works flawlessly across all devices, browsers, and screen sizes before launch.",
+    desc: "Every design decision is built exactly as intended — in React, Next.js, or WordPress. We test across devices, browsers, and edge cases before anything goes live. What you approved in Figma is what you get.",
   },
   {
     number: "04",
     title: "Refine & Optimize",
-    desc: "Post-launch isn't the finish line — it's the starting line. We analyze real user data, act on feedback, and continuously improve performance to maximize your return on investment.",
+    desc: "Launch is not the end — it's where the real learning starts. We track how real users behave, identify friction points, and make improvements based on data. Your product gets better every week after release.",
   },
 ];
 
