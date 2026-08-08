@@ -33,7 +33,11 @@ export default function GenerationForm() {
     setIsGenerating(true);
 
     try {
-      const webhookUrl = "https://arunarudra-n8n.onrender.com/webhook/generate-draft";
+      const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
+
+      if (!webhookUrl) {
+        throw new Error("Webhook URL is not configured in environment variables.");
+      }
 
       const response = await fetch(webhookUrl, {
         method: "POST",

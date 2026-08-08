@@ -41,42 +41,65 @@ export default function AdminLogin() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      // 1. Fetch current MFA factors
+      // 1. FIRST, check if they have any MFA factors set up
       const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
       if (factorsError) throw factorsError;
 
       const totpFactors = factors.totp || [];
 
-      // 2. Clean up any unverified factors (prevents 422 "friendly name already exists" error)
+      // =========================================================================
+      // PERMANENT FIX: Clean up any leftover unverified factors first 
+      // (This prevents the "Factor with friendly name already exists" 422 error)
+      // =========================================================================
       for (const factor of totpFactors) {
         if ((factor.status as string) === 'unverified') {
           await supabase.auth.mfa.unenroll({ factorId: factor.id });
         }
       }
 
-      // 3. Filter to verified factors only
-      const verifiedFactors = totpFactors.filter((f) => (f.status as string) === 'verified');
+      // Re-fetch or filter down to truly verified factors
+      const verifiedFactors = totpFactors.filter(
+        (f) => (f.status as string) === 'verified'
+      );
 
-      // 4. If NO verified factors exist, force enrollment
-      if (verifiedFactors.length === 0) {
-        const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
-          factorType: 'totp',
-          friendlyName: 'Admin Authenticator App',
-        });
-        if (enrollError) throw enrollError;
+      // 2. If NO verified factors exist, force enrollment
+      // 2. If NO verified factors exist, force enrollment
+    if (verifiedFactors.length === 0) {
+      // Try to enroll
+      let { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
+        factorType: 'totp',
+        friendlyName: 'Admin Authenticator App',
+      });
 
-        setFactorId(enrollData.id);
-        setQrCodeSvg(enrollData.totp.qr_code);
-        setStep('enroll');
-        return;
+      // IF SUPABASE THROWS A DUPLICATE ERROR, RECOVER AUTOMATICALLY:
+      if (enrollError && enrollError.status === 422) {
+        // A factor already exists. Let's list factors using admin/alternative method or 
+        // fallback directly to 'verify' step using the existing unverified factor ID.
+        const { data: retryFactors } = await supabase.auth.mfa.listFactors();
+        const existingFactor = retryFactors?.totp?.[0];
+
+        if (existingFactor) {
+          setFactorId(existingFactor.id);
+          // If it has a QR code saved or we need to challenge it:
+          setStep('verify');
+          return;
+        }
       }
 
-      // 5. If verified factors DO exist, check assurance level
+      if (enrollError) throw enrollError;
+
+      setFactorId(enrollData.id);
+      setQrCodeSvg(enrollData.totp.qr_code);
+      setStep('enroll');
+      return;
+    }
+
+      // 3. If they DO have verified factors, check assurance level
       const { data: mfaStatus, error: mfaError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (mfaError) throw mfaError;
 
       if (mfaStatus.currentLevel === 'aal2') {
-        navigate('/admin');
+        navigate("/admin");
       } else {
         setFactorId(verifiedFactors[0].id);
         setStep('verify');
