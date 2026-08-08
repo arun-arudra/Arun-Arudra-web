@@ -53,8 +53,8 @@ const serviceBlocks = [
 
 const featuredProjects = [
   { title: "Silver Club", slug: "silver-club", tags: ["Mobile App", "UX Research", "UI Design"], image: "/images/projects/silver-club.jpg", number: "01" },
-  { title: "HealthTrack", slug: "healthtrack", tags: ["Web Platform", "Dashboard", "Data Viz"], image: "/images/projects/healthtrack.jpg", number: "02" },
-  { title: "EcoMart", slug: "ecomart", tags: ["E-commerce", "Branding", "Product Design"], image: "/images/projects/ecomart.jpg", number: "03" },
+  { title: "Asset Management App UI UX Design", slug: "asset-management-app", tags: ["Fintech", "Dashboard", "UI Design"], image: "/images/projects/asset-management.jpg", number: "02" },
+  { title: "Krinserv — Restaurant Website Design", slug: "krinserv", tags: ["Food Tech", "Web Design", "Development"], image: "/images/projects/krinserv.jpg", number: "03" },
 ];
 
 // caseStudies array removed — section hidden per request
@@ -191,7 +191,7 @@ function ServicesSection() {
     <section className="py-24 md:py-32">
       <div className="container mx-auto px-6">
         <AnimatedSection direction="left">
-          <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">What We Do</p>
+          <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">What I Do</p>
           <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Services</h2>
           <p className="text-muted-foreground max-w-xl mb-16">Strategy, design, and front-end development — from a designer who understands your business goals, not just your brief.</p>
         </AnimatedSection>
@@ -257,8 +257,9 @@ function FeaturedProjectsSection() {
         <div className="flex items-end justify-between mb-16">
           <div>
             <AnimatedSection direction="left">
-              <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Selected Work</p>
+              <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Case Studies</p>
               <h2 className="font-display text-3xl md:text-5xl font-bold">Featured Projects</h2>
+              <p className="text-muted-foreground mt-3 max-w-lg">A selection of real work across fintech, food tech, social apps, e-commerce, healthcare, and SaaS.</p>
             </AnimatedSection>
           </div>
           <AnimatedSection direction="right" className="hidden md:block">
@@ -292,7 +293,7 @@ function MarqueeSection() {
   return (
     <div className="py-12 border-y border-border/20 overflow-hidden">
       <MarqueeText
-        text="Strategy · Design · Development · Branding · UX Research · Motion Design"
+        text="UI/UX Design · React Development · Figma Prototyping · WordPress · Product Strategy · SaaS Dashboards · Mobile Apps"
         className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-foreground/5"
         speed={30}
         separator="✦"
@@ -306,7 +307,7 @@ function WhyUsSection() {
     <section className="py-24 md:py-32">
       <div className="container mx-auto px-6">
         <AnimatedSection>
-          <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Why ArunArudra</p>
+          <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Why Choose Me</p>
           <h2 className="font-display text-3xl md:text-5xl font-bold mb-16">Why Brands Choose Us</h2>
         </AnimatedSection>
         <div className="grid md:grid-cols-2 gap-6">
@@ -395,12 +396,13 @@ function CTASection() {
       </div>
       <div className="container mx-auto px-6 text-center relative z-10">
         <AnimatedSection direction="scale">
-          <p className="text-primary font-medium mb-4 tracking-wider uppercase text-sm font-mono">Let's Build Something Great</p>
+          <p className="text-primary font-medium mb-4 tracking-wider uppercase text-sm font-mono">Start a Project</p>
           <h2 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            Ready to Accelerate<br />Your Growth?
+            Got a Product Idea?
+            <br />Let's Build It Right.
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto mb-10 text-lg">
-            From concept to launch, we'll bring your vision to life with strategic design that drives real results.
+            From a rough idea to a live product your users love — UI/UX design and front-end development handled end to end. No handoff chaos. No generic output.
           </p>
           <MagneticButton>
             <Button size="lg" className="rounded-full px-10 text-base h-14" asChild>
