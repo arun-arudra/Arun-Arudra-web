@@ -33,7 +33,7 @@ const capabilities = [
 
 const tools = ["Figma", "React", "Next.js", "WordPress", "HTML / CSS", "After Effects", "Photoshop", "Notion"];
 
-const press = ["Awwwards", "CSS Design Awards", "Behance", "Dribbble", "Site Inspire", "FWA"];
+const press = ["Behance", "Dribbble", "LinkedIn", "Upwork", "GitHub", "Figma Community"];
 
 export default function About() {
   return (
@@ -92,7 +92,8 @@ export default function About() {
             <AnimatedSection direction="left" className="lg:col-span-5">
               <p className="text-primary font-mono text-xs tracking-[0.3em] uppercase mb-4">— Who we are</p>
               <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight">
-                A studio built on craft, not headcount.
+                A designer who builds.
+A builder who designs.
               </h2>
             </AnimatedSection>
             <AnimatedSection delay={0.2} className="lg:col-span-7 lg:pt-4">
@@ -194,7 +195,7 @@ export default function About() {
       {/* Recognition */}
       <section className="py-16 md:py-20 bg-surface border-y border-border">
         <div className="container mx-auto px-6">
-          <p className="text-center text-xs uppercase tracking-[0.3em] text-muted-foreground mb-10">Featured in</p>
+          <p className="text-center text-xs uppercase tracking-[0.3em] text-muted-foreground mb-10">Find My Work On</p>
           <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-6 md:gap-x-20">
             {press.map((p, i) => (
               <AnimatedSection key={p} delay={i * 0.06}>
