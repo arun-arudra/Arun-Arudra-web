@@ -11,14 +11,14 @@ import { useContentful, getImageUrl } from "@/hooks/useContentful";
 interface TOC { id: string; title: string; level: number; }
 
 const fallback: Record<string, { title: string; category: string; publishedAt: string; image: string; content: string; readTime: string; tags: string[]; }> = {
-  "future-ui-design-2026": {
-    title: "The Future of UI Design in 2026",
-    category: "Design Trends",
-    publishedAt: "2026-03-15",
+  "saas-dashboard-design-guide": {
+    title: "How to Design a SaaS Dashboard Users Actually Understand",
+    category: "UI/UX",
+    publishedAt: "2026-08-01",
     image: "/placeholder.svg",
-    readTime: "6 min read",
-    tags: ["UI", "Trends", "AI"],
-    content: `## Introduction\nExploring how AI and spatial computing are reshaping interface design.\n\n## What's Changing\nFrom adaptive layouts to context-aware components, the next wave is here.\n\n### Adaptive Layouts\nInterfaces respond to user intent.\n\n## Closing\nDesigners must prepare today.`,
+    readTime: "8 min read",
+    tags: ["SaaS", "Dashboard", "UI Design", "Figma"],
+    content: `## Introduction\nMost SaaS dashboards fail users not because of missing features — but because they display too much, too soon, without hierarchy.\n\n## The Core Problem\nWhen everything is equally visible, nothing is important. Users open the dashboard, see 15 metrics, 4 charts, and 3 sidebars — and freeze.\n\n### What Good Dashboard Design Looks Like\nPrioritize the one number that tells users if their day is going well or not. Everything else is secondary.\n\n## The Fix\nStart with user goals, not data availability. Ask: what decision does this screen need to enable?\n\n## Closing\nA great dashboard is not one that shows everything — it's one that shows the right thing at the right time.`,
   },
 };
 
@@ -238,9 +238,10 @@ export default function ArticleDetail() {
               {/* CTA */}
               <div className="mt-16 p-8 rounded-2xl bg-card border border-border">
                 <div className="bg-secondary/50 p-6 rounded-xl">
-                  <h4 className="font-bold text-foreground mb-2 font-display">Like what you read? Let's work together.</h4>
-                  <Button asChild size="sm" className="mt-4 rounded-full">
-                    <Link to="/contact">Contact Us</Link>
+                  <h4 className="font-bold text-foreground mb-2 font-display">Need help applying this to your product?</h4>
+                  <p className="text-muted-foreground text-sm mb-4">I help startups and growing businesses design and build digital products people love. Let's talk about yours.</p>
+                  <Button asChild size="sm" className="mt-2 rounded-full">
+                    <Link to="/contact">Book a Free Call</Link>
                   </Button>
                 </div>
               </div>
