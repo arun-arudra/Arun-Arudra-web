@@ -73,10 +73,10 @@ export default function Projects() {
       <section className="pt-24 pb-16 md:pt-32 md:pb-24">
         <div className="container mx-auto px-6">
           <AnimatedSection direction="left">
-            <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Our Work</p>
+            <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">UI/UX Case Studies</p>
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-6 max-w-4xl">Selected Case Studies</h1>
             <p className="text-muted-foreground text-lg max-w-2xl">
-              A collection of projects that showcase our approach to solving design challenges for startups and established brands.
+              Real projects across fintech, food tech, social apps, e-commerce, healthcare, and SaaS — each one solving a specific business problem through design and front-end development.
             </p>
           </AnimatedSection>
         </div>
@@ -134,8 +134,8 @@ export default function Projects() {
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-6 text-center">
           <AnimatedSection direction="scale">
-            <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Want to Be the Next Success Story?</h2>
-            <p className="text-muted-foreground max-w-lg mx-auto mb-8">Let's discuss how design can elevate your brand and product.</p>
+            <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Have a Product That Needs to Look Better?</h2>
+            <p className="text-muted-foreground max-w-lg mx-auto mb-8">Whether you are starting from scratch or fixing a product that looks unprofessional — let's talk about what great design can do for your business.</p>
             <MagneticButton>
               <Button size="lg" className="rounded-full px-10 text-base h-14" asChild>
                 <Link to="/contact">Start a Project <ArrowRight className="ml-1 h-4 w-4" /></Link>
