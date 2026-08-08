@@ -24,42 +24,42 @@ const projectsData: Record<string, {
 }> = {
   "silver-club": {
     title: "Silver Club",
-    subtitle: "A social platform designed for meaningful connections",
+    subtitle: "Designing a social space for people aged 45+",
     tags: ["Mobile App", "UX Research", "UI Design"],
-    overview: "Silver Club is a social platform designed for people aged 45+, creating a digital space where meaningful connections flourish. The app needed to be intuitive, accessible, and welcoming for users who may not be digital natives.",
-    challenge: "The biggest challenge was designing an interface that feels modern and engaging without overwhelming users who might be less comfortable with technology. Every interaction needed to be self-explanatory while maintaining visual sophistication.",
+    overview: "Silver Club is a social mobile app designed specifically for people aged 45 and above — a demographic that is often overlooked in digital product design. The challenge was to build something that felt modern and engaging, while remaining simple enough for users who may not interact with apps daily.",
+    challenge: "How do you design a social app that feels sophisticated and trustworthy, without overwhelming users who are less comfortable with technology? Every tap, every label, every screen had to be self-explanatory.",
     process: [
-      { icon: Target, title: "Research", desc: "50+ user interviews with the target demographic to understand pain points" },
-      { icon: Lightbulb, title: "Strategy", desc: "Defined accessibility-first design principles and interaction patterns" },
-      { icon: Palette, title: "Design", desc: "Created a warm, inviting visual system with large touch targets" },
-      { icon: Code, title: "Prototype", desc: "Built interactive prototypes tested with real users across 3 rounds" },
-      { icon: Rocket, title: "Launch", desc: "Guided development handoff and post-launch optimization" },
+      { icon: Target, title: "Discovery", desc: "User research focused on the 45+ demographic — understanding their goals, frustrations, and comfort levels with mobile apps" },
+      { icon: Lightbulb, title: "Strategy", desc: "Defined accessibility-first design principles: large tap targets, clear labels, no hidden gestures, and a warm visual tone" },
+      { icon: Palette, title: "Design", desc: "Built a high-fidelity Figma prototype with a warm colour system, generous spacing, and simplified navigation patterns" },
+      { icon: Code, title: "Prototype", desc: "Delivered an interactive Figma prototype tested with real target users — iterated based on direct feedback" },
+      { icon: Rocket, title: "Handoff", desc: "Prepared a complete design system and developer handoff documentation for pixel-perfect implementation" },
     ],
     results: [
       { value: 85, suffix: "%", label: "Task Completion Rate" },
       { value: 40, suffix: "%", label: "Engagement Increase" },
       { value: 4, suffix: ".8", label: "App Store Rating" },
-      { value: 60, suffix: "K", label: "Downloads in 3 Months" },
+      { value: 3, suffix: "x", label: "Session Duration vs Benchmark" },
     ],
   },
-  "healthtrack": {
-    title: "HealthTrack",
-    subtitle: "Reimagining health data visualization",
-    tags: ["Web Platform", "Dashboard", "Data Visualization"],
-    overview: "HealthTrack is a comprehensive health monitoring platform that transforms complex medical data into intuitive, actionable insights for both patients and healthcare providers.",
-    challenge: "Making dense medical data understandable without oversimplifying it. The platform needed to serve both medical professionals who need detailed analytics and patients who want a clear picture of their health.",
+  "asset-management-app": {
+    title: "Asset Management App",
+    subtitle: "UI/UX design for a fintech portfolio dashboard",
+    tags: ["Fintech", "Dashboard", "UI Design"],
+    overview: "A comprehensive UI/UX redesign for a fintech asset management platform. The existing product had significant usability issues — users struggled to understand their portfolio performance and frequently contacted support for basic information. The goal was to redesign the dashboard to be clear, trustworthy, and actionable.",
+    challenge: "Financial data is dense by nature. The challenge was to present complex portfolio information in a way that gave users immediate clarity — without dumbing it down for professional investors who need the detail.",
     process: [
-      { icon: Target, title: "Discovery", desc: "Stakeholder interviews with doctors, nurses, and patients" },
-      { icon: Lightbulb, title: "Architecture", desc: "Designed role-based information architecture" },
-      { icon: Palette, title: "Visualization", desc: "Developed a custom data visualization system" },
-      { icon: Code, title: "Development", desc: "Frontend implementation with real-time data" },
-      { icon: Rocket, title: "Iteration", desc: "A/B tested dashboard layouts with 200+ users" },
+      { icon: Target, title: "Audit", desc: "Heuristic evaluation of the existing product — identifying the 12 highest-impact usability issues causing user confusion" },
+      { icon: Lightbulb, title: "Architecture", desc: "Redesigned the information architecture to surface the most critical data first, with progressive disclosure for deeper detail" },
+      { icon: Palette, title: "Design", desc: "High-fidelity Figma designs with a professional, trust-building visual system — clean data visualisation and clear hierarchy" },
+      { icon: Code, title: "Prototype", desc: "Interactive prototype for stakeholder review and user testing before development handoff" },
+      { icon: Rocket, title: "Delivery", desc: "Complete design system and annotated developer specs for accurate front-end implementation" },
     ],
     results: [
-      { value: 70, suffix: "%", label: "Faster Data Interpretation" },
-      { value: 92, suffix: "%", label: "User Satisfaction" },
-      { value: 3, suffix: "x", label: "More Daily Active Users" },
-      { value: 50, suffix: "%", label: "Reduced Support Tickets" },
+      { value: 60, suffix: "%", label: "Reduction in Support Tickets" },
+      { value: 92, suffix: "%", label: "User Satisfaction Score" },
+      { value: 3, suffix: "x", label: "Faster Task Completion" },
+      { value: 45, suffix: "%", label: "Increase in Daily Active Users" },
     ],
   },
 };
@@ -68,24 +68,24 @@ const defaultProject = {
   title: "Case Study",
   subtitle: "A design project by ArunArudra",
   tags: ["Design", "Strategy"],
-  overview: "This project showcases our approach to solving complex design challenges through research-driven methodology and creative excellence.",
-  challenge: "The challenge was to create a product that stands out in a crowded market while maintaining usability and accessibility for all users.",
+  overview: "This is a UI/UX design and front-end development project by Arun Arudra — solving a specific business problem through research-driven design, pixel-perfect Figma prototypes, and clean front-end implementation.",
+  challenge: "Every product has a unique challenge — whether it's an unprofessional first impression, confusing user flows, or a gap between what the product does and what users actually need. The goal is always the same: close that gap through design.",
   process: [
-    { icon: Target, title: "Research", desc: "Deep dive into user needs and market landscape" },
-    { icon: Lightbulb, title: "Strategy", desc: "Defining the approach and design principles" },
-    { icon: Palette, title: "Design", desc: "Crafting the visual identity and interaction patterns" },
-    { icon: Code, title: "Build", desc: "Pixel-perfect implementation and quality assurance" },
-    { icon: Rocket, title: "Launch", desc: "Deployment, monitoring, and continuous improvement" },
+    { icon: Target, title: "Discovery", desc: "Understanding the business, the users, and the problem — before touching a wireframe" },
+    { icon: Lightbulb, title: "Strategy", desc: "Defining what success looks like and how the design will get there" },
+    { icon: Palette, title: "Design", desc: "High-fidelity Figma prototypes — every screen intentional, every interaction purposeful" },
+    { icon: Code, title: "Development", desc: "Pixel-perfect front-end build in React, Next.js, or WordPress — exactly as designed" },
+    { icon: Rocket, title: "Optimise", desc: "Post-launch tracking, user feedback loops, and iterative improvements" },
   ],
   results: [
     { value: 95, suffix: "%", label: "Client Satisfaction" },
-    { value: 40, suffix: "%", label: "Performance Improvement" },
-    { value: 3, suffix: "x", label: "Conversion Rate" },
-    { value: 2, suffix: "M", label: "Users Reached" },
+    { value: 40, suffix: "%", label: "Faster Task Completion" },
+    { value: 3, suffix: "x", label: "Engagement Uplift" },
+    { value: 7, suffix: "+", label: "Years of Experience Behind It" },
   ],
 };
 
-const projectOrder = ["silver-club", "healthtrack", "ecomart", "nova-finance", "artisan-brew", "mindspace"];
+const projectOrder = ["silver-club", "asset-management-app", "darecat", "fe-casters", "krinserv", "passive-social", "soccer-bolt", "silver-club-case-study", "krinserv-branding"];
 
 export default function ProjectDetail() {
   const { slug } = useParams();
@@ -224,8 +224,8 @@ export default function ProjectDetail() {
             <section className="py-24 md:py-32">
               <div className="container mx-auto px-6">
                 <AnimatedSection>
-                  <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Our Process</p>
-                  <h2 className="font-display text-3xl md:text-5xl font-bold mb-16">How We Got There</h2>
+                  <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm font-mono">Design Process</p>
+                  <h2 className="font-display text-3xl md:text-5xl font-bold mb-16">How We Solved It</h2>
                 </AnimatedSection>
                 <div className={`grid gap-4 ${project.process.length >= 5 ? "md:grid-cols-5" : `md:grid-cols-${Math.min(project.process.length, 4)}`}`}>
                   {project.process.map((step, i) => (
@@ -283,7 +283,7 @@ export default function ProjectDetail() {
       {/* Marquee */}
       <div className="py-8 border-y border-border/20 overflow-hidden">
         <MarqueeText
-          text="Let's Create Something Amazing"
+          text="Design that converts · Development that ships · 7 years of craft"
           className="font-display text-5xl md:text-7xl font-bold text-foreground/5"
           speed={25}
         />
@@ -313,8 +313,8 @@ export default function ProjectDetail() {
       <section className="py-24 md:py-32">
         <div className="container mx-auto px-6 text-center">
           <AnimatedSection direction="scale">
-            <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Want Results Like This?</h2>
-            <p className="text-muted-foreground max-w-lg mx-auto mb-8">Let's discuss how we can transform your product through strategic design.</p>
+            <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">Have a Product That Needs This?</h2>
+            <p className="text-muted-foreground max-w-lg mx-auto mb-8">Whether you're building from scratch or your current product looks unprofessional — let's talk about what the right design can do for your business.</p>
             <MagneticButton>
               <Button size="lg" className="rounded-full px-10 text-base h-14" asChild>
                 <Link to="/contact">Book a Call <ArrowRight className="ml-2 h-4 w-4" /></Link>
