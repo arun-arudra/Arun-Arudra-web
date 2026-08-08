@@ -16,60 +16,60 @@ const pillars = [
     icon: Compass,
     number: "01",
     title: "Strategy",
-    tagline: "Research-backed insights that align user needs with business goals.",
+    tagline: "Research-backed decisions that save you from expensive redesigns down the road.",
     thumb: "/images/projects/nova-finance.jpg",
     items: [
-      { name: "Market Research", detail: "Competitive analysis, user interviews, and market opportunity mapping." },
-      { name: "Brand Positioning", detail: "Defining your unique value proposition and market differentiation." },
-      { name: "Product Strategy", detail: "Feature prioritization, roadmap planning, and MVP scoping." },
-      { name: "UX Audits", detail: "Comprehensive evaluation of existing products with actionable recommendations." },
+      { name: "Market Research", detail: "Deep dive into your competitors, target users, and market gaps — so your product enters the market with a clear advantage." },
+      { name: "Brand Positioning", detail: "Defining exactly what makes you different and why your ideal customers should choose you over every other option." },
+      { name: "Product Strategy", detail: "Feature prioritization, MVP scoping, and roadmap planning that keeps your team focused on what actually drives growth." },
+      { name: "UX Audits", detail: "Systematic review of your existing product to find exactly what is confusing users and costing you conversions — with a prioritized fix list." },
     ],
   },
   {
     icon: Palette,
     number: "02",
     title: "Design",
-    tagline: "Crafting interfaces and identities that users remember and love.",
+    tagline: "Beautiful interfaces your users understand on first glance and come back to willingly.",
     thumb: "/images/projects/silver-club.jpg",
     items: [
-      { name: "UX/UI Design", detail: "User-centered interface design from wireframes to high-fidelity prototypes." },
-      { name: "Brand Identity", detail: "Logo, color systems, typography, and comprehensive brand guidelines." },
-      { name: "Motion Design", detail: "Micro-interactions and animations that bring interfaces to life." },
-      { name: "Design Systems", detail: "Scalable component libraries and design tokens for consistent products." },
+      { name: "UX/UI Design", detail: "From rough wireframes to pixel-perfect Figma prototypes — every screen is designed around how real users actually think and behave." },
+      { name: "Design Systems", detail: "Scalable component libraries and design tokens that keep your product visually consistent as it grows — reducing design debt from day one." },
+      { name: "Mobile App Design", detail: "iOS and Android interfaces designed for real thumbs, real users, and real-world conditions — across every screen size." },
+      { name: "Dashboard & Web App Design", detail: "SaaS dashboards and complex web apps designed for clarity — turning data-heavy screens into interfaces users actually enjoy working in." },
     ],
   },
   {
     icon: Code,
     number: "03",
     title: "Development",
-    tagline: "Pixel-perfect implementation with clean, scalable code.",
+    tagline: "Your Figma designs built precisely in React, Next.js, and WordPress — no handoff gap, no interpretation errors.",
     thumb: "/images/projects/healthtrack.jpg",
     items: [
-      { name: "React / Next.js", detail: "Modern, performant front-end builds with React and Next.js — pixel-perfect, fully responsive, and production-ready." },
-      { name: "WordPress Development", detail: "Custom WordPress themes and plugins for marketing sites, blogs, and business websites." },
-      { name: "HTML / CSS / Tailwind", detail: "Clean, semantic, accessible markup and styling — built to last and easy to maintain." },
-      { name: "Figma to Code", detail: "Pixel-perfect Figma-to-code conversion with cross-browser QA, accessibility checks, and performance optimization." },
+      { name: "React / Next.js Development", detail: "Fast, scalable, and SEO-friendly front-end builds in React and Next.js — matching your Figma designs exactly, responsive on every device." },
+      { name: "WordPress Development", detail: "Custom WordPress themes and CMS setups for marketing websites, blogs, and business sites — designed to be easy for your team to manage." },
+      { name: "HTML / CSS / Tailwind", detail: "Clean, semantic, and accessible code with Tailwind CSS — fast to load, easy to maintain, and built to web standards." },
+      { name: "Figma to Code", detail: "Your design brought to life exactly as intended — no gaps between what was designed and what gets shipped. Cross-browser tested before launch." },
     ],
   },
   {
     icon: BarChart3,
     number: "04",
     title: "Optimization",
-    tagline: "Post-launch refinement driven by real data and user feedback.",
+    tagline: "Post-launch improvements driven by real user behaviour — so your product keeps getting better after release.",
     thumb: "/images/projects/ecomart.jpg",
     items: [
-      { name: "Performance Optimization", detail: "Speed audits, Core Web Vitals improvements, and caching strategies." },
-      { name: "Conversion Rate Optimization", detail: "A/B testing, heatmaps, and funnel analysis to maximize conversions." },
-      { name: "A/B Testing", detail: "Structured experimentation to validate hypotheses and maximize conversion rates." },
-      { name: "Analytics Setup", detail: "Event tracking, dashboards, and KPI monitoring for data-driven decisions." },
+      { name: "Performance Optimization", detail: "Speed audits, Core Web Vitals improvements, and load-time reduction that helps both your users and your Google rankings." },
+      { name: "Conversion Rate Optimization", detail: "Identifying where users drop off and fixing it — through better UX, clearer CTAs, and friction removal that turns visitors into customers." },
+      { name: "A/B Testing", detail: "Structured design experiments that validate what actually works with your real users — before committing to a direction." },
+      { name: "Analytics Setup", detail: "GA4 event tracking, conversion funnel dashboards, and KPI monitoring — so you always know what is working and what needs attention." },
     ],
   },
 ];
 
 const solutions = [
-  { icon: Globe, title: "Websites", desc: "High-performance, conversion-focused websites designed for SEO, brand storytelling, and lead generation — built to rank, engage, and convert.", tags: ["Corporate", "Landing Pages", "Marketing Sites", "Portfolios"] },
-  { icon: Smartphone, title: "Apps", desc: "Intuitive mobile and web applications with user-centered UX design and scalable front-end architecture — designed to onboard fast and retain longer.", tags: ["iOS & Android", "Progressive Web Apps", "SaaS Platforms", "Dashboards"] },
-  { icon: Layers, title: "Products", desc: "End-to-end digital product design and development from concept to launch — strategy, design, build, and post-launch growth support.", tags: ["MVP Design", "Product Redesign", "Feature Expansion", "Design Systems"] },
+  { icon: Globe, title: "Websites", desc: "Conversion-focused websites that rank on Google, tell your brand story clearly, and turn visitors into leads — designed and built to perform from day one.", tags: ["Corporate", "Landing Pages", "Marketing Sites", "Portfolios"] },
+  { icon: Smartphone, title: "Apps", desc: "Mobile and web apps with UX that onboards users in seconds and keeps them coming back. Designed for real user behaviour, built for performance.", tags: ["iOS & Android", "Progressive Web Apps", "SaaS Platforms", "Dashboards"] },
+  { icon: Layers, title: "Products", desc: "Full-product work from idea to launch — strategy, UX research, UI design, and front-end development handled by one person who understands the entire picture.", tags: ["MVP Design", "Product Redesign", "Feature Expansion", "Design Systems"] },
 ];
 
 function ServiceAccordion({ pillar, index }: { pillar: typeof pillars[0]; index: number }) {
@@ -184,7 +184,7 @@ export default function Services() {
           </SplitTextReveal>
           <AnimatedSection delay={0.6}>
             <p className="text-muted-foreground text-lg max-w-2xl mt-6">
-              We combine strategy, design, and technology to create products that look stunning, work flawlessly, and deliver measurable business results — from first wireframe to final deployment.
+              Strategy, design, and front-end development — all from one person who has spent 7 years obsessing over what makes digital products work, convert, and keep users coming back.
             </p>
           </AnimatedSection>
         </div>
@@ -196,9 +196,9 @@ export default function Services() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
               { value: 15, suffix: "+", label: "Projects" },
-              { value: 4, suffix: "+", label: "Years Experience" },
+              { value: 7, suffix: "+", label: "Years Experience" },
               { value: 98, suffix: "%", label: "Satisfaction" },
-              { value: 5, suffix: "+", label: "Industries Served" },
+              { value: 6, suffix: "+", label: "Industries Served" },
             ].map((stat, i) => (
               <div key={stat.label}>
                 <div className="font-display text-3xl md:text-4xl font-bold text-primary">
@@ -241,7 +241,7 @@ export default function Services() {
           <AnimatedSection>
             <p className="text-primary font-medium mb-3 tracking-wider uppercase text-sm text-center font-mono">Our Process</p>
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4 text-center">How We Bring Ideas to Life</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto mb-16 text-center">A proven, repeatable process that balances creativity with strategic thinking.</p>
+            <p className="text-muted-foreground max-w-xl mx-auto mb-16 text-center">A clear, repeatable process built from 7 years of project work — so you always know what happens next and why.</p>
           </AnimatedSection>
           <ProcessTimeline />
         </div>
