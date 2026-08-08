@@ -14,24 +14,24 @@ import process1 from "/images/about/process-1.jpg";
 import collab1 from "/images/about/collab-1.jpg";
 
 const stats = [
-  { value: 7, suffix: "+", label: "Years in craft" },
-  { value: 80, suffix: "+", label: "Products shipped" },
-  { value: 12, suffix: "", label: "Industries served" },
+  { value: 4, suffix: "+", label: "Years in craft" },
+  { value: 15, suffix: "+", label: "Projects delivered" },
+  { value: 8, suffix: "+", label: "Industries served" },
 ];
 
 const principles = [
-  { n: "01", title: "Clarity over cleverness", desc: "We design for understanding first. Smart only matters if it ships and serves the user." },
-  { n: "02", title: "Outcomes over outputs", desc: "Pixels are the deliverable, not the goal. We measure success in conversion, retention, revenue." },
-  { n: "03", title: "Craft in every pixel", desc: "Spacing, motion, micro-copy. The 1% details compound into a product people trust." },
-  { n: "04", title: "Partnership over delivery", desc: "We embed with your team — not behind a wall. Honest feedback, shared ownership, real velocity." },
+  { n: "01", title: "Clarity over cleverness", desc: "We design for understanding first. Smart only matters if it helps and serves the user. Complexity is the enemy of conversion." },
+  { n: "02", title: "Outcomes over outputs", desc: "Files are deliverables. Results are the goal. We measure success in conversions, retention, and revenue — not the number of screens shipped." },
+  { n: "03", title: "Craft in every pixel", desc: "Spacing, motion, micro-copy — the 1% details compound into a product people genuinely trust. We sweat the small stuff so your users never have to think twice." },
+  { n: "04", title: "Partnership over delivery", desc: "We embed with your team — not behind a wall. Honest feedback, shared ownership, and real velocity come from treating your product as our own." },
 ];
 
 const capabilities = [
   "Brand Strategy", "Product Design", "Web Engineering", "Motion Design",
-  "Design Systems", "Conversion Optimization", "SEO", "Webflow & Framer",
+  "Design Systems", "Conversion Optimization", "SEO", "WordPress & React",
 ];
 
-const tools = ["Figma", "Framer", "Webflow", "React", "Next.js", "After Effects", "Photoshop", "Notion"];
+const tools = ["Figma", "React", "Next.js", "WordPress", "HTML/CSS", "After Effects", "Photoshop", "Notion"];
 
 const press = ["Awwwards", "CSS Design Awards", "Behance", "Dribbble", "Site Inspire", "FWA"];
 
@@ -59,7 +59,7 @@ export default function About() {
             </div>
             <AnimatedSection delay={0.4} className="lg:col-span-4">
               <p className="text-muted-foreground text-lg leading-relaxed mb-10">
-                ArunArudra is a small, senior team of strategists, designers and engineers. We partner with ambitious founders and product teams to ship work that earns attention and pays back.
+                Arunarudra is a focused design and development studio led by Arun, a senior product designer with 4+ years of experience. We partner with ambitious founders, SaaS teams, and growing businesses to ship work that earns attention — and pays back.
               </p>
               <div className="grid grid-cols-3 gap-4 pt-8 border-t border-border">
                 {stats.map((s) => (
@@ -97,10 +97,10 @@ export default function About() {
             </AnimatedSection>
             <AnimatedSection delay={0.2} className="lg:col-span-7 lg:pt-4">
               <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-                We're not a 200-person agency. We're a focused team that has spent the last seven years shipping product for fast-moving startups, fintech, healthcare and e-commerce brands. Every project gets senior attention from day one.
+                We're not a 200-person agency. We're a focused, senior-level studio that has spent the last four years shipping product for fast-moving startups, SaaS companies, fintech brands, healthcare platforms, and e-commerce businesses. Every project gets senior attention from day one — no juniors handed your work after the sales call.
               </p>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                Our work has helped clients raise capital, lift conversion by triple digits, and scale from zero to seven figures. We treat your roadmap like ours — with urgency, opinion, and accountability.
+                Our work has helped clients raise capital, get discovered by top publications, and grow their user base from zero to thousands. We treat your roadmap like our own — with urgency, honest opinion, and genuine accountability.
               </p>
             </AnimatedSection>
           </div>
@@ -109,17 +109,17 @@ export default function About() {
           <div className="grid grid-cols-12 gap-4 md:gap-6">
             <AnimatedSection direction="up" className="col-span-12 md:col-span-7">
               <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
-                <img src={studio1} alt="ArunArudra studio workspace" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                <img src={studio1} alt="Arun Arudra UI UX designer studio workspace" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
               </div>
             </AnimatedSection>
             <AnimatedSection direction="up" delay={0.15} className="col-span-6 md:col-span-5">
               <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
-                <img src={process1} alt="Wireframing process" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                <img src={process1} alt="UI UX wireframing and design process" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
               </div>
             </AnimatedSection>
             <AnimatedSection direction="up" delay={0.3} className="col-span-6 md:col-span-5 md:col-start-4">
               <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
-                <img src={collab1} alt="Team collaboration" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+                <img src={collab1} alt="Product design and development collaboration" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
               </div>
             </AnimatedSection>
           </div>
@@ -211,7 +211,7 @@ export default function About() {
       <section className="relative py-32 md:py-40 overflow-hidden bg-foreground text-background">
         <div className="absolute inset-0 opacity-10">
           <MarqueeText
-            text="Let's build something worth shipping ✦"
+            text="Let's build something that earns attention ✦"
             className="font-display text-7xl md:text-9xl font-bold"
             speed={40}
           />
