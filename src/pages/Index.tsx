@@ -418,14 +418,14 @@ function CTASection() {
 import { SectionIndicator } from "../components/SectionIndicator";
 
 const sections = [
-  { id: "sec-hero", label: "Intro" },
-  { id: "sec-logos", label: "Trusted by" },
-  { id: "sec-stats", label: "Impact" },
+  { id: "sec-hero", label: "Home" },
+  { id: "sec-logos", label: "Clients" },
+  { id: "sec-stats", label: "Numbers" },
   { id: "sec-services", label: "Services" },
-  { id: "sec-projects", label: "Work" },
-  { id: "sec-why", label: "Why us" },
-  { id: "sec-news", label: "News" },
-  { id: "sec-cta", label: "Connect" },
+  { id: "sec-projects", label: "Projects" },
+  { id: "sec-why", label: "Why Me" },
+  { id: "sec-news", label: "Articles" },
+  { id: "sec-cta", label: "Contact" },
 ];
 
 export default function Index() {
