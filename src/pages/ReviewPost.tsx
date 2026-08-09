@@ -18,6 +18,65 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import UserMenu from "@/components/admin/UserMenu";
 
+
+// ─── Markdown → HTML converter ────────────────────────────────────────────────
+// n8n generates body content as Markdown. ReactQuill expects HTML.
+// This converts stored markdown to HTML when loading an entry for editing.
+function markdownToHtml(md: string): string {
+  if (!md || typeof md !== 'string') return '';
+  // If it already looks like HTML (starts with a tag), return as-is
+  if (/^\s*<[a-zA-Z]/.test(md)) return md;
+
+  let html = md.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+  // Headings (### before ## before #)
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+  // Bold + italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+
+  // Bullet lists
+  html = html.replace(/((?:^[-*+] .+\n?)+)/gm, (match: string) => {
+    const items = match.trim().split('\n')
+      .filter((l: string) => l.trim())
+      .map((l: string) => `<li>${l.replace(/^[-*+]\s+/, '').trim()}</li>`)
+      .join('');
+    return `<ul>${items}</ul>\n`;
+  });
+
+  // Numbered lists
+  html = html.replace(/((?:^\d+\.\s.+\n?)+)/gm, (match: string) => {
+    const items = match.trim().split('\n')
+      .filter((l: string) => l.trim())
+      .map((l: string) => `<li>${l.replace(/^\d+\.\s+/, '').trim()}</li>`)
+      .join('');
+    return `<ol>${items}</ol>\n`;
+  });
+
+  // Blockquotes
+  html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+
+  // Horizontal rules
+  html = html.replace(/^---+$/gm, '<hr>');
+
+  // Wrap double-newline-separated blocks in <p> tags
+  const blocks = html.split(/\n\n+/);
+  html = blocks.map((block: string) => {
+    block = block.trim();
+    if (!block) return '';
+    if (/^<(h[1-6]|ul|ol|blockquote|hr|div|p)/.test(block)) return block;
+    block = block.replace(/\n/g, '<br>');
+    return `<p>${block}</p>`;
+  }).filter(Boolean).join('\n');
+
+  return html;
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function ReviewPost() {
   const location = useLocation();
   const navigate = useNavigate();
