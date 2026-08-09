@@ -196,7 +196,8 @@ export default function ReviewPost() {
       const fields = entry.fields;
       setTitle(fields.title?.['en-US'] || "");
       setSlug(fields.slug?.['en-US'] || "");
-      const bodyText = fields.body?.['en-US'] || "";
+      const rawBody = fields.body?.['en-US'] || "";
+      const bodyText = markdownToHtml(rawBody);
       setBody(bodyText);
       calculateStats(bodyText);
       setCategory(fields.category?.['en-US'] || "");
