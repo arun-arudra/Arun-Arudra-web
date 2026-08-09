@@ -25,7 +25,8 @@ const fallback: Record<string, { title: string; category: string; publishedAt: s
 const formatDate = (d: string) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
 function estimateReadTime(text: string): string {
-  const words = text.trim().split(/\s+/).length;
+  const stripped = text.replace(/<[^>]+>/g, " ");
+  const words = stripped.trim().split(/\s+/).length;
   return `${Math.max(1, Math.round(words / 220))} min read`;
 }
 
@@ -96,15 +97,25 @@ export default function ArticleDetail() {
   const body = cms?.body ?? cms?.overview;
   const isRich = body && typeof body === "object" && body.nodeType === "document";
   const isString = typeof body === "string";
+  const isHtml = isString && /^\s*<[a-zA-Z]/.test(body as string);
 
   // Build TOC
   useEffect(() => {
     let headings: TOC[] = [];
     if (isRich) {
       headings = richHeadings(body);
+    } else if (isHtml) {
+      // Parse <h2> and <h3> tags from HTML string
+      const hMatches = (body as string).matchAll(/<h([23])[^>]*>(.*?)<\/h[23]>/gi);
+      for (const m of hMatches) {
+        const level = parseInt(m[1]);
+        const title = m[2].replace(/<[^>]+>/g, "").trim();
+        const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        headings.push({ id, title, level });
+      }
     } else {
       const source = isString ? body : (fb?.content ?? "");
-      source.split("\n").forEach((line: string) => {
+      (source as string).split("\n").forEach((line: string) => {
         if (line.startsWith("## ")) {
           const title = line.replace("## ", "").trim();
           headings.push({ id: title.toLowerCase().replace(/[^a-z0-9]+/g, "-"), title, level: 2 });
@@ -117,6 +128,17 @@ export default function ArticleDetail() {
     setToc(headings);
     if (headings.length > 0) setActiveSection(headings[0].id);
   }, [cms?.id, slug]);
+
+  // Assign IDs to headings when HTML body is rendered
+  useEffect(() => {
+    if (!contentRef.current || !isHtml) return;
+    const headingEls = contentRef.current.querySelectorAll("h2, h3");
+    headingEls.forEach((h) => {
+      const title = h.textContent?.trim() || "";
+      const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      h.setAttribute("id", id);
+    });
+  }, [body, isHtml]);
 
   // Scroll spy
   useEffect(() => {
@@ -263,10 +285,16 @@ export default function ArticleDetail() {
                   <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-primary prose-img:rounded-xl">
                     {documentToReactComponents(body)}
                   </div>
+                ) : isHtml ? (
+                  <div
+                    ref={contentRef}
+                    className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-primary prose-img:rounded-xl prose-h2:text-3xl prose-h2:font-bold prose-h2:mt-16 prose-h2:mb-6 prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-10 prose-h3:mb-4 prose-p:leading-relaxed prose-p:text-lg prose-li:leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: body as string }}
+                  />
                 ) : isString ? (
-                  renderStringContent(body)
+                  renderStringContent(body as string)
                 ) : (
-                  renderStringContent(fb?.content || excerpt || "Add a `body` field (Long Text or Rich Text) to this entry in Contentful.")
+                  renderStringContent(fb?.content || excerpt || "Add a body field (Long Text or Rich Text) to this entry in Contentful.")
                 )}
               </article>
 
