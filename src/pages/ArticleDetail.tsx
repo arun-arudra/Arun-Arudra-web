@@ -11,21 +11,22 @@ import { useContentful, getImageUrl } from "@/hooks/useContentful";
 interface TOC { id: string; title: string; level: number; }
 
 const fallback: Record<string, { title: string; category: string; publishedAt: string; image: string; content: string; readTime: string; tags: string[]; }> = {
-  "future-ui-design-2026": {
-    title: "The Future of UI Design in 2026",
-    category: "Design Trends",
-    publishedAt: "2026-03-15",
+  "saas-dashboard-design-guide": {
+    title: "How to Design a SaaS Dashboard Users Actually Understand",
+    category: "UI/UX",
+    publishedAt: "2026-08-01",
     image: "/placeholder.svg",
-    readTime: "6 min read",
-    tags: ["UI", "Trends", "AI"],
-    content: `## Introduction\nExploring how AI and spatial computing are reshaping interface design.\n\n## What's Changing\nFrom adaptive layouts to context-aware components, the next wave is here.\n\n### Adaptive Layouts\nInterfaces respond to user intent.\n\n## Closing\nDesigners must prepare today.`,
+    readTime: "8 min read",
+    tags: ["SaaS", "Dashboard", "UI Design", "Figma"],
+    content: `## Introduction\nMost SaaS dashboards fail users not because of missing features — but because they display too much, too soon, without hierarchy.\n\n## The Core Problem\nWhen everything is equally visible, nothing is important. Users open the dashboard, see 15 metrics, 4 charts, and 3 sidebars — and freeze.\n\n### What Good Dashboard Design Looks Like\nPrioritize the one number that tells users if their day is going well or not. Everything else is secondary.\n\n## The Fix\nStart with user goals, not data availability. Ask: what decision does this screen need to enable?\n\n## Closing\nA great dashboard is not one that shows everything — it's one that shows the right thing at the right time.`,
   },
 };
 
 const formatDate = (d: string) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
 function estimateReadTime(text: string): string {
-  const words = text.trim().split(/\s+/).length;
+  const stripped = text.replace(/<[^>]+>/g, " ");
+  const words = stripped.trim().split(/\s+/).length;
   return `${Math.max(1, Math.round(words / 220))} min read`;
 }
 
@@ -49,6 +50,41 @@ function richHeadings(doc: any): TOC[] {
   return out;
 }
 
+
+// Markdown → HTML converter for article body rendering
+function markdownToHtml(md: string): string {
+  if (!md || typeof md !== 'string') return '';
+  if (/^\s*<[a-zA-Z]/.test(md)) return md;
+  let html = md.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+  html = html.replace(/((?:^[-*+] .+\n?)+)/gm, (match: string) => {
+    const items = match.trim().split('\n').filter((l: string) => l.trim())
+      .map((l: string) => `<li>${l.replace(/^[-*+]\s+/, '').trim()}</li>`).join('');
+    return `<ul>${items}</ul>\n`;
+  });
+  html = html.replace(/((?:^\d+\.\s.+\n?)+)/gm, (match: string) => {
+    const items = match.trim().split('\n').filter((l: string) => l.trim())
+      .map((l: string) => `<li>${l.replace(/^\d+\.\s+/, '').trim()}</li>`).join('');
+    return `<ol>${items}</ol>\n`;
+  });
+  html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+  html = html.replace(/^---+$/gm, '<hr>');
+  const blocks = html.split(/\n\n+/);
+  html = blocks.map((block: string) => {
+    block = block.trim();
+    if (!block) return '';
+    if (/^<(h[1-6]|ul|ol|blockquote|hr|div|p)/.test(block)) return block;
+    block = block.replace(/\n/g, '<br>');
+    return `<p>${block}</p>`;
+  }).filter(Boolean).join('\n');
+  return html;
+}
+
 export default function ArticleDetail() {
   const { slug } = useParams();
   const { items, loading } = useContentful("news", slug);
@@ -61,15 +97,25 @@ export default function ArticleDetail() {
   const body = cms?.body ?? cms?.overview;
   const isRich = body && typeof body === "object" && body.nodeType === "document";
   const isString = typeof body === "string";
+  const isHtml = isString && /^\s*<[a-zA-Z]/.test(body as string);
 
   // Build TOC
   useEffect(() => {
     let headings: TOC[] = [];
     if (isRich) {
       headings = richHeadings(body);
+    } else if (isHtml) {
+      // Parse <h2> and <h3> tags from HTML string
+      const hMatches = (body as string).matchAll(/<h([23])[^>]*>(.*?)<\/h[23]>/gi);
+      for (const m of hMatches) {
+        const level = parseInt(m[1]);
+        const title = m[2].replace(/<[^>]+>/g, "").trim();
+        const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        headings.push({ id, title, level });
+      }
     } else {
       const source = isString ? body : (fb?.content ?? "");
-      source.split("\n").forEach((line: string) => {
+      (source as string).split("\n").forEach((line: string) => {
         if (line.startsWith("## ")) {
           const title = line.replace("## ", "").trim();
           headings.push({ id: title.toLowerCase().replace(/[^a-z0-9]+/g, "-"), title, level: 2 });
@@ -82,6 +128,17 @@ export default function ArticleDetail() {
     setToc(headings);
     if (headings.length > 0) setActiveSection(headings[0].id);
   }, [cms?.id, slug]);
+
+  // Assign IDs to headings when HTML body is rendered
+  useEffect(() => {
+    if (!contentRef.current || !isHtml) return;
+    const headingEls = contentRef.current.querySelectorAll("h2, h3");
+    headingEls.forEach((h) => {
+      const title = h.textContent?.trim() || "";
+      const id = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      h.setAttribute("id", id);
+    });
+  }, [body, isHtml]);
 
   // Scroll spy
   useEffect(() => {
@@ -228,19 +285,26 @@ export default function ArticleDetail() {
                   <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-primary prose-img:rounded-xl">
                     {documentToReactComponents(body)}
                   </div>
+                ) : isHtml ? (
+                  <div
+                    ref={contentRef}
+                    className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-headings:font-bold prose-a:text-primary prose-img:rounded-xl prose-h2:text-3xl prose-h2:font-bold prose-h2:mt-16 prose-h2:mb-6 prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-10 prose-h3:mb-4 prose-p:leading-relaxed prose-p:text-lg prose-li:leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: body as string }}
+                  />
                 ) : isString ? (
-                  renderStringContent(body)
+                  renderStringContent(body as string)
                 ) : (
-                  renderStringContent(fb?.content || excerpt || "Add a `body` field (Long Text or Rich Text) to this entry in Contentful.")
+                  renderStringContent(fb?.content || excerpt || "Add a body field (Long Text or Rich Text) to this entry in Contentful.")
                 )}
               </article>
 
               {/* CTA */}
               <div className="mt-16 p-8 rounded-2xl bg-card border border-border">
                 <div className="bg-secondary/50 p-6 rounded-xl">
-                  <h4 className="font-bold text-foreground mb-2 font-display">Like what you read? Let's work together.</h4>
-                  <Button asChild size="sm" className="mt-4 rounded-full">
-                    <Link to="/contact">Contact Us</Link>
+                  <h4 className="font-bold text-foreground mb-2 font-display">Need help applying this to your product?</h4>
+                  <p className="text-muted-foreground text-sm mb-4">I help startups and growing businesses design and build digital products people love. Let's talk about yours.</p>
+                  <Button asChild size="sm" className="mt-2 rounded-full">
+                    <Link to="/contact">Book a Free Call</Link>
                   </Button>
                 </div>
               </div>
