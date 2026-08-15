@@ -5,67 +5,69 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/contentful";
+// Contentful Content Delivery API (CDN — public read-only)
+const CF_CDN = "https://cdn.contentful.com";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-  const CONTENTFUL_API_KEY = Deno.env.get("CONTENTFUL_API_KEY");
-  const CONTENTFUL_SPACE_ID = Deno.env.get("CONTENTFUL_SPACE_ID");
-  if (!LOVABLE_API_KEY || !CONTENTFUL_API_KEY || !CONTENTFUL_SPACE_ID) {
-    console.error("Contentful function missing required configuration");
-    return new Response(JSON.stringify({ error: "Service temporarily unavailable" }), {
-      status: 503,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+  // Read secrets from Supabase Edge Function environment
+  // Set these in: Supabase Dashboard → Project → Edge Functions → Secrets
+  //   CONTENTFUL_SPACE_ID   = p5n0cwz1lpb5
+  //   CONTENTFUL_ACCESS_TOKEN = AlawF6pZuNlxENrg6BqIbXS3mYMCtvXKDtvvsPUrlKQ
+  const SPACE_ID    = Deno.env.get("CONTENTFUL_SPACE_ID");
+  const ACCESS_TOKEN = Deno.env.get("CONTENTFUL_ACCESS_TOKEN");
+
+  if (!SPACE_ID || !ACCESS_TOKEN) {
+    console.error("Missing CONTENTFUL_SPACE_ID or CONTENTFUL_ACCESS_TOKEN");
+    return new Response(
+      JSON.stringify({ error: "Content service not configured" }),
+      { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 
   try {
-    const url = new URL(req.url);
+    const url      = new URL(req.url);
     const contentType = url.searchParams.get("content_type") || "project";
-    const limit = url.searchParams.get("limit") || "100";
-    const slug = url.searchParams.get("slug");
+    const limit    = url.searchParams.get("limit") || "100";
+    const slug     = url.searchParams.get("slug");
 
     const params = new URLSearchParams({
       content_type: contentType,
       limit,
       include: "2",
+      access_token: ACCESS_TOKEN,
     });
     if (slug) params.set("fields.slug", slug);
-    const apiUrl = `${GATEWAY_URL}/spaces/${CONTENTFUL_SPACE_ID}/entries?${params.toString()}`;
 
-    const response = await fetch(apiUrl, {
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": CONTENTFUL_API_KEY,
-      },
-    });
+    const apiUrl = `${CF_CDN}/spaces/${SPACE_ID}/environments/master/entries?${params}`;
+
+    const response = await fetch(apiUrl);
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`Contentful API error [${response.status}]: ${errorText}`);
-      throw new Error("Upstream content fetch failed");
+      throw new Error(`Contentful returned ${response.status}`);
     }
 
     const data = await response.json();
 
-    // Resolve linked assets
+    // ── Resolve linked assets ──────────────────────────────────────────────
     const assetsMap: Record<string, any> = {};
     if (data.includes?.Asset) {
       for (const asset of data.includes.Asset) {
         assetsMap[asset.sys.id] = {
-          url: asset.fields.file?.url ? `https:${asset.fields.file.url}` : null,
-          title: asset.fields.title,
-          width: asset.fields.file?.details?.image?.width,
+          url:    asset.fields.file?.url ? `https:${asset.fields.file.url}` : null,
+          title:  asset.fields.title,
+          width:  asset.fields.file?.details?.image?.width,
           height: asset.fields.file?.details?.image?.height,
         };
       }
     }
 
-    // Helper to resolve link fields (assets and entries) inside a fields object
+    // ── Resolve linked entries ─────────────────────────────────────────────
     const resolveFields = (fields: any) => {
       const out: any = {};
       for (const [key, value] of Object.entries(fields)) {
@@ -74,7 +76,6 @@ serve(async (req) => {
           if (v.sys?.type === "Link" && v.sys?.linkType === "Asset") {
             out[key] = assetsMap[v.sys.id] || null;
           } else if (v.sys?.type === "Link" && v.sys?.linkType === "Entry") {
-            // placeholder, second pass will fill
             out[key] = { __entryLink: v.sys.id };
           } else if (Array.isArray(value)) {
             out[key] = (value as any[]).map((it: any) => {
@@ -92,19 +93,17 @@ serve(async (req) => {
       return out;
     };
 
-    // Resolve linked entries (preserve content type id) — first pass
     const entriesMap: Record<string, any> = {};
     if (data.includes?.Entry) {
       for (const entry of data.includes.Entry) {
         entriesMap[entry.sys.id] = {
-          _id: entry.sys.id,
+          _id:   entry.sys.id,
           _type: entry.sys.contentType?.sys?.id,
           ...resolveFields(entry.fields),
         };
       }
     }
 
-    // Second pass: replace __entryLink placeholders with resolved entries
     const fillEntryLinks = (val: any): any => {
       if (Array.isArray(val)) return val.map(fillEntryLinks);
       if (val && typeof val === "object") {
@@ -119,18 +118,18 @@ serve(async (req) => {
       entriesMap[id] = fillEntryLinks(entriesMap[id]);
     }
 
-    // Transform top-level entries with resolved links
     const items = data.items.map((item: any) => ({
-      id: item.sys.id,
+      id:        item.sys.id,
       createdAt: item.sys.createdAt,
       updatedAt: item.sys.updatedAt,
-      _type: item.sys.contentType?.sys?.id,
+      _type:     item.sys.contentType?.sys?.id,
       ...fillEntryLinks(resolveFields(item.fields)),
     }));
 
     return new Response(JSON.stringify({ items, total: data.total }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (error: unknown) {
     console.error("Contentful fetch error:", error);
     return new Response(JSON.stringify({ error: "Failed to load content" }), {
