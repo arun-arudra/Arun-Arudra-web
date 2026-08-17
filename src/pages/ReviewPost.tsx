@@ -90,6 +90,7 @@ export default function ReviewPost() {
   const titleInputRef = useRef<HTMLInputElement>(null);
   const [slug, setSlug] = useState("");
   const [body, setBody] = useState("");
+  const [featured, setFeatured] = useState(false);
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
   
@@ -200,6 +201,7 @@ export default function ReviewPost() {
       const bodyText = markdownToHtml(rawBody);
       setBody(bodyText);
       calculateStats(bodyText);
+      setFeatured(fields.featured?.['en-US'] === true);
       setCategory(fields.category?.['en-US'] || "");
       setTags(fields.tags?.['en-US']?.join(", ") || "");
       setExcerpt(fields.excerpt?.['en-US'] || "");
@@ -236,6 +238,7 @@ export default function ReviewPost() {
   const prepareFieldsPayload = () => {
     const tagArray = tags.split(',').map(t => t.trim()).filter(Boolean);
     const updatedFields: any = {
+      featured: { 'en-US': featured },
       title: { 'en-US': title || 'Untitled' },
       slug: { 'en-US': slug || `untitled-${Date.now()}` },
       body: { 'en-US': body },
@@ -536,7 +539,22 @@ export default function ReviewPost() {
               </>
             )}
             <Button onClick={() => saveEntry(true)} disabled={isProcessing || isDiscarding} className="bg-white text-black hover:bg-zinc-200 font-semibold">
-              {isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />} Publish Now
+              
+              {/* Featured toggle */}
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-card mr-2">
+                <div
+                  onClick={() => setFeatured(!featured)}
+                  className={`relative w-11 h-6 rounded-full cursor-pointer transition-colors duration-200 flex items-center px-0.5 ${featured ? 'bg-primary' : 'bg-muted'}`}
+                >
+                  <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${featured ? 'translate-x-5' : 'translate-x-0'}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium cursor-pointer select-none whitespace-nowrap" onClick={() => setFeatured(!featured)}>Feature this post</p>
+                  <p className="text-xs text-muted-foreground">Highlighted on News page</p>
+                </div>
+                {featured && <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-full ml-1">★</span>}
+              </div>
+{isProcessing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />} Publish Now
             </Button>
             <UserMenu />
           </div>
