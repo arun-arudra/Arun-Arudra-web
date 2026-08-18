@@ -70,6 +70,13 @@ env:
   VITE_SOCIAL_LINKEDIN: ${{ vars.VITE_SOCIAL_LINKEDIN }}
   VITE_SOCIAL_GITHUB: ${{ vars.VITE_SOCIAL_GITHUB }}
 
+  # n8n Webhook — different per branch
+  VITE_N8N_WEBHOOK_URL: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && secrets.PROD_N8N_WEBHOOK_URL || secrets.DEV_N8N_WEBHOOK_URL }}
+
+  # Contentful
+  VITE_CONTENTFUL_SPACE_ID: ${{ secrets.VITE_CONTENTFUL_SPACE_ID }}
+  VITE_CONTENTFUL_MANAGEMENT_TOKEN: ${{ secrets.VITE_CONTENTFUL_MANAGEMENT_TOKEN }}
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
