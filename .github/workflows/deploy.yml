@@ -5,146 +5,248 @@ on:
     branches:
       - main
       - dev
+
   pull_request:
     branches:
       - main
       - dev
+
   workflow_dispatch:
 
+# ============================================================
+# Common configuration
+# Shared by both production and development
+# ============================================================
 env:
-  # ============================================================
-  # Build Configuration
-  # ============================================================
   NODE_VERSION: "24"
   BUILD_COMMAND: "npm run build"
   DEPLOY_SOURCE: "./dist/"
-
-  # Branch-based deployment:
-  # main -> https://arunarudra.com/
-  # dev  -> https://arunarudra.com/ArunArudra/
-  VITE_BASE_PATH: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && '/' || '/ArunArudra/' }}
-  DEPLOY_DESTINATION: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && './' || './ArunArudra/' }}
-  WEBSITE_URL: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && 'https://arunarudra.com/' || 'https://arunarudra.com/ArunArudra/' }}
-
-  # ============================================================
-  # Supabase Configuration (GitHub Secrets)
-  # Repository -> Settings -> Secrets and variables -> Actions
-  # ============================================================
-  VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-  VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
-  VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
-
-  # ============================================================
-  # Google AdSense Configuration
-  # ============================================================
-  VITE_SPONSOR_ENABLED: ${{ vars.VITE_SPONSOR_ENABLED }}
-  VITE_ADSENSE_CLIENT: ${{ secrets.VITE_ADSENSE_CLIENT }}
-  VITE_ADSENSE_SLOT: ${{ secrets.VITE_ADSENSE_SLOT }}
-
-  # ============================================================
-  # Site Content Limits (GitHub Variables)
-  # ============================================================
-  VITE_FEATURED_LIMIT: ${{ vars.VITE_FEATURED_LIMIT }}
-  VITE_BLOG_LIMIT: ${{ vars.VITE_BLOG_LIMIT }}
-  VITE_NEWS_PER_PAGE: ${{ vars.VITE_NEWS_PER_PAGE }}
-
-  # ============================================================
-  # Branding (GitHub Variables)
-  # ============================================================
-  VITE_BRAND_NAME: ${{ vars.VITE_BRAND_NAME }}
-  VITE_COPYRIGHT: ${{ vars.VITE_COPYRIGHT }}
-
-  # ============================================================
-  # Contact Information (GitHub Variables)
-  # ============================================================
-  VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
-  VITE_CONTACT_RECIPIENT: ${{ vars.VITE_CONTACT_RECIPIENT }}
-
-  # ============================================================
-  # Social Links (GitHub Variables)
-  # Leave empty to hide unused icons
-  # ============================================================
-  VITE_SOCIAL_FACEBOOK: ${{ vars.VITE_SOCIAL_FACEBOOK }}
-  VITE_SOCIAL_TWITTER: ${{ vars.VITE_SOCIAL_TWITTER }}
-  VITE_SOCIAL_INSTAGRAM: ${{ vars.VITE_SOCIAL_INSTAGRAM }}
-  VITE_SOCIAL_LINKEDIN: ${{ vars.VITE_SOCIAL_LINKEDIN }}
-  VITE_SOCIAL_GITHUB: ${{ vars.VITE_SOCIAL_GITHUB }}
-
-  # n8n Webhook — different per branch
-  VITE_N8N_WEBHOOK_URL: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && secrets.PROD_N8N_WEBHOOK_URL || secrets.DEV_N8N_WEBHOOK_URL }}
-
-  # Contentful
-  VITE_CONTENTFUL_SPACE_ID: ${{ secrets.VITE_CONTENTFUL_SPACE_ID }}
-  VITE_CONTENTFUL_MANAGEMENT_TOKEN: ${{ secrets.VITE_CONTENTFUL_MANAGEMENT_TOKEN }}
+  VITE_BASE_PATH: "/"
 
 jobs:
   build-and-deploy:
+
+    # ==========================================================
+    # Automatically select GitHub Environment
+    #
+    # main -> production
+    # dev  -> development
+    #
+    # Pull Request:
+    # PR targeting main -> production
+    # PR targeting dev  -> development
+    # ==========================================================
+    environment:
+      name: ${{ github.event_name == 'pull_request' && (github.base_ref == 'main' && 'production' || 'development') || (github.ref_name == 'main' && 'production' || 'development') }}
+
     runs-on: ubuntu-latest
 
+    # ==========================================================
+    # Environment-specific configuration
+    #
+    # IMPORTANT:
+    # FTP credentials are NOT here.
+    # FTP credentials come from Repository Secrets.
+    # ==========================================================
+    env:
+
+      # --------------------------------------------------------
+      # Deployment
+      # --------------------------------------------------------
+      DEPLOY_DESTINATION: ${{ vars.DEPLOY_DESTINATION }}
+      WEBSITE_URL: ${{ vars.WEBSITE_URL }}
+
+      # --------------------------------------------------------
+      # Supabase
+      # Environment-specific
+      # --------------------------------------------------------
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+      # --------------------------------------------------------
+      # Contentful
+      # Environment-specific
+      # --------------------------------------------------------
+      VITE_CONTENTFUL_SPACE_ID: ${{ secrets.VITE_CONTENTFUL_SPACE_ID }}
+      VITE_CONTENTFUL_MANAGEMENT_TOKEN: ${{ secrets.VITE_CONTENTFUL_MANAGEMENT_TOKEN }}
+
+      # --------------------------------------------------------
+      # n8n
+      # Environment-specific
+      # --------------------------------------------------------
+      VITE_N8N_WEBHOOK_URL: ${{ secrets.VITE_N8N_WEBHOOK_URL }}
+
+      # --------------------------------------------------------
+      # Google AdSense
+      # --------------------------------------------------------
+      VITE_SPONSOR_ENABLED: ${{ vars.VITE_SPONSOR_ENABLED }}
+      VITE_ADSENSE_CLIENT: ${{ secrets.VITE_ADSENSE_CLIENT }}
+      VITE_ADSENSE_SLOT: ${{ secrets.VITE_ADSENSE_SLOT }}
+
+      # --------------------------------------------------------
+      # Site Content Limits
+      # --------------------------------------------------------
+      VITE_FEATURED_LIMIT: ${{ vars.VITE_FEATURED_LIMIT }}
+      VITE_BLOG_LIMIT: ${{ vars.VITE_BLOG_LIMIT }}
+      VITE_NEWS_PER_PAGE: ${{ vars.VITE_NEWS_PER_PAGE }}
+
+      # --------------------------------------------------------
+      # Branding
+      # --------------------------------------------------------
+      VITE_BRAND_NAME: ${{ vars.VITE_BRAND_NAME }}
+      VITE_COPYRIGHT: ${{ vars.VITE_COPYRIGHT }}
+
+      # --------------------------------------------------------
+      # Contact
+      # --------------------------------------------------------
+      VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
+      VITE_CONTACT_RECIPIENT: ${{ vars.VITE_CONTACT_RECIPIENT }}
+
+      # --------------------------------------------------------
+      # Social Links
+      # --------------------------------------------------------
+      VITE_SOCIAL_FACEBOOK: ${{ vars.VITE_SOCIAL_FACEBOOK }}
+      VITE_SOCIAL_TWITTER: ${{ vars.VITE_SOCIAL_TWITTER }}
+      VITE_SOCIAL_INSTAGRAM: ${{ vars.VITE_SOCIAL_INSTAGRAM }}
+      VITE_SOCIAL_LINKEDIN: ${{ vars.VITE_SOCIAL_LINKEDIN }}
+      VITE_SOCIAL_GITHUB: ${{ vars.VITE_SOCIAL_GITHUB }}
+
     steps:
+
+      # ========================================================
+      # Checkout source code
+      # ========================================================
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # ========================================================
+      # Setup Node.js
+      # ========================================================
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
 
+      # ========================================================
+      # Install dependencies
+      # ========================================================
       - name: Install dependencies
         run: npm ci
 
-      - name: Show branch deployment config
+      # ========================================================
+      # Show deployment configuration
+      # ========================================================
+      - name: Show deployment configuration
         run: |
+          echo "======================================"
           echo "Branch: ${{ github.ref_name }}"
-          echo "Base path: ${{ env.VITE_BASE_PATH }}"
-          echo "Deploy destination: ${{ env.DEPLOY_DESTINATION }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Environment: ${{ job.environment.name }}"
           echo "Website URL: ${{ env.WEBSITE_URL }}"
+          echo "Deploy destination: ${{ env.DEPLOY_DESTINATION }}"
+          echo "Vite base path: ${{ env.VITE_BASE_PATH }}"
+          echo "======================================"
 
+      # ========================================================
+      # Build project
+      # ========================================================
       - name: Build project
         run: ${{ env.BUILD_COMMAND }}
 
-      - name: Run tests
-        run: npm run test
-
-      - name: Verify build artifacts
+      # ========================================================
+      # Create .htaccess automatically
+      #
+      # This file will be included in dist and uploaded by FTP.
+      # ========================================================
+      - name: Create .htaccess
+        shell: bash
         run: |
-          if [ -d "./dist" ]; then
-            echo "✅ Build artifacts exist"
-            echo "Files to deploy:"
-            ls -la ./dist | head -20
-          else
-            echo "❌ Error: dist folder not found"
+          cat > "${{ env.DEPLOY_SOURCE }}.htaccess" <<'EOF'
+          RewriteEngine On
+
+          Options -MultiViews
+
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+
+          RewriteRule ^ index.html [L]
+          EOF
+
+          echo "✅ Created dist/.htaccess"
+          echo "--------------------------------------"
+          cat "${{ env.DEPLOY_SOURCE }}.htaccess"
+          echo "--------------------------------------"
+
+      # ========================================================
+      # Verify build artifacts
+      # ========================================================
+      - name: Verify build artifacts
+        shell: bash
+        run: |
+          if [ ! -f "${{ env.DEPLOY_SOURCE }}index.html" ]; then
+            echo "❌ dist/index.html not found"
             exit 1
           fi
 
-      # ============================================================
-      # BLUEHOST DEPLOYMENT (via FTP)
-      # Deploy only for push/manual runs, not pull requests.
-      # ============================================================
+          if [ ! -f "${{ env.DEPLOY_SOURCE }}.htaccess" ]; then
+            echo "❌ dist/.htaccess not found"
+            exit 1
+          fi
+
+          echo "✅ Build artifacts verified"
+          echo ""
+          echo "Files:"
+          ls -la "${{ env.DEPLOY_SOURCE }}" | head -30
+
+      # ========================================================
+      # Run tests
+      # ========================================================
+      - name: Run tests
+        run: npm run test
+
+      # ========================================================
+      # Deploy to Bluehost
+      #
+      # FTP_SERVER / FTP_USERNAME / FTP_PASSWORD
+      # come from Repository Secrets.
+      #
+      # Only push events deploy.
+      # Pull Requests only build and test.
+      # ========================================================
       - name: Deploy to Bluehost
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'push'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+
           local-dir: ${{ env.DEPLOY_SOURCE }}
           server-dir: ${{ env.DEPLOY_DESTINATION }}
-          state-name: .ftp-deploy-sync-state-${{ github.ref_name }}.json
+
+          state-name: ".ftp-deploy-sync-state.json"
+
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
-            ArunArudra/**
+
           dry-run: false
 
-      - name: Build completed successfully
+      # ========================================================
+      # Deployment complete
+      # ========================================================
+      - name: Deployment completed successfully ✅
+        if: github.event_name == 'push'
         run: |
           echo "======================================"
-          echo "✅ Build and Deployment Complete ✅"
+          echo "✅ Build and Deployment Complete"
           echo "======================================"
+          echo "🌿 Branch: ${{ github.ref_name }}"
+          echo "🌎 Environment: ${{ job.environment.name }}"
           echo "🌐 Website URL: ${{ env.WEBSITE_URL }}"
-          echo "Base path: ${{ env.VITE_BASE_PATH }}"
-          echo "📂Deployed to: ${{ env.DEPLOY_DESTINATION }}"
+          echo "📂 Deploy destination: ${{ env.DEPLOY_DESTINATION }}"
+          echo "🔗 Vite base path: ${{ env.VITE_BASE_PATH }}"
           echo "======================================"
