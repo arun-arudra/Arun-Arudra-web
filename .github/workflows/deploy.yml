@@ -1,0 +1,128 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "24"
+  BUILD_COMMAND: "npm run build"
+  DEPLOY_SOURCE: "./dist/"
+
+  # ── Deployment target (branch-specific) ─────────────────────────────────
+  # main → https://arunarudra.com/
+  # dev  → https://dev.arunarudra.com/
+  VITE_BASE_PATH: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && '/' || '/' }}
+  DEPLOY_DESTINATION: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && './' || './' }}
+  WEBSITE_URL: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && 'https://arunarudra.com/' || 'https://dev.arunarudra.com/' }}
+  FTP_SERVER: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && secrets.FTP_SERVER || secrets.DEV_FTP_SERVER }}
+  FTP_USERNAME: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && secrets.FTP_USERNAME || secrets.DEV_FTP_USERNAME }}
+  FTP_PASSWORD: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && secrets.FTP_PASSWORD || secrets.DEV_FTP_PASSWORD }}
+
+  # ── n8n Webhook (BRANCH-SPECIFIC) ───────────────────────────────────────
+  # main → production workflow
+  # dev  → dev workflow
+  VITE_N8N_WEBHOOK_URL: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && secrets.PROD_N8N_WEBHOOK_URL || secrets.DEV_N8N_WEBHOOK_URL }}
+
+  # ── Supabase (same for both branches) ────────────────────────────────────
+  VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+  VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+  VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+  # ── Contentful (same space, both branches) ────────────────────────────────
+  VITE_CONTENTFUL_SPACE_ID: ${{ secrets.VITE_CONTENTFUL_SPACE_ID }}
+  VITE_CONTENTFUL_MANAGEMENT_TOKEN: ${{ secrets.VITE_CONTENTFUL_MANAGEMENT_TOKEN }}
+
+  # ── Google AdSense ─────────────────────────────────────────────────────────
+  VITE_SPONSOR_ENABLED: ${{ vars.VITE_SPONSOR_ENABLED }}
+  VITE_ADSENSE_CLIENT: ${{ secrets.VITE_ADSENSE_CLIENT }}
+  VITE_ADSENSE_SLOT: ${{ secrets.VITE_ADSENSE_SLOT }}
+
+  # ── Site content limits ────────────────────────────────────────────────────
+  VITE_FEATURED_LIMIT: ${{ vars.VITE_FEATURED_LIMIT }}
+  VITE_BLOG_LIMIT: ${{ vars.VITE_BLOG_LIMIT }}
+  VITE_NEWS_PER_PAGE: ${{ vars.VITE_NEWS_PER_PAGE }}
+
+  # ── Branding ───────────────────────────────────────────────────────────────
+  VITE_BRAND_NAME: ${{ vars.VITE_BRAND_NAME }}
+  VITE_COPYRIGHT: ${{ vars.VITE_COPYRIGHT }}
+
+  # ── Contact ────────────────────────────────────────────────────────────────
+  VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
+  VITE_CONTACT_RECIPIENT: ${{ vars.VITE_CONTACT_RECIPIENT }}
+
+  # ── Social links ───────────────────────────────────────────────────────────
+  VITE_SOCIAL_FACEBOOK: ${{ vars.VITE_SOCIAL_FACEBOOK }}
+  VITE_SOCIAL_TWITTER: ${{ vars.VITE_SOCIAL_TWITTER }}
+  VITE_SOCIAL_INSTAGRAM: ${{ vars.VITE_SOCIAL_INSTAGRAM }}
+  VITE_SOCIAL_LINKEDIN: ${{ vars.VITE_SOCIAL_LINKEDIN }}
+  VITE_SOCIAL_GITHUB: ${{ vars.VITE_SOCIAL_GITHUB }}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Show deployment config
+        run: |
+          echo "Branch      : ${{ github.ref_name }}"
+          echo "Website URL : ${{ env.WEBSITE_URL }}"
+          echo "n8n webhook : ${{ env.VITE_N8N_WEBHOOK_URL }}"
+
+      - name: Build project
+        run: ${{ env.BUILD_COMMAND }}
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Verify build artifacts
+        run: |
+          if [ -d "./dist" ]; then
+            echo "✅ Build successful"
+            ls -la ./dist | head -10
+          else
+            echo "❌ dist folder not found"
+            exit 1
+          fi
+
+      - name: Deploy to server
+        if: github.event_name != 'pull_request'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ env.FTP_SERVER }}
+          username: ${{ env.FTP_USERNAME }}
+          password: ${{ env.FTP_PASSWORD }}
+          local-dir: ${{ env.DEPLOY_SOURCE }}
+          server-dir: ${{ env.DEPLOY_DESTINATION }}
+          state-name: .ftp-deploy-sync-state-${{ github.ref_name }}.json
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+          dry-run: false
+
+      - name: Deployment complete
+        run: |
+          echo "=============================="
+          echo "✅ Deployed successfully"
+          echo "🌐 ${{ env.WEBSITE_URL }}"
+          echo "=============================="
