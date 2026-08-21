@@ -16,22 +16,21 @@ env:
   BUILD_COMMAND: "npm run build"
   DEPLOY_SOURCE: "./dist/"
 
-  # ── Deployment target (branch-specific) ─────────────────────────────────
-  # main → https://arunarudra.com/
-  # dev  → https://dev.arunarudra.com/
-  VITE_BASE_PATH: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && '/' || '/' }}
-  DEPLOY_DESTINATION: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && './' || './' }}
+  # ── Deployment target (branch-specific folder, same FTP account) ─────────
+  # main → https://arunarudra.com/            (root)
+  # dev  → https://dev.arunarudra.com/         (subdomain document root)
   WEBSITE_URL: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && 'https://arunarudra.com/' || 'https://dev.arunarudra.com/' }}
-  FTP_SERVER: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && secrets.FTP_SERVER || secrets.DEV_FTP_SERVER }}
-  FTP_USERNAME: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && secrets.FTP_USERNAME || secrets.DEV_FTP_USERNAME }}
-  FTP_PASSWORD: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && secrets.FTP_PASSWORD || secrets.DEV_FTP_PASSWORD }}
+  DEPLOY_DESTINATION: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && './' || './dev.arunarudra.com/' }}
 
-  # ── n8n Webhook (BRANCH-SPECIFIC) ───────────────────────────────────────
-  # main → production workflow
-  # dev  → dev workflow
+  # ── FTP credentials — SAME for both branches (single Bluehost account) ───
+  FTP_SERVER: ${{ secrets.FTP_SERVER }}
+  FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+  FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+
+  # ── n8n Webhook (BRANCH-SPECIFIC) ─────────────────────────────────────────
   VITE_N8N_WEBHOOK_URL: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && secrets.PROD_N8N_WEBHOOK_URL || secrets.DEV_N8N_WEBHOOK_URL }}
 
-  # ── Supabase (same for both branches) ────────────────────────────────────
+  # ── Supabase (same for both branches) ─────────────────────────────────────
   VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
   VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
   VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
@@ -86,6 +85,7 @@ jobs:
         run: |
           echo "Branch      : ${{ github.ref_name }}"
           echo "Website URL : ${{ env.WEBSITE_URL }}"
+          echo "Deploy dest : ${{ env.DEPLOY_DESTINATION }}"
           echo "n8n webhook : ${{ env.VITE_N8N_WEBHOOK_URL }}"
 
       - name: Build project
