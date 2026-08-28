@@ -16,48 +16,35 @@ env:
   BUILD_COMMAND: "npm run build"
   DEPLOY_SOURCE: "./dist/"
 
-  # ── Deployment target (branch-specific folder, same FTP account) ─────────
-  # main → https://arunarudra.com/            (root)
-  # dev  → https://dev.arunarudra.com/         (subdomain document root)
   WEBSITE_URL: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && 'https://arunarudra.com/' || 'https://dev.arunarudra.com/' }}
   DEPLOY_DESTINATION: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && './' || './dev/' }}
-
-  # ── FTP credentials — SAME for both branches (single Bluehost account) ───
   FTP_SERVER: ${{ secrets.FTP_SERVER }}
   FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
   FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
 
-  # ── n8n Webhook (BRANCH-SPECIFIC) ─────────────────────────────────────────
   VITE_N8N_WEBHOOK_URL: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && secrets.PROD_N8N_WEBHOOK_URL || secrets.DEV_N8N_WEBHOOK_URL }}
 
-  # ── Supabase (same for both branches) ─────────────────────────────────────
   VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
   VITE_SUPABASE_PROJECT_ID: ${{ secrets.VITE_SUPABASE_PROJECT_ID }}
   VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
-  # ── Contentful (same space, both branches) ────────────────────────────────
   VITE_CONTENTFUL_SPACE_ID: ${{ secrets.VITE_CONTENTFUL_SPACE_ID }}
   VITE_CONTENTFUL_MANAGEMENT_TOKEN: ${{ secrets.VITE_CONTENTFUL_MANAGEMENT_TOKEN }}
 
-  # ── Google AdSense ─────────────────────────────────────────────────────────
   VITE_SPONSOR_ENABLED: ${{ vars.VITE_SPONSOR_ENABLED }}
   VITE_ADSENSE_CLIENT: ${{ secrets.VITE_ADSENSE_CLIENT }}
   VITE_ADSENSE_SLOT: ${{ secrets.VITE_ADSENSE_SLOT }}
 
-  # ── Site content limits ────────────────────────────────────────────────────
   VITE_FEATURED_LIMIT: ${{ vars.VITE_FEATURED_LIMIT }}
   VITE_BLOG_LIMIT: ${{ vars.VITE_BLOG_LIMIT }}
   VITE_NEWS_PER_PAGE: ${{ vars.VITE_NEWS_PER_PAGE }}
 
-  # ── Branding ───────────────────────────────────────────────────────────────
   VITE_BRAND_NAME: ${{ vars.VITE_BRAND_NAME }}
   VITE_COPYRIGHT: ${{ vars.VITE_COPYRIGHT }}
 
-  # ── Contact ────────────────────────────────────────────────────────────────
   VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
   VITE_CONTACT_RECIPIENT: ${{ vars.VITE_CONTACT_RECIPIENT }}
 
-  # ── Social links ───────────────────────────────────────────────────────────
   VITE_SOCIAL_FACEBOOK: ${{ vars.VITE_SOCIAL_FACEBOOK }}
   VITE_SOCIAL_TWITTER: ${{ vars.VITE_SOCIAL_TWITTER }}
   VITE_SOCIAL_INSTAGRAM: ${{ vars.VITE_SOCIAL_INSTAGRAM }}
@@ -120,36 +107,34 @@ jobs:
             **/node_modules/**
           dry-run: false
 
-
       - name: Wait for deploy to propagate
         if: github.event_name != 'pull_request'
         run: sleep 15
 
-      - name: Health check — verify live site updated
+      - name: Health check - verify live site updated
         if: github.event_name != 'pull_request'
         run: |
           echo "Checking ${{ env.WEBSITE_URL }} ..."
           RESPONSE=$(curl -s -L --max-time 20 -H "Cache-Control: no-cache" "${{ env.WEBSITE_URL }}?healthcheck=${{ github.sha }}")
-
           if [ -z "$RESPONSE" ]; then
-            echo "❌ Health check FAILED — no response from ${{ env.WEBSITE_URL }}"
+            echo "Health check FAILED - no response from ${{ env.WEBSITE_URL }}"
             exit 1
           fi
-
-          if echo "$RESPONSE" | grep -q "<div id=\"root\">"; then
-            echo "✅ Health check PASSED — site is responding and serving the React app shell"
+          if echo "$RESPONSE" | grep -q '<div id="root">'; then
+            echo "Health check PASSED - site is responding and serving the React app shell"
           else
-            echo "❌ Health check FAILED — response did not contain expected app markup"
+            echo "Health check FAILED - response did not contain expected app markup"
             echo "--- First 500 chars of response ---"
             echo "$RESPONSE" | head -c 500
             exit 1
           fi
-
           echo "Commit deployed: ${{ github.sha }}"
           echo "Deployed at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-\n\n      - name: Deployment complete
+
+      - name: Deployment complete
+        if: github.event_name != 'pull_request'
         run: |
           echo "=============================="
-          echo "✅ Deployed successfully"
-          echo "🌐 ${{ env.WEBSITE_URL }}"
+          echo "Deployed successfully"
+          echo "${{ env.WEBSITE_URL }}"
           echo "=============================="
