@@ -4,6 +4,15 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* Global overflow safety net — prevents ANY fixed-width decorative element
+   (blobs, glows, gradients) from ever creating page-level horizontal scroll
+   on mobile, regardless of which component introduces it. */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 @layer base {
   :root {
     --background: 0 0% 98%;
