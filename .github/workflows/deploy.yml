@@ -20,7 +20,7 @@ env:
   # main → https://arunarudra.com/            (root)
   # dev  → https://dev.arunarudra.com/         (subdomain document root)
   WEBSITE_URL: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && 'https://arunarudra.com/' || 'https://dev.arunarudra.com/' }}
-  DEPLOY_DESTINATION: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && './' || './dev.arunarudra.com/' }}
+  DEPLOY_DESTINATION: ${{ (github.ref_name == 'main' || github.base_ref == 'main') && './' || './dev/' }}
 
   # ── FTP credentials — SAME for both branches (single Bluehost account) ───
   FTP_SERVER: ${{ secrets.FTP_SERVER }}
