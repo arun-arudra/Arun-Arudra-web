@@ -120,7 +120,34 @@ jobs:
             **/node_modules/**
           dry-run: false
 
-      - name: Deployment complete
+
+      - name: Wait for deploy to propagate
+        if: github.event_name != 'pull_request'
+        run: sleep 15
+
+      - name: Health check — verify live site updated
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "Checking ${{ env.WEBSITE_URL }} ..."
+          RESPONSE=$(curl -s -L --max-time 20 -H "Cache-Control: no-cache" "${{ env.WEBSITE_URL }}?healthcheck=${{ github.sha }}")
+
+          if [ -z "$RESPONSE" ]; then
+            echo "❌ Health check FAILED — no response from ${{ env.WEBSITE_URL }}"
+            exit 1
+          fi
+
+          if echo "$RESPONSE" | grep -q "<div id=\"root\">"; then
+            echo "✅ Health check PASSED — site is responding and serving the React app shell"
+          else
+            echo "❌ Health check FAILED — response did not contain expected app markup"
+            echo "--- First 500 chars of response ---"
+            echo "$RESPONSE" | head -c 500
+            exit 1
+          fi
+
+          echo "Commit deployed: ${{ github.sha }}"
+          echo "Deployed at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+\n\n      - name: Deployment complete
         run: |
           echo "=============================="
           echo "✅ Deployed successfully"
