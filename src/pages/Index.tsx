@@ -390,7 +390,7 @@ function CTASection() {
   return (
     <section className="py-24 md:py-32 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85vw] h-[85vw] max-w-[600px] max-h-[600px] rounded-full bg-primary/5 blur-[120px]" />
       </div>
       <div className="container mx-auto px-6 text-center relative z-10">
         <AnimatedSection direction="scale">
