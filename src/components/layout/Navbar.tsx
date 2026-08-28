@@ -43,7 +43,7 @@ export function Navbar() {
     <header className={`fixed top-0 left-0 right-0 z-50 max-w-[100vw] overflow-x-hidden backdrop-blur-xl border-b transition-all duration-300 ${scrolled ? "bg-background/95 border-border h-14" : "bg-background/80 border-border/50 h-16"}`}>
       <div className={`w-full max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-2 transition-all duration-300 ${scrolled ? "h-14" : "h-16"}`}>
         <Link to="/" aria-label="ArunArudra — Home" className="flex items-center shrink-0 min-w-0">
-          <Logo className="h-6 sm:h-8" />
+          <Logo className="h-6 sm:h-8 max-w-[140px] sm:max-w-none [&_svg]:h-full [&_svg]:w-auto [&_svg]:max-w-full" />
         </Link>
 
         {/* Desktop nav */}
